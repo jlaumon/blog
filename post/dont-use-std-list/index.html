@@ -1,0 +1,219 @@
+  <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> Don’t use std::list &middot; Dangling Pointers | Blog </title>
+    
+    <link rel="stylesheet" type="text/css" href="http://danglingpointers.com//css/uno.min.css" />
+    <link rel="stylesheet" type="text/css" href="http://danglingpointers.com//css/lightGallery.css" />
+    
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <link href="" rel="alternate" type="application/rss+xml" title="Dangling Pointers | Blog" />
+    
+    <script src="http://danglingpointers.com//js/jquery.min.js"></script>
+    <script src="http://danglingpointers.com//js/main.min.js">
+    </script>
+</head>
+
+  <body>
+    <div id="scriptHeader">
+    <span class="mobile btn-mobile-menu">
+            <i class="fa fa-bars btn-mobile-menu__icon"></i>
+            <i class="fa fa-times btn-mobile-close__icon hidden"> </i>
+    </span>
+    <header class="
+        
+            panel-cover panel-cover--collapsed
+        " >
+    <div class="panel-main">
+        <div class="panel-main__inner panel-inverted">
+            <div class="panel-main__content"> 
+                <h1 class="panel-cover__title panel-title">
+                    <a href="http://danglingpointers.com//"  title="link to homepage for Dangling Pointers | Blog">Dangling Pointers | Blog</a>
+                </h1>
+                <hr class="panel-cover__divider" />
+                <p class="panel-cover__description">  This site is built using <a href="http://gohugo.io">hugo</a> and the theme is built by <a href="http://fredrikloch.me">Fredrik</a> if you enjoy it, it is available at <a href="https://github.com/SenjinDarashiva/hugo-uno">github</a>  </p>
+                <hr class="panel-cover__divider panel-cover__divider--secondary" />
+                <div class="navigation-wrapper">
+                    <nav class="cover-navigation cover-navigation--primary">
+                        <ul class="navigation">
+                            <li class="navigation__item"><a href="http://danglingpointers.com//#blog" title="link to Dangling Pointers | Blog blog" class="blog-button">Blog</a> </li>
+                            </br>  </ul>
+                    </nav> <nav class="cover-navigation navigation--social">
+    <ul class="navigation">    </br>    </ul>
+</nav>
+ </div>
+            </div>
+        </div>
+        <div class="panel-cover--overlay"></div>
+    </div>
+</header>
+</div>
+<noscript>
+    <style>
+        #scriptHeader {display:none;}
+        .navigation-wrapper{
+            display: block;
+            top: 0;
+        }
+    </style>
+
+    <header class="panel-cover panel-cover--collapsed" style="background-image: url()">
+        <div class="panel-main">
+            <div class="panel-main__inner panel-inverted">
+                <div class="panel-main__content"> 
+                    <h1 class="panel-cover__title panel-title">
+                        <a href="http://danglingpointers.com//"  title="link to homepage for Dangling Pointers | Blog">Dangling Pointers | Blog</a>
+                    </h1>
+                    <hr class="panel-cover__divider" />
+                    <p class="panel-cover__description">  This site is built using <a href="http://gohugo.io">hugo</a> and the theme is built by <a href="http://fredrikloch.me">Fredrik</a> if you enjoy it, it is available at <a href="https://github.com/SenjinDarashiva/hugo-uno">github</a>  </p>
+                    <hr class="panel-cover__divider panel-cover__divider--secondary" />
+                    <div class="navigation-wrapper">
+                        <nav class="cover-navigation cover-navigation--primary">
+                            <ul class="navigation">
+                                <li class="navigation__item"><a href="http://danglingpointers.com//#blog" title="link to Dangling Pointers | Blog blog" class="blog-button">Blog</a> </li>
+                                </br>  </ul>
+                        </nav> <nav class="cover-navigation navigation--social">
+    <ul class="navigation">    </br>    </ul>
+</nav>
+ </div>
+                </div>
+            </div>
+            <div class="panel-cover--overlay"></div>
+        </div>
+    </header>
+</noscript>
+
+    <div class="content-wrapper">
+      <div class="content-wrapper__inner">
+        <div class="post">
+          <h1>Don’t use std::list</h1>
+          <span class="post-date">Sat, Aug 29, 2015</span>
+          
+
+<p>I feel like I’ve been saying this a lot lately. At least once per intern we take at Pastagames.
+Now instead of explaining why I say it, I’ll give people this link. You’re welcome.</p>
+
+<p>Before we continue, be sure to know what a doubly linked list is and how memory accesses work (you just need to read the overview).</p>
+
+<h2 id="so-what-s-wrong-with-std-list:d680e8a854a7cbad6d490c445cba2eba">So what&rsquo;s wrong with std::list?</h2>
+
+<p>Mostly one thing: each node is allocated separately – nodes are not contiguous in memory.
+It means that when you access a node, the chances that it&rsquo;s already in the cache is virtually 0%
+(in a real-life application using a lot more memory than the size of your CPU&rsquo;s biggest cache).
+And when the size of a node is smaller than a cache line, everything else in the cache line is useless,
+it&rsquo;s cache pollution. So in short, lots of cache misses and very bad use of the cache itself.</p>
+
+<p><img src="stdlist.png" alt="Memory layout of an std::list" />
+</p>
+
+<h2 id="how-bad-is-a-cache-miss:d680e8a854a7cbad6d490c445cba2eba">How bad is a cache miss?</h2>
+
+<p>It&rsquo;s a complicated question, because a lot of things can affect the actual latency of the memory and
+current CPUs know several tricks to hide this latency (notably hardware prefetching and out-of-order execution).
+But those tricks have their limits, and in our case they don&rsquo;t help, because the memory accesses are seemingly
+random (unpredictable) and dependent on each other.</p>
+
+<p>To give you a rough idea, on a recent Intel i7 processor (Haswell architecture) with DDR3-1600 RAM (which also pretty recent),
+a last level cache miss has a latency of the equivalent of 230 clock cycles. In comparison, you can expect the same CPU
+to execute 2 instructions per cycle, when nothing is slowing it down.</p>
+
+<p>Now take a second to imagine all those cycles wasted when you are iterating over a list. One cache miss per item in the list.
+Imagine all you could do with this time.</p>
+
+<p><img src="Kung-Fury-Time-Hack.gif" alt="Cache misses take a lot of time..." />
+</p>
+
+<p>So yeah, it&rsquo;s pretty bad. Cache misses are one of the most (the most?) common bottlenecks in today&rsquo;s programs,
+so it&rsquo;s worth taking them into account at every step.</p>
+
+<h2 id="what-s-the-alternative-solution-s:d680e8a854a7cbad6d490c445cba2eba">What&rsquo;s the alternative solution(s)?</h2>
+
+<p>Usually, an array and an int (containing the size of the list) are enough. Yes, that’s it.</p>
+
+<p><img src="array.png" alt="Memory layout of an array" />
+</p>
+
+<p>Better cache usage and predictable memory accesses. The CPU is super happy.</p>
+
+<p>You want to insert an item after another? Just move every items after it by one step and place your
+new item in the newly freed place. If your list is reasonably small, this is WAY faster than allocating
+memory on the heap and waiting for N cache misses – N being the number of std::list nodes you touched:
+at least 2 but probably a lot more if you iterated over the list to find where to place your item.
+Note that if you iterated, the array is cheaper than the std::list no matter the size. And guess what,
+you always iterate.</p>
+
+<p>If you want to delete an item and the order doesn&rsquo;t matter, you can swap it with the last item in the array
+and decrease the size by 1. If the order is important, you&rsquo;ll have to move everything, like for the insertion.
+But again, this is probably way cheaper than a call to std::list::erase and definitely cheaper than a call
+to std::list::remove.</p>
+
+<p>If you cannot determine an upper bound for the size of the list, you can use an std::vector instead of an array.
+But if you think about it for a minute, there are many cases where a reasonable maximum is easily found. You
+can also allocate an array of variable size on the stack with alloca (it’s not standard, but all the compilers support it).</p>
+
+<p>If you need mostly to pop elements from the front of the list, use a circular buffer instead. An array and
+two ints, that is. One index for the head, one for the tail.</p>
+
+<p>Dozens of other (more complex) alternatives exist, but the simple solutions above should cover 90% of
+the cases. And with what you learned reading this, you should be able to improvise a sensible solution for the 9.9% remaining.</p>
+
+<h2 id="when-is-an-std-list-really-useful:d680e8a854a7cbad6d490c445cba2eba">When is an std::list really useful?</h2>
+
+<p>That&rsquo;s the remaining 0.1%, if you&rsquo;re paying attention. It&rsquo;s when the items are so big that moving them around
+would be more expensive than doing the memory allocation plus waiting for the cache misses. And because one
+item would cover many cache-lines, having them contiguous in memory would make almost no difference.
+But hey, you could also use an array of pointers.</p>
+
+<h2 id="bonus-point-ever-heard-about-std-map:d680e8a854a7cbad6d490c445cba2eba">Bonus point: ever heard about std::map?</h2>
+
+<p>The std::map is an associative container that uses a binary search tree to speed up searches.</p>
+
+<p>They suffer the same problem as the std::list, their nodes are allocated separately too.
+So if the number of elements in the map is relatively low and the size of the keys is relatively small,
+doing a linear search in an unsorted array will be a lot faster than paying a cache miss for every node
+the binary search would visit. If you are iterating over an std::map, just go in the corner and think about what you’ve done.</p>
+
+<p>In this case, the alternative solution is two arrays (and one int for the size). The first array
+contains the keys and the second the values. The first key is associated to the first value and so on.
+They are better stored separately because when doing a search you only need to read the keys, not the values.</p>
+
+<p>Depending on the use case, you can also sort the arrays or have a small cache to speed up searches.
+But if the arrays are small, that&rsquo;s usually unnecessary.</p>
+
+<h2 id="bottom-line:d680e8a854a7cbad6d490c445cba2eba">Bottom line</h2>
+
+<p>The STL is full of fancy algorithms with interesting complexity (O (log N) or better for the most part).
+But fancy algorithm always have a big hidden constant k that make them slower than simple O(N) algorithms for any small N.</p>
+
+<p>std::list is the exception to this rule. It’s worse than an array for any N. Don’t use std::list.</p>
+
+<p><br/></p>
+
+        </div>
+        <div class="sharing">
+<a href="https://twitter.com/intent/tweet?status=Don%e2%80%99t%20use%20std%3a%3alist-http%3a%2f%2fdanglingpointers.com%2fpost%2fdont-use-std-list%2f" target="_blank" title="Follow me on Twitter" class="twitter">
+<span class="fa fa-twitter-square fa-3x"></span></a>
+<a href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fdanglingpointers.com%2fpost%2fdont-use-std-list%2f" target="_blank" title="Join me on Facebook" class="facebook">
+<span class="fa fa-facebook-square fa-3x"></span></a>
+<a href="https://plus.google.com/share?url=http%3a%2f%2fdanglingpointers.com%2fpost%2fdont-use-std-list%2f" target="_blank" title="Google+" class="googleplus">
+<span class="fa fa-google-plus-square fa-3x"></span></a>
+<a href="http://www.linkedin.com/shareArticle?mini=true&url=http%3a%2f%2fdanglingpointers.com%2fpost%2fdont-use-std-list%2f&title=Don%e2%80%99t%20use%20std%3a%3alist" target="_blank" title="LinkedIn" class="linkedin">
+<span class="fa fa-linkedin-square fa-3x"></span></a>
+<a href="http://www.reddit.com/submit?url=http%3a%2f%2fdanglingpointers.com%2fpost%2fdont-use-std-list%2f" target="_blank" title="Reddit" class="reddit"><span class="fa fa-reddit-square fa-3x"></span></a>
+<a href="http://www.stumbleupon.com/submit?url=http%3a%2f%2fdanglingpointers.com%2fpost%2fdont-use-std-list%2f" target="_blank" title="StumbleUpon" class="stumbleupon"><span class="fa fa-stumbleupon fa-3x">
+</span></a>
+</div>
+        
+
+
+      </div>
+    </div>
+
+  </body>
+  
+</html>
