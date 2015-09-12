@@ -33,7 +33,7 @@ To give you a rough idea, on a recent Intel i7 processor (Haswell architecture) 
 a last level cache miss has a latency of the equivalent of 230 clock cycles. In comparison, you can expect the same CPU 
 to execute 2 instructions per cycle, when nothing is slowing it down.
 
-Now take a second to imagine all those cycles wasted when you are iterating over a list. One cache miss per item in the list.
+Now take a second to visualize all those cycles wasted when you are iterating over a list. One cache miss per item in the list.
 Imagine all you could do with this time.
 
 ![Cache misses take a lot of time...](Kung-Fury-Time-Hack.gif)
