@@ -20,7 +20,7 @@ It means that when you access a node, the chances that it's already in the cache
 And when the size of a node is smaller than a cache line, everything else in the cache line is useless, 
 it's cache pollution. So in short, lots of cache misses and very bad use of the cache itself.
 
-![Memory layout of an std::list](stdlist.png)
+![Memory layout of an std::list](images/stdlist.png)
 
 ## How bad is a cache miss?
 
@@ -36,7 +36,7 @@ to execute 2 instructions per cycle, when nothing is slowing it down.
 Now take a second to visualize all those cycles wasted when you are iterating over a list. One cache miss per item in the list.
 Imagine all you could do with this time.
 
-![Cache misses take a lot of time...](Kung-Fury-Time-Hack.gif)
+![Cache misses take a lot of time...](images/Kung-Fury-Time-Hack.gif)
 
 So yeah, it's pretty bad. Cache misses are one of the most (the most?) common bottlenecks in today's programs,
 so it's worth taking them into account at every step.
@@ -46,7 +46,7 @@ so it's worth taking them into account at every step.
 
 Usually, an array and an int (containing the size of the list) are enough. Yes, that’s it.
 
-![Memory layout of an array](array.png)
+![Memory layout of an array](images/array.png)
 
 Better cache usage and predictable memory accesses. The CPU is super happy.
 
