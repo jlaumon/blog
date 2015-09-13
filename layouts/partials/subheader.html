@@ -1,8 +1,8 @@
 <header id="header">
-    <figure>
-      <a href="{{.Site.BaseURL}}" border=0 id="logolink"><div class="icon-spf13-3" id="logo"> </div></a>
-    </figure>
-    <div id="byline">by Jeremy Laumon</div>
+	<h1 style="text-align:center">{{ .Site.Title }}</h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
     <nav id="nav">
     {{ partial "nav.html" . }}
     {{ partial "social.html" . }}
