@@ -672,6 +672,18 @@ span.subcount {
     background:#95a5b4;
     border-radius:10px
 }
+#header h1 a {
+	text-decoration:none;
+	color:#34495e
+}
+#header h1 a:hover {
+	text-decoration:none;
+	color:#34495e
+}
+#header h1 a:active {
+	text-decoration:none;
+	color:#34495e
+}
 #social>li {
     margin-top:1em;
     margin-bottom:.35em
@@ -862,12 +874,13 @@ footer>div,
     display:inline
 }
 #nav li {
-    display:inline-block;
+    display:inline;
     list-style:none outside none;
     padding-bottom:1em;
     width:20%
 }
 #nav a {
+	text-transform: capitalize;
     display:block;
     text-decoration:none;
     width:100%
@@ -886,7 +899,7 @@ footer>div,
 }
 #mainnav a {
     color:#444;
-    transition:color 0.5s ease-in-out
+    transition:color 0.3s ease-in-out
 }
 #mainnav a:hover {
     color:#3498db
@@ -904,6 +917,9 @@ footer>div,
     -o-transition:box-shadow .4s ease-in-out;
     -ms-transition:box-shadow .4s ease-in-out;
     transition:box-shadow .4s ease-in-out
+}
+#mainnav .tags li {
+    font-size:80%
 }
 .icon>i {
     display:inline-block;
