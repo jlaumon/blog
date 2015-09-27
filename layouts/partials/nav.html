@@ -4,12 +4,14 @@
                 <i class="fa fa-tags"></i>
 				tags
 				</a>
+				
+				<ul class="tags">
+					{{ $base := .Site.BaseURL }}
+					{{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+					<li><a href="{{$base}}tags/{{ $name | urlize }}">{{ $name }} ({{ .Count }})</a></li>
+					{{ end }}
+				</ul>
 			</li>
         </ul>
 		
-		<ul>
-		{{ $base := .Site.BaseURL }}
-		{{ range $name, $taxonomy := .Site.Taxonomies.tags }}
-		<li><a href="{{$base}}tags/{{ $name | urlize }}">{{ $name }}</a></li>
-		{{ end }}
-		</ul>
+		
