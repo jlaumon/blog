@@ -3,3 +3,4 @@ languageCode = "en-us"
 title = "Dangling Pointers"
 theme = "spf13.com"
 disqusshortname = "danglingpointers"
+preservetaxonomynames = true
