@@ -1194,9 +1194,6 @@ body>footer p {
         width: 90%;
         left: 5%
     }
-    #header:hover {
-        opacity: 1
-    }
     #mainnav span.icon {
         font-size: 1.8em
     }
@@ -1223,7 +1220,6 @@ body>footer p {
         float: left;
         color: #34495e;
         height: 100%;
-        opacity: .5;
         -webkit-transition: all 0.7s ease-out;
         -moz-transition: all 0.7s ease-out;
         -ms-transition: all 0.7s ease-out;
