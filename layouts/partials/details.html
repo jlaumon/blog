@@ -1,4 +1,4 @@
-{{ $baseurl := .Site.BaseUrl }}
+{{ $baseurl := .Site.BaseURL }}
     <div>
         <section id="datecount">
           <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
@@ -12,7 +12,7 @@
         </ul>
         <ul id="tags">
           {{ range .Params.tags }}
-            <li> <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a> </li>
+            <li> <a href="{{ $baseurl }}tags/{{ . | urlize }}">{{ . }}</a> </li>
           {{ end }}
         </ul>
     </div>
