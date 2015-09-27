@@ -2,13 +2,13 @@
 			<li>
                 <a href="{{ .Site.BaseURL }}tags/">
                 <i class="fa fa-tags"></i>
-				tags
+				All tags
 				</a>
 				
 				<ul class="tags">
 					{{ $base := .Site.BaseURL }}
-					{{ range $name, $taxonomy := .Site.Taxonomies.tags }}
-					<li><a href="{{$base}}tags/{{ $name | urlize }}">{{ $name }} ({{ .Count }})</a></li>
+					{{ range .Site.Taxonomies.tags.ByCount }}
+					<li><a href="{{$base}}tags/{{ .Name | urlize }}">{{ .Name }} ({{ .Count }})</a></li>
 					{{ end }}
 				</ul>
 			</li>
