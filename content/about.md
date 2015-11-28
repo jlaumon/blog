@@ -5,6 +5,13 @@ title = "about"
 
 +++
 
-#About
 
-This is my blog. Hello ? Hello ?
+Hello and welcome!
+
+My name's Jeremy, and this is my personal (but technical) blog. I'm a video game developer and more specifically an engine developer.
+
+Here I'm going to talk about C++, low level engine stuff, and probably some real time graphics too.
+
+This blog is powered by [Hugo](http://gohugo.io/), a really cool static site generator, 
+and the template is largely adapted from [spf13.com](https://github.com/spf13/spf13.com).
+
