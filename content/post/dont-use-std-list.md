@@ -2,12 +2,16 @@
 date = "2015-08-29T17:00:19+02:00"
 draft = true
 title = "Don’t use std::list"
+tags = [ "C++" ]
 
 +++
 
 
-I feel like I’ve been saying this a lot lately. At least once per intern we take at Pastagames. 
-Now instead of explaining why I say it, I’ll give people this link. You’re welcome.
+I feel like I’ve been saying this a lot lately - at least once per intern we take at Pastagames - so I guess it's time I write it down. 
+There's nothing new here, this has been said a hundred times over on the Internet,
+but since a lot of people are still not aware of it, here is my contribution.
+
+<!--more-->
 
 Before we continue, be sure to know what a doubly linked list is and how memory accesses work (you just need to read the overview).
 
@@ -66,6 +70,9 @@ If you cannot determine an upper bound for the size of the list, you can use an 
 But if you think about it for a minute, there are many cases where a reasonable maximum is easily found. You 
 can also allocate an array of variable size on the stack with alloca (it’s not standard, but all the compilers support it).
 
+If you have lots of elements in your array and iterating to find where to insert/erase elements is your bottleneck, 
+you can also do a binary search using std::lower_bound (but you have to keep the array sorted).
+
 If you need mostly to pop elements from the front of the list, use a circular buffer instead. An array and 
 two ints, that is. One index for the head, one for the tail.
 
@@ -95,7 +102,7 @@ contains the keys and the second the values. The first key is associated to the 
 They are better stored separately because when doing a search you only need to read the keys, not the values.
 
 Depending on the use case, you can also sort the arrays or have a small cache to speed up searches. 
-But if the arrays are small, that's usually unnecessary.
+But if the arrays are small, that may not even be necessary.
 
 
 ## Bottom line
