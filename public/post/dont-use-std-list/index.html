@@ -1,106 +1,83 @@
-  <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="description" content="">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="keywords" content="C&#43;&#43;, ">
+
+
+<meta property="article:tag" content="C&#43;&#43;">
+
+
+
+
+
+    <base href="http://localhost:1313/blog/">
+    <title> Don’t use std::list - Dangling Pointers</title>
+    <link rel="canonical" href="http://localhost:1313/blog/post/dont-use-std-list/">
     
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-    <title> Don’t use std::list &middot; Dangling Pointers | Blog </title>
-    
-    <link rel="stylesheet" type="text/css" href="http://localhost:1313//css/uno.min.css" />
-    <link rel="stylesheet" type="text/css" href="http://localhost:1313//css/lightGallery.css" />
-    
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
-    <link rel="shortcut icon" href="/favicon.ico">
-    
-    <link href="" rel="alternate" type="application/rss+xml" title="Dangling Pointers | Blog" />
-    
-    <script src="http://localhost:1313//js/jquery.min.js"></script>
-    <script src="http://localhost:1313//js/main.min.js">
-    </script>
+
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="http://localhost:1313/blog/css/style.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+
 </head>
 
-  <body>
-    <div id="scriptHeader">
-    <span class="mobile btn-mobile-menu">
-            <i class="fa fa-bars btn-mobile-menu__icon"></i>
-            <i class="fa fa-times btn-mobile-close__icon hidden"> </i>
-    </span>
-    <header class="
-        
-            panel-cover panel-cover--collapsed
-        " >
-    <div class="panel-main">
-        <div class="panel-main__inner panel-inverted">
-            <div class="panel-main__content"> 
-                <h1 class="panel-cover__title panel-title">
-                    <a href="http://localhost:1313//"  title="link to homepage for Dangling Pointers | Blog">Dangling Pointers | Blog</a>
-                </h1>
-                <hr class="panel-cover__divider" />
-                <p class="panel-cover__description">  This site is built using <a href="http://gohugo.io">hugo</a> and the theme is built by <a href="http://fredrikloch.me">Fredrik</a> if you enjoy it, it is available at <a href="https://github.com/SenjinDarashiva/hugo-uno">github</a>  </p>
-                <hr class="panel-cover__divider panel-cover__divider--secondary" />
-                <div class="navigation-wrapper">
-                    <nav class="cover-navigation cover-navigation--primary">
-                        <ul class="navigation">
-                            <li class="navigation__item"><a href="http://localhost:1313//#blog" title="link to Dangling Pointers | Blog blog" class="blog-button">Blog</a> </li>
-                            </br>  </ul>
-                    </nav> <nav class="cover-navigation navigation--social">
-    <ul class="navigation">    </br>    </ul>
-</nav>
- </div>
-            </div>
-        </div>
-        <div class="panel-cover--overlay"></div>
-    </div>
+<body lang="en" itemscope itemtype="http://schema.org/Article">
+<header id="header">
+	<h1 style="text-align:center"><a href="http://localhost:1313/blog/">Dangling Pointers</a></h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
+    <nav id="nav">
+            <ul id="mainnav">
+			<li>
+                <a href="http://localhost:1313/blog/tags/">
+                <i class="fa fa-tags"></i>
+				All tags
+				</a>
+				
+				<ul class="tags">
+					
+					
+					<li><a href="http://localhost:1313/blog/tags/c">C&#43;&#43; (1)</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+		
+		
+
+            <ul id="social">
+            
+        </ul>
+
+    </nav>
 </header>
-</div>
-<noscript>
-    <style>
-        #scriptHeader {display:none;}
-        .navigation-wrapper{
-            display: block;
-            top: 0;
-        }
-    </style>
 
-    <header class="panel-cover panel-cover--collapsed" style="background-image: url()">
-        <div class="panel-main">
-            <div class="panel-main__inner panel-inverted">
-                <div class="panel-main__content"> 
-                    <h1 class="panel-cover__title panel-title">
-                        <a href="http://localhost:1313//"  title="link to homepage for Dangling Pointers | Blog">Dangling Pointers | Blog</a>
-                    </h1>
-                    <hr class="panel-cover__divider" />
-                    <p class="panel-cover__description">  This site is built using <a href="http://gohugo.io">hugo</a> and the theme is built by <a href="http://fredrikloch.me">Fredrik</a> if you enjoy it, it is available at <a href="https://github.com/SenjinDarashiva/hugo-uno">github</a>  </p>
-                    <hr class="panel-cover__divider panel-cover__divider--secondary" />
-                    <div class="navigation-wrapper">
-                        <nav class="cover-navigation cover-navigation--primary">
-                            <ul class="navigation">
-                                <li class="navigation__item"><a href="http://localhost:1313//#blog" title="link to Dangling Pointers | Blog blog" class="blog-button">Blog</a> </li>
-                                </br>  </ul>
-                        </nav> <nav class="cover-navigation navigation--social">
-    <ul class="navigation">    </br>    </ul>
-</nav>
- </div>
-                </div>
-            </div>
-            <div class="panel-cover--overlay"></div>
-        </div>
-    </header>
-</noscript>
 
-    <div class="content-wrapper">
-      <div class="content-wrapper__inner">
-        <div class="post">
-          <h1>Don’t use std::list</h1>
-          <span class="post-date">Sat, Aug 29, 2015</span>
-          
 
-<p>I feel like I’ve been saying this a lot lately. At least once per intern we take at Pastagames.
-Now instead of explaining why I say it, I’ll give people this link. You’re welcome.</p>
+<section id="main">
+  <h1 itemprop="name" id="title">Don’t use std::list</h1>
+  <div>
+        <article itemprop="articleBody" id="content">
+           
+
+<p>I feel like I’ve been saying this a lot lately - at least once per intern we take at Pastagames - so I guess it&rsquo;s time I write it down.
+There&rsquo;s nothing new here, this has been said a hundred times over on the Internet,
+but since a lot of people are still not aware of it, here is my contribution.</p>
 
 <p>Before we continue, be sure to know what a doubly linked list is and how memory accesses work (you just need to read the overview).</p>
 
-<h2 id="so-what-s-wrong-with-std-list:d680e8a854a7cbad6d490c445cba2eba">So what&rsquo;s wrong with std::list?</h2>
+<h2 id="so-what-s-wrong-with-std-list:edbd15956b7b4ef31d6e0b4877bac24c">So what&rsquo;s wrong with std::list?</h2>
 
 <p>Mostly one thing: each node is allocated separately – nodes are not contiguous in memory.
 It means that when you access a node, the chances that it&rsquo;s already in the cache is virtually 0%
@@ -108,10 +85,9 @@ It means that when you access a node, the chances that it&rsquo;s already in the
 And when the size of a node is smaller than a cache line, everything else in the cache line is useless,
 it&rsquo;s cache pollution. So in short, lots of cache misses and very bad use of the cache itself.</p>
 
-<p><img src="stdlist.png" alt="Memory layout of an std::list" />
-</p>
+<p><img src="images/stdlist.png" alt="Memory layout of an std::list" /></p>
 
-<h2 id="how-bad-is-a-cache-miss:d680e8a854a7cbad6d490c445cba2eba">How bad is a cache miss?</h2>
+<h2 id="how-bad-is-a-cache-miss:edbd15956b7b4ef31d6e0b4877bac24c">How bad is a cache miss?</h2>
 
 <p>It&rsquo;s a complicated question, because a lot of things can affect the actual latency of the memory and
 current CPUs know several tricks to hide this latency (notably hardware prefetching and out-of-order execution).
@@ -122,21 +98,19 @@ random (unpredictable) and dependent on each other.</p>
 a last level cache miss has a latency of the equivalent of 230 clock cycles. In comparison, you can expect the same CPU
 to execute 2 instructions per cycle, when nothing is slowing it down.</p>
 
-<p>Now take a second to imagine all those cycles wasted when you are iterating over a list. One cache miss per item in the list.
+<p>Now take a second to visualize all those cycles wasted when you are iterating over a list. One cache miss per item in the list.
 Imagine all you could do with this time.</p>
 
-<p><img src="Kung-Fury-Time-Hack.gif" alt="Cache misses take a lot of time..." />
-</p>
+<p><img src="images/Kung-Fury-Time-Hack.gif" alt="Cache misses take a lot of time..." /></p>
 
 <p>So yeah, it&rsquo;s pretty bad. Cache misses are one of the most (the most?) common bottlenecks in today&rsquo;s programs,
 so it&rsquo;s worth taking them into account at every step.</p>
 
-<h2 id="what-s-the-alternative-solution-s:d680e8a854a7cbad6d490c445cba2eba">What&rsquo;s the alternative solution(s)?</h2>
+<h2 id="what-s-the-alternative-solution-s:edbd15956b7b4ef31d6e0b4877bac24c">What&rsquo;s the alternative solution(s)?</h2>
 
 <p>Usually, an array and an int (containing the size of the list) are enough. Yes, that’s it.</p>
 
-<p><img src="array.png" alt="Memory layout of an array" />
-</p>
+<p><img src="images/array.png" alt="Memory layout of an array" /></p>
 
 <p>Better cache usage and predictable memory accesses. The CPU is super happy.</p>
 
@@ -156,20 +130,23 @@ to std::list::remove.</p>
 But if you think about it for a minute, there are many cases where a reasonable maximum is easily found. You
 can also allocate an array of variable size on the stack with alloca (it’s not standard, but all the compilers support it).</p>
 
+<p>If you have lots of elements in your array and iterating to find where to insert/erase elements is your bottleneck,
+you can also do a binary search using std::lower_bound (but you have to keep the array sorted).</p>
+
 <p>If you need mostly to pop elements from the front of the list, use a circular buffer instead. An array and
 two ints, that is. One index for the head, one for the tail.</p>
 
 <p>Dozens of other (more complex) alternatives exist, but the simple solutions above should cover 90% of
 the cases. And with what you learned reading this, you should be able to improvise a sensible solution for the 9.9% remaining.</p>
 
-<h2 id="when-is-an-std-list-really-useful:d680e8a854a7cbad6d490c445cba2eba">When is an std::list really useful?</h2>
+<h2 id="when-is-an-std-list-really-useful:edbd15956b7b4ef31d6e0b4877bac24c">When is an std::list really useful?</h2>
 
 <p>That&rsquo;s the remaining 0.1%, if you&rsquo;re paying attention. It&rsquo;s when the items are so big that moving them around
 would be more expensive than doing the memory allocation plus waiting for the cache misses. And because one
 item would cover many cache-lines, having them contiguous in memory would make almost no difference.
 But hey, you could also use an array of pointers.</p>
 
-<h2 id="bonus-point-ever-heard-about-std-map:d680e8a854a7cbad6d490c445cba2eba">Bonus point: ever heard about std::map?</h2>
+<h2 id="bonus-point-ever-heard-about-std-map:edbd15956b7b4ef31d6e0b4877bac24c">Bonus point: ever heard about std::map?</h2>
 
 <p>The std::map is an associative container that uses a binary search tree to speed up searches.</p>
 
@@ -183,9 +160,9 @@ contains the keys and the second the values. The first key is associated to the 
 They are better stored separately because when doing a search you only need to read the keys, not the values.</p>
 
 <p>Depending on the use case, you can also sort the arrays or have a small cache to speed up searches.
-But if the arrays are small, that&rsquo;s usually unnecessary.</p>
+But if the arrays are small, that may not even be necessary.</p>
 
-<h2 id="bottom-line:d680e8a854a7cbad6d490c445cba2eba">Bottom line</h2>
+<h2 id="bottom-line:edbd15956b7b4ef31d6e0b4877bac24c">Bottom line</h2>
 
 <p>The STL is full of fancy algorithms with interesting complexity (O (log N) or better for the most part).
 But fancy algorithm always have a big hidden constant k that make them slower than simple O(N) algorithms for any small N.</p>
@@ -194,29 +171,80 @@ But fancy algorithm always have a big hidden constant k that make them slower th
 
 <p><br/></p>
 
-        </div>
-        <div class="sharing">
-<a href="https://twitter.com/intent/tweet?status=Don%e2%80%99t%20use%20std%3a%3alist-http%3a%2f%2flocalhost%3a1313%2fpost%2fdont-use-std-list%2f" target="_blank" title="Follow me on Twitter" class="twitter">
-<span class="fa fa-twitter-square fa-3x"></span></a>
-<a href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2flocalhost%3a1313%2fpost%2fdont-use-std-list%2f" target="_blank" title="Join me on Facebook" class="facebook">
-<span class="fa fa-facebook-square fa-3x"></span></a>
-<a href="https://plus.google.com/share?url=http%3a%2f%2flocalhost%3a1313%2fpost%2fdont-use-std-list%2f" target="_blank" title="Google+" class="googleplus">
-<span class="fa fa-google-plus-square fa-3x"></span></a>
-<a href="http://www.linkedin.com/shareArticle?mini=true&url=http%3a%2f%2flocalhost%3a1313%2fpost%2fdont-use-std-list%2f&title=Don%e2%80%99t%20use%20std%3a%3alist" target="_blank" title="LinkedIn" class="linkedin">
-<span class="fa fa-linkedin-square fa-3x"></span></a>
-<a href="http://www.reddit.com/submit?url=http%3a%2f%2flocalhost%3a1313%2fpost%2fdont-use-std-list%2f" target="_blank" title="Reddit" class="reddit"><span class="fa fa-reddit-square fa-3x"></span></a>
-<a href="http://www.stumbleupon.com/submit?url=http%3a%2f%2flocalhost%3a1313%2fpost%2fdont-use-std-list%2f" target="_blank" title="StumbleUpon" class="stumbleupon"><span class="fa fa-stumbleupon fa-3x">
-</span></a>
-</div>
-        
+        </article>
+  </div>
+</section>
 
 
-      </div>
+
+<aside id="meta">
+
+    <div>
+        <section id="datecount">
+          <h4 id="date"> Sat Aug 29, 2015 </h4>
+          <h5 id="wc"> 1100 Words </h5>
+          <h5 id="readtime"> Read in about 6 Min </h5>
+        </section>
+        <ul id="categories">
+          
+        </ul>
+        <ul id="tags">
+          
+            <li> <a href="http://localhost:1313/blog/tags/c">C&#43;&#43;</a> </li>
+          
+        </ul>
     </div>
 
-  <script data-no-instant>document.write('<script src="http://'
+    <div>
+        <section id="prev">
+            &nbsp;
+        </section><section id="next">
+            &nbsp;<a class="next" href="http://localhost:1313/blog/about/">about <i class="icon-arrow-right"></i></a>
+        </section>
+    </div>
+
+
+</aside>
+
+<meta itemprop="wordCount" content="1080">
+<meta itemprop="datePublished" content="2015-08-29">
+<meta itemprop="url" content="http://localhost:1313/blog/post/dont-use-std-list/">
+
+
+<aside id=comments>
+    <div><h2> Comments </h2></div>
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'danglingpointers';
+    var disqus_identifier = 'http:\/\/localhost:1313\/blog\/post\/dont-use-std-list\/';
+    var disqus_title = 'Don’t use std::list';
+    var disqus_url = 'http:\/\/localhost:1313\/blog\/post\/dont-use-std-list\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</aside>
+
+<footer>
+  <div>
+    <p>
+    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+	<a href="http://localhost:1313/blog/about">About this blog</a>.
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+(function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
+fitText(document.getElementById('title'), 1)
+</script>
+<script data-no-instant>document.write('<script src="http://'
         + (location.host || 'localhost').split(':')[0]
 		+ ':1313/livereload.js?mindelay=10"></'
         + 'script>')</script></body>
-  
 </html>
+
