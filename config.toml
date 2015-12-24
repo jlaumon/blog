@@ -1,4 +1,4 @@
-baseurl = "http://jlaumon.github.io/blog/"
+baseurl = "http://danglingpointers.com"
 languageCode = "en-us"
 title = "Dangling Pointers"
 disqusshortname = "danglingpointers"
