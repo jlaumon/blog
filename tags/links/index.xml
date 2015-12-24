@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Links on Dangling Pointers</title>
+    <link>http://jlaumon.github.io/blog/tags/links/</link>
+    <description>Recent content in Links on Dangling Pointers</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 24 Dec 2015 18:00:19 +0200</lastBuildDate>
+    <atom:link href="http://jlaumon.github.io/blog/tags/links/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Other blogs and links</title>
+      <link>http://jlaumon.github.io/blog/post/links/</link>
+      <pubDate>Thu, 24 Dec 2015 18:00:19 +0200</pubDate>
+      
+      <guid>http://jlaumon.github.io/blog/post/links/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;images/would-you-like-to-knwo-more.jpg&#34; alt=&#34;Would you like to know more?&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I wanted to add some kind of blogroll / links menu (that ancient thing from before twitter) to share interesting blogs or articles I bump into. But since I&amp;rsquo;m not really passionate about webdesign,
+any change to this website could take years (estimation based on actual numbers).&lt;/p&gt;
+
+&lt;p&gt;In the meantime, here are a few links that I value a lot:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://gist.github.com/ocornut/cb980ea183e848685a36&#34;&gt;Memory, Cache, CPU optimization resources&lt;/a&gt;:
+it&amp;rsquo;s a gist with links to a lot of really interesting articles. Thanks &lt;a href=&#34;https://twitter.com/ocornut&#34;&gt;Omar&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://preshing.com/&#34;&gt;Preshing on Programming&lt;/a&gt;: Jeff Preshing&amp;rsquo;s blog; lots of great articles about lock free programming (among other things).&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://randomascii.wordpress.com/&#34;&gt;Random ASCII&lt;/a&gt;: Bruce Drawson&amp;rsquo;s blog; profiling, debugging and floating point trivia.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.molecular-matters.com/&#34;&gt;Molecular Musings&lt;/a&gt;: Dev blog of the Molecule Engine / Stefan Reinalter&amp;rsquo;s blog.
+Best engine related blog I know.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
