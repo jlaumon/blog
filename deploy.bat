@@ -3,7 +3,11 @@
 echo "Deleting public/"
 rmdir /s /q public
 
-echo "Regenerating public/"
+echo "Copying CNAME"
+mkdir public
+cp CNAME public
+
+echo "Generating content"
 hugo
 
 echo "Git..."
