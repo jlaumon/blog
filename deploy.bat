@@ -1,7 +1,13 @@
+@echo off
+
+echo "Deleting public/"
+rmdir /s /q public
+
+echo "Regenerating public/"
 hugo
 
+echo "Git..."
 git add -A
-
 git commit -m "Updating site"
 
 git push origin master
