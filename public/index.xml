@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Dangling Pointers</title>
-    <link>http://jlaumon.github.io/blog/</link>
+    <link>http://danglingpointers.com/</link>
     <description>Recent content on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 24 Dec 2015 18:00:19 +0200</lastBuildDate>
-    <atom:link href="http://jlaumon.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://danglingpointers.com/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Other blogs and links</title>
-      <link>http://jlaumon.github.io/blog/post/links/</link>
+      <link>http://danglingpointers.com/post/links/</link>
       <pubDate>Thu, 24 Dec 2015 18:00:19 +0200</pubDate>
       
-      <guid>http://jlaumon.github.io/blog/post/links/</guid>
+      <guid>http://danglingpointers.com/post/links/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;images/would-you-like-to-knwo-more.jpg&#34; alt=&#34;Would you like to know more?&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;I wanted to add some kind of blogroll / links menu (that ancient thing from before twitter) to share interesting blogs or articles I bump into. But since I&amp;rsquo;m not really passionate about webdesign,
@@ -38,10 +38,10 @@ Best engine related blog I know.&lt;/p&gt;&lt;/li&gt;
     
     <item>
       <title>Don’t use std::list</title>
-      <link>http://jlaumon.github.io/blog/post/dont-use-std-list/</link>
+      <link>http://danglingpointers.com/post/dont-use-std-list/</link>
       <pubDate>Thu, 24 Dec 2015 17:00:19 +0200</pubDate>
       
-      <guid>http://jlaumon.github.io/blog/post/dont-use-std-list/</guid>
+      <guid>http://danglingpointers.com/post/dont-use-std-list/</guid>
       <description>
 
 &lt;p&gt;I feel like I’ve been saying this a lot lately - at least once per intern we take at Pastagames - so I guess it&amp;rsquo;s time I write it down.
@@ -150,10 +150,10 @@ But fancy algorithm always have a big hidden constant k that make them slower th
     
     <item>
       <title>about</title>
-      <link>http://jlaumon.github.io/blog/about/</link>
+      <link>http://danglingpointers.com/about/</link>
       <pubDate>Thu, 24 Dec 2015 15:18:05 +0200</pubDate>
       
-      <guid>http://jlaumon.github.io/blog/about/</guid>
+      <guid>http://danglingpointers.com/about/</guid>
       <description>&lt;p&gt;Hello and welcome!&lt;/p&gt;
 
 &lt;p&gt;My name&amp;rsquo;s Jeremy, and this is my personal (but technical) blog. I&amp;rsquo;m a video game developer and more specifically an engine developer.&lt;/p&gt;
