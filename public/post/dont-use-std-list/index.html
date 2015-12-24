@@ -19,13 +19,13 @@
 
 
 
-    <base href="http://localhost:1313/blog/">
+    <base href="http://jlaumon.github.io/blog/">
     <title> Don’t use std::list - Dangling Pointers</title>
-    <link rel="canonical" href="http://localhost:1313/blog/post/dont-use-std-list/">
+    <link rel="canonical" href="http://jlaumon.github.io/blog/post/dont-use-std-list/">
     
 
     <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="http://localhost:1313/blog/css/style.css">
+<link rel="stylesheet" href="http://jlaumon.github.io/blog/css/style.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
 
@@ -33,14 +33,14 @@
 
 <body lang="en" itemscope itemtype="http://schema.org/Article">
 <header id="header">
-	<h1 style="text-align:center"><a href="http://localhost:1313/blog/">Dangling Pointers</a></h1>
+	<h1 style="text-align:center"><a href="http://jlaumon.github.io/blog/">Dangling Pointers</a></h1>
 	
     <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
 
     <nav id="nav">
             <ul id="mainnav">
 			<li>
-                <a href="http://localhost:1313/blog/tags/">
+                <a href="http://jlaumon.github.io/blog/tags/">
                 <i class="fa fa-tags"></i>
 				All tags
 				</a>
@@ -48,7 +48,9 @@
 				<ul class="tags">
 					
 					
-					<li><a href="http://localhost:1313/blog/tags/c">C&#43;&#43; (1)</a></li>
+					<li><a href="http://jlaumon.github.io/blog/tags/links">Links (1)</a></li>
+					
+					<li><a href="http://jlaumon.github.io/blog/tags/c">C&#43;&#43; (1)</a></li>
 					
 				</ul>
 			</li>
@@ -75,7 +77,8 @@
 There&rsquo;s nothing new here, this has been said a hundred times over on the Internet,
 but since a lot of people are still not aware of it, here is my contribution.</p>
 
-<p>Before we continue, be sure to know what a doubly linked list is and how memory accesses work (you just need to read the overview).</p>
+<p>Before we continue, be sure to know what a <a href="http://en.wikipedia.org/wiki/Doubly_linked_list">doubly linked list</a> is and how
+<a href="http://en.wikipedia.org/wiki/CPU_cache">memory accesses</a> work (you just need to read the overview).</p>
 
 <h2 id="so-what-s-wrong-with-std-list:edbd15956b7b4ef31d6e0b4877bac24c">So what&rsquo;s wrong with std::list?</h2>
 
@@ -90,13 +93,15 @@ it&rsquo;s cache pollution. So in short, lots of cache misses and very bad use o
 <h2 id="how-bad-is-a-cache-miss:edbd15956b7b4ef31d6e0b4877bac24c">How bad is a cache miss?</h2>
 
 <p>It&rsquo;s a complicated question, because a lot of things can affect the actual latency of the memory and
-current CPUs know several tricks to hide this latency (notably hardware prefetching and out-of-order execution).
+current CPUs know several tricks to hide this latency (notably
+<a href="https://software.intel.com/en-us/blogs/2009/08/24/what-you-need-to-know-about-prefetching">hardware prefetching</a>
+and <a href="http://en.wikipedia.org/wiki/Out-of-order_execution">out-of-order execution</a>).
 But those tricks have their limits, and in our case they don&rsquo;t help, because the memory accesses are seemingly
 random (unpredictable) and dependent on each other.</p>
 
 <p>To give you a rough idea, on a recent Intel i7 processor (Haswell architecture) with DDR3-1600 RAM (which also pretty recent),
-a last level cache miss has a latency of the equivalent of 230 clock cycles. In comparison, you can expect the same CPU
-to execute 2 instructions per cycle, when nothing is slowing it down.</p>
+a last level cache miss has a latency of the equivalent of <a href="http://www.7-cpu.com/cpu/Haswell.html">230 clock cycles</a>.
+In comparison, you can expect the same CPU to execute 2 instructions per cycle, when nothing is slowing it down.</p>
 
 <p>Now take a second to visualize all those cycles wasted when you are iterating over a list. One cache miss per item in the list.
 Imagine all you could do with this time.</p>
@@ -128,13 +133,14 @@ to std::list::remove.</p>
 
 <p>If you cannot determine an upper bound for the size of the list, you can use an std::vector instead of an array.
 But if you think about it for a minute, there are many cases where a reasonable maximum is easily found. You
-can also allocate an array of variable size on the stack with alloca (it’s not standard, but all the compilers support it).</p>
+can also allocate an array of variable size on the stack with <a href="https://msdn.microsoft.com/en-us/library/wb1s57t5.aspx">alloca</a>
+(it’s not standard, but all the compilers support it).</p>
 
 <p>If you have lots of elements in your array and iterating to find where to insert/erase elements is your bottleneck,
 you can also do a binary search using std::lower_bound (but you have to keep the array sorted).</p>
 
-<p>If you need mostly to pop elements from the front of the list, use a circular buffer instead. An array and
-two ints, that is. One index for the head, one for the tail.</p>
+<p>If you need mostly to pop elements from the front of the list, use a <a href="http://en.wikipedia.org/wiki/Circular_buffer">circular buffer</a>
+instead. An array and two ints, that is. One index for the head, one for the tail.</p>
 
 <p>Dozens of other (more complex) alternatives exist, but the simple solutions above should cover 90% of
 the cases. And with what you learned reading this, you should be able to improvise a sensible solution for the 9.9% remaining.</p>
@@ -169,8 +175,6 @@ But fancy algorithm always have a big hidden constant k that make them slower th
 
 <p>std::list is the exception to this rule. It’s worse than an array for any N. Don’t use std::list.</p>
 
-<p><br/></p>
-
         </article>
   </div>
 </section>
@@ -181,7 +185,7 @@ But fancy algorithm always have a big hidden constant k that make them slower th
 
     <div>
         <section id="datecount">
-          <h4 id="date"> Sat Aug 29, 2015 </h4>
+          <h4 id="date"> Thu Dec 24, 2015 </h4>
           <h5 id="wc"> 1100 Words </h5>
           <h5 id="readtime"> Read in about 6 Min </h5>
         </section>
@@ -190,16 +194,16 @@ But fancy algorithm always have a big hidden constant k that make them slower th
         </ul>
         <ul id="tags">
           
-            <li> <a href="http://localhost:1313/blog/tags/c">C&#43;&#43;</a> </li>
+            <li> <a href="http://jlaumon.github.io/blog/tags/c">C&#43;&#43;</a> </li>
           
         </ul>
     </div>
 
     <div>
         <section id="prev">
-            &nbsp;
+            &nbsp;<a class="previous" href="http://jlaumon.github.io/blog/post/links/"><i class="icon-arrow-left"></i> Other blogs and links</a><br>
         </section><section id="next">
-            &nbsp;<a class="next" href="http://localhost:1313/blog/about/">about <i class="icon-arrow-right"></i></a>
+            &nbsp;<a class="next" href="http://jlaumon.github.io/blog/about/">about <i class="icon-arrow-right"></i></a>
         </section>
     </div>
 
@@ -207,8 +211,8 @@ But fancy algorithm always have a big hidden constant k that make them slower th
 </aside>
 
 <meta itemprop="wordCount" content="1080">
-<meta itemprop="datePublished" content="2015-08-29">
-<meta itemprop="url" content="http://localhost:1313/blog/post/dont-use-std-list/">
+<meta itemprop="datePublished" content="2015-12-24">
+<meta itemprop="url" content="http://jlaumon.github.io/blog/post/dont-use-std-list/">
 
 
 <aside id=comments>
@@ -216,9 +220,9 @@ But fancy algorithm always have a big hidden constant k that make them slower th
     <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'danglingpointers';
-    var disqus_identifier = 'http:\/\/localhost:1313\/blog\/post\/dont-use-std-list\/';
+    var disqus_identifier = 'http:\/\/jlaumon.github.io\/blog\/post\/dont-use-std-list\/';
     var disqus_title = 'Don’t use std::list';
-    var disqus_url = 'http:\/\/localhost:1313\/blog\/post\/dont-use-std-list\/';
+    var disqus_url = 'http:\/\/jlaumon.github.io\/blog\/post\/dont-use-std-list\/';
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -234,7 +238,7 @@ But fancy algorithm always have a big hidden constant k that make them slower th
   <div>
     <p>
     <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
-	<a href="http://localhost:1313/blog/about">About this blog</a>.
+	<a href="http://jlaumon.github.io/blog/about">About this blog</a>.
     </p>
   </div>
 </footer>
@@ -242,9 +246,6 @@ But fancy algorithm always have a big hidden constant k that make them slower th
 (function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
 fitText(document.getElementById('title'), 1)
 </script>
-<script data-no-instant>document.write('<script src="http://'
-        + (location.host || 'localhost').split(':')[0]
-		+ ':1313/livereload.js?mindelay=10"></'
-        + 'script>')</script></body>
+</body>
 </html>
 

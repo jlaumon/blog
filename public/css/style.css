@@ -260,8 +260,7 @@ footer a {
 }
 section a:hover,
 footer a:hover {
-    /* background:#eaeaea; */
-	text-decoration:underline;
+    background:#fafafa
 }
 .scrollable {
     overflow:scroll;

@@ -2,26 +2,54 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Dangling Pointers</title>
-    <link>http://localhost:1313/blog/post/</link>
+    <link>http://jlaumon.github.io/blog/post/</link>
     <description>Recent content in Posts on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 29 Aug 2015 17:00:19 +0200</lastBuildDate>
-    <atom:link href="http://localhost:1313/blog/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 24 Dec 2015 18:00:19 +0200</lastBuildDate>
+    <atom:link href="http://jlaumon.github.io/blog/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Other blogs and links</title>
+      <link>http://jlaumon.github.io/blog/post/links/</link>
+      <pubDate>Thu, 24 Dec 2015 18:00:19 +0200</pubDate>
+      
+      <guid>http://jlaumon.github.io/blog/post/links/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;images/would-you-like-to-knwo-more.jpg&#34; alt=&#34;Would you like to know more?&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I wanted to add some kind of blogroll / links menu (that ancient thing from before twitter) to share interesting blogs or articles I bump into. But since I&amp;rsquo;m not really passionate about webdesign,
+any change to this website could take years (estimation based on actual numbers).&lt;/p&gt;
+
+&lt;p&gt;In the meantime, here are a few links that I value a lot:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://gist.github.com/ocornut/cb980ea183e848685a36&#34;&gt;Memory, Cache, CPU optimization resources&lt;/a&gt;:
+it&amp;rsquo;s a gist with links to a lot of really interesting articles. Thanks &lt;a href=&#34;https://twitter.com/ocornut&#34;&gt;Omar&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://preshing.com/&#34;&gt;Preshing on Programming&lt;/a&gt;: Jeff Preshing&amp;rsquo;s blog; lots of great articles about lock free programming (among other things).&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://randomascii.wordpress.com/&#34;&gt;Random ASCII&lt;/a&gt;: Bruce Drawson&amp;rsquo;s blog; profiling, debugging and floating point trivia.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.molecular-matters.com/&#34;&gt;Molecular Musings&lt;/a&gt;: Dev blog of the Molecule Engine / Stefan Reinalter&amp;rsquo;s blog.
+Best engine related blog I know.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Don’t use std::list</title>
-      <link>http://localhost:1313/blog/post/dont-use-std-list/</link>
-      <pubDate>Sat, 29 Aug 2015 17:00:19 +0200</pubDate>
+      <link>http://jlaumon.github.io/blog/post/dont-use-std-list/</link>
+      <pubDate>Thu, 24 Dec 2015 17:00:19 +0200</pubDate>
       
-      <guid>http://localhost:1313/blog/post/dont-use-std-list/</guid>
+      <guid>http://jlaumon.github.io/blog/post/dont-use-std-list/</guid>
       <description>
 
 &lt;p&gt;I feel like I’ve been saying this a lot lately - at least once per intern we take at Pastagames - so I guess it&amp;rsquo;s time I write it down.
 There&amp;rsquo;s nothing new here, this has been said a hundred times over on the Internet,
 but since a lot of people are still not aware of it, here is my contribution.&lt;/p&gt;
 
-&lt;p&gt;Before we continue, be sure to know what a doubly linked list is and how memory accesses work (you just need to read the overview).&lt;/p&gt;
+&lt;p&gt;Before we continue, be sure to know what a &lt;a href=&#34;http://en.wikipedia.org/wiki/Doubly_linked_list&#34;&gt;doubly linked list&lt;/a&gt; is and how
+&lt;a href=&#34;http://en.wikipedia.org/wiki/CPU_cache&#34;&gt;memory accesses&lt;/a&gt; work (you just need to read the overview).&lt;/p&gt;
 
 &lt;h2 id=&#34;so-what-s-wrong-with-std-list:edbd15956b7b4ef31d6e0b4877bac24c&#34;&gt;So what&amp;rsquo;s wrong with std::list?&lt;/h2&gt;
 
@@ -36,13 +64,15 @@ it&amp;rsquo;s cache pollution. So in short, lots of cache misses and very bad u
 &lt;h2 id=&#34;how-bad-is-a-cache-miss:edbd15956b7b4ef31d6e0b4877bac24c&#34;&gt;How bad is a cache miss?&lt;/h2&gt;
 
 &lt;p&gt;It&amp;rsquo;s a complicated question, because a lot of things can affect the actual latency of the memory and
-current CPUs know several tricks to hide this latency (notably hardware prefetching and out-of-order execution).
+current CPUs know several tricks to hide this latency (notably
+&lt;a href=&#34;https://software.intel.com/en-us/blogs/2009/08/24/what-you-need-to-know-about-prefetching&#34;&gt;hardware prefetching&lt;/a&gt;
+and &lt;a href=&#34;http://en.wikipedia.org/wiki/Out-of-order_execution&#34;&gt;out-of-order execution&lt;/a&gt;).
 But those tricks have their limits, and in our case they don&amp;rsquo;t help, because the memory accesses are seemingly
 random (unpredictable) and dependent on each other.&lt;/p&gt;
 
 &lt;p&gt;To give you a rough idea, on a recent Intel i7 processor (Haswell architecture) with DDR3-1600 RAM (which also pretty recent),
-a last level cache miss has a latency of the equivalent of 230 clock cycles. In comparison, you can expect the same CPU
-to execute 2 instructions per cycle, when nothing is slowing it down.&lt;/p&gt;
+a last level cache miss has a latency of the equivalent of &lt;a href=&#34;http://www.7-cpu.com/cpu/Haswell.html&#34;&gt;230 clock cycles&lt;/a&gt;.
+In comparison, you can expect the same CPU to execute 2 instructions per cycle, when nothing is slowing it down.&lt;/p&gt;
 
 &lt;p&gt;Now take a second to visualize all those cycles wasted when you are iterating over a list. One cache miss per item in the list.
 Imagine all you could do with this time.&lt;/p&gt;
@@ -74,13 +104,14 @@ to std::list::remove.&lt;/p&gt;
 
 &lt;p&gt;If you cannot determine an upper bound for the size of the list, you can use an std::vector instead of an array.
 But if you think about it for a minute, there are many cases where a reasonable maximum is easily found. You
-can also allocate an array of variable size on the stack with alloca (it’s not standard, but all the compilers support it).&lt;/p&gt;
+can also allocate an array of variable size on the stack with &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/wb1s57t5.aspx&#34;&gt;alloca&lt;/a&gt;
+(it’s not standard, but all the compilers support it).&lt;/p&gt;
 
 &lt;p&gt;If you have lots of elements in your array and iterating to find where to insert/erase elements is your bottleneck,
 you can also do a binary search using std::lower_bound (but you have to keep the array sorted).&lt;/p&gt;
 
-&lt;p&gt;If you need mostly to pop elements from the front of the list, use a circular buffer instead. An array and
-two ints, that is. One index for the head, one for the tail.&lt;/p&gt;
+&lt;p&gt;If you need mostly to pop elements from the front of the list, use a &lt;a href=&#34;http://en.wikipedia.org/wiki/Circular_buffer&#34;&gt;circular buffer&lt;/a&gt;
+instead. An array and two ints, that is. One index for the head, one for the tail.&lt;/p&gt;
 
 &lt;p&gt;Dozens of other (more complex) alternatives exist, but the simple solutions above should cover 90% of
 the cases. And with what you learned reading this, you should be able to improvise a sensible solution for the 9.9% remaining.&lt;/p&gt;
@@ -114,8 +145,6 @@ But if the arrays are small, that may not even be necessary.&lt;/p&gt;
 But fancy algorithm always have a big hidden constant k that make them slower than simple O(N) algorithms for any small N.&lt;/p&gt;
 
 &lt;p&gt;std::list is the exception to this rule. It’s worse than an array for any N. Don’t use std::list.&lt;/p&gt;
-
-&lt;p&gt;&lt;br/&gt;&lt;/p&gt;
 </description>
     </item>
     
