@@ -1,6 +1,6 @@
 +++
-date = "2015-08-29T17:00:19+02:00"
-draft = true
+date = "2015-12-24T17:00:19+02:00"
+draft = false
 title = "Don’t use std::list"
 tags = [ "C++" ]
 
@@ -13,7 +13,8 @@ but since a lot of people are still not aware of it, here is my contribution.
 
 <!--more-->
 
-Before we continue, be sure to know what a doubly linked list is and how memory accesses work (you just need to read the overview).
+Before we continue, be sure to know what a [doubly linked list](http://en.wikipedia.org/wiki/Doubly_linked_list) is and how 
+[memory accesses](http://en.wikipedia.org/wiki/CPU_cache) work (you just need to read the overview).
 
 
 ## So what's wrong with std::list?
@@ -29,13 +30,15 @@ it's cache pollution. So in short, lots of cache misses and very bad use of the 
 ## How bad is a cache miss?
 
 It's a complicated question, because a lot of things can affect the actual latency of the memory and 
-current CPUs know several tricks to hide this latency (notably hardware prefetching and out-of-order execution). 
+current CPUs know several tricks to hide this latency (notably 
+[hardware prefetching](https://software.intel.com/en-us/blogs/2009/08/24/what-you-need-to-know-about-prefetching) 
+and [out-of-order execution](http://en.wikipedia.org/wiki/Out-of-order_execution)). 
 But those tricks have their limits, and in our case they don't help, because the memory accesses are seemingly 
 random (unpredictable) and dependent on each other.
 
 To give you a rough idea, on a recent Intel i7 processor (Haswell architecture) with DDR3-1600 RAM (which also pretty recent), 
-a last level cache miss has a latency of the equivalent of 230 clock cycles. In comparison, you can expect the same CPU 
-to execute 2 instructions per cycle, when nothing is slowing it down.
+a last level cache miss has a latency of the equivalent of [230 clock cycles](http://www.7-cpu.com/cpu/Haswell.html). 
+In comparison, you can expect the same CPU to execute 2 instructions per cycle, when nothing is slowing it down.
 
 Now take a second to visualize all those cycles wasted when you are iterating over a list. One cache miss per item in the list.
 Imagine all you could do with this time.
@@ -68,13 +71,14 @@ to std::list::remove.
 
 If you cannot determine an upper bound for the size of the list, you can use an std::vector instead of an array. 
 But if you think about it for a minute, there are many cases where a reasonable maximum is easily found. You 
-can also allocate an array of variable size on the stack with alloca (it’s not standard, but all the compilers support it).
+can also allocate an array of variable size on the stack with [alloca](https://msdn.microsoft.com/en-us/library/wb1s57t5.aspx)
+(it’s not standard, but all the compilers support it).
 
 If you have lots of elements in your array and iterating to find where to insert/erase elements is your bottleneck, 
 you can also do a binary search using std::lower_bound (but you have to keep the array sorted).
 
-If you need mostly to pop elements from the front of the list, use a circular buffer instead. An array and 
-two ints, that is. One index for the head, one for the tail.
+If you need mostly to pop elements from the front of the list, use a [circular buffer](http://en.wikipedia.org/wiki/Circular_buffer)
+instead. An array and two ints, that is. One index for the head, one for the tail.
 
 Dozens of other (more complex) alternatives exist, but the simple solutions above should cover 90% of 
 the cases. And with what you learned reading this, you should be able to improvise a sensible solution for the 9.9% remaining.
@@ -112,4 +116,3 @@ But fancy algorithm always have a big hidden constant k that make them slower th
 
 std::list is the exception to this rule. It’s worse than an array for any N. Don’t use std::list.
 
-<br/>
