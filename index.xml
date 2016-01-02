@@ -156,7 +156,7 @@ But fancy algorithm always have a big hidden constant k that make them slower th
       <guid>http://danglingpointers.com/about/</guid>
       <description>&lt;p&gt;Hello and welcome!&lt;/p&gt;
 
-&lt;p&gt;My name&amp;rsquo;s Jeremy, and this is my personal (but technical) blog. I&amp;rsquo;m a video game developer and more specifically an engine developer.&lt;/p&gt;
+&lt;p&gt;My name&amp;rsquo;s Jeremy, and this is my personal (but technical) blog. I&amp;rsquo;m a video game programmer and more specifically an engine programmer.&lt;/p&gt;
 
 &lt;p&gt;Here I&amp;rsquo;ll try to talk about C++, low level engine stuff, and probably some real time graphics too.&lt;/p&gt;
 
