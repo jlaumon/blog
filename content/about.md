@@ -10,7 +10,7 @@ Hello and welcome!
 
 <!--more-->
 
-My name's Jeremy, and this is my personal (but technical) blog. I'm a video game developer and more specifically an engine developer.
+My name's Jeremy, and this is my personal (but technical) blog. I'm a video game programmer and more specifically an engine programmer.
 
 Here I'll try to talk about C++, low level engine stuff, and probably some real time graphics too.
 
