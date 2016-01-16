@@ -747,6 +747,8 @@ pre {
     background-color:ghostwhite;
     padding:1em;
     line-height:1.4;
+}
+code {
     font-size:larger
 }
 header,
