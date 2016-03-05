@@ -250,6 +250,10 @@ img {
     border:0;
     max-width:100%
 }
+hr {
+	margin-top: 3em;
+	margin-bottom: 1em;
+}
 section a,
 footer a {
     color:#3498db;
@@ -258,12 +262,14 @@ footer a {
     -moz-transition:all 0.25s ease-in;
     -ms-transition:all 0.25s ease-in;
     transition:all 0.25s ease-in;
-    border-radius:7px;
-    padding:1px 3px 3px 3px
+    padding:1px 3px 3px 3px;
+	border-style: none none solid;
+	border-width: 0 0 1px;
+	border-color: #E5F5FF;
 }
 section a:hover,
 footer a:hover {
-    background:#fafafa
+    background:#E5F5FF
 }
 .scrollable {
     overflow:scroll;
@@ -366,7 +372,6 @@ article>footer {
     float:right
 }
 em {
-    color:#8b9baa;
     text-decoration:none
 }
 h1,
