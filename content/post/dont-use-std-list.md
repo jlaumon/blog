@@ -92,7 +92,7 @@ item would cover many cache-lines, having them contiguous in memory would make a
 But hey, you could also use an array of pointers.
 
 
-## Bonus point: ever heard about std::map?
+## Bonus point: ever heard about std::map? {#std-map}
 
 The std::map is an associative container that uses a binary search tree to speed up searches.
 
