@@ -273,5 +273,5 @@ But the vertices are so small (3 16 bits ints) that adding an index buffer to de
 memory in the end. But that may still be worth it if you consider [post-transform vertex cache](https://www.opengl.org/wiki/Post_Transform_Cache).
 
 So, is it worth it? Do you have lots of duplicates in your case? Are they close enough to fit in the post-transform vertex cache of your target platform?
-That's the questions you should ask yourself, and now you also know how to answer them :)
+These are the questions you should ask yourself, and now you also know how to answer them :)
 
