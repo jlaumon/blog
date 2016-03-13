@@ -1,9 +1,10 @@
 +++
+publishdate = "2017-03-13T15:54:48+01:00"
 date = "2016-03-13T15:54:48+01:00"
 description = ""
 tags = ["Data-Oriented Design"]
 title = "Mike Acton's Data-Oriented Design Workshop (2015)"
-draft = true
+draft = false
 
 +++
 
