@@ -307,10 +307,10 @@ UV 6:        1.0   1.0
 
 Normal 1:    0.0   0.0   1.0
 Normal 2:    0.0   0.0   1.0
-Normal 3:    0.0   1.0   1.0
-Normal 4:    0.0   1.0   1.0
-Normal 5:    0.0   1.0   1.0
-Normal 6:    0.0   1.0   1.0
+Normal 3:    0.0   0.0   1.0
+Normal 4:    0.0   0.0   1.0
+Normal 5:    0.0   0.0   1.0
+Normal 6:    0.0   0.0   1.0
 </code></pre>
 
 <p>Ouch, that got a lot bigger. As you can see, vertex 2-5 and 3-4 are identical, leading to a lot of duplicated data.
@@ -332,8 +332,8 @@ UV 4:        1.0   1.0
 
 Normal 1:    0.0   0.0   1.0
 Normal 2:    0.0   0.0   1.0
-Normal 3:    0.0   1.0   1.0
-Normal 4:    0.0   1.0   1.0
+Normal 3:    0.0   0.0   1.0
+Normal 4:    0.0   0.0   1.0
 </code></pre>
 
 <p>That&rsquo;s better, but on top of being slow to generate, the normals are still duplicated and we can&rsquo;t do anything about it. Or can we?</p>
