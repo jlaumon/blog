@@ -228,10 +228,10 @@ and incidentally, we need to have the same number of positions, UVs and normals.
 	
 	Normal 1:    0.0   0.0   1.0
     Normal 2:    0.0   0.0   1.0
-    Normal 3:    0.0   1.0   1.0
-    Normal 4:    0.0   1.0   1.0
-    Normal 5:    0.0   1.0   1.0
-    Normal 6:    0.0   1.0   1.0
+    Normal 3:    0.0   0.0   1.0
+    Normal 4:    0.0   0.0   1.0
+    Normal 5:    0.0   0.0   1.0
+    Normal 6:    0.0   0.0   1.0
 	
 Ouch, that got a lot bigger. As you can see, vertex 2-5 and 3-4 are identical, leading to a lot of duplicated data.
 We could deduplicate them, and that's exactly what the std::map in *tinyobjloader* does. It maps a triplet of indices to a unique index, and gets us this:
@@ -252,8 +252,8 @@ We could deduplicate them, and that's exactly what the std::map in *tinyobjloade
 	
 	Normal 1:    0.0   0.0   1.0
     Normal 2:    0.0   0.0   1.0
-    Normal 3:    0.0   1.0   1.0
-    Normal 4:    0.0   1.0   1.0
+    Normal 3:    0.0   0.0   1.0
+    Normal 4:    0.0   0.0   1.0
 	
 That's better, but on top of being slow to generate, the normals are still duplicated and we can't do anything about it. Or can we?
 
