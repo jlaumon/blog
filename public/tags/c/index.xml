@@ -17,7 +17,7 @@
       <guid>http://danglingpointers.com/post/dont-use-std-list/</guid>
       <description>
 
-&lt;p&gt;I feel like I’ve been saying this a lot lately - at least once per intern we take at Pastagames - so I guess it&amp;rsquo;s time I write it down.
+&lt;p&gt;I feel like I’ve been saying this a lot lately ‒ at least once per intern we take at Pastagames ‒ so I guess it&amp;rsquo;s time I write it down.
 There&amp;rsquo;s nothing new here, this has been said a hundred times over on the Internet,
 but since a lot of people are still not aware of it, here is my contribution.&lt;/p&gt;
 
@@ -96,7 +96,7 @@ would be more expensive than doing the memory allocation plus waiting for the ca
 item would cover many cache-lines, having them contiguous in memory would make almost no difference.
 But hey, you could also use an array of pointers.&lt;/p&gt;
 
-&lt;h2 id=&#34;bonus-point-ever-heard-about-std-map:edbd15956b7b4ef31d6e0b4877bac24c&#34;&gt;Bonus point: ever heard about std::map?&lt;/h2&gt;
+&lt;h2 id=&#34;std-map:edbd15956b7b4ef31d6e0b4877bac24c&#34;&gt;Bonus point: ever heard about std::map?&lt;/h2&gt;
 
 &lt;p&gt;The std::map is an associative container that uses a binary search tree to speed up searches.&lt;/p&gt;
 
