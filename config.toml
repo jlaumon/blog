@@ -3,3 +3,5 @@ languageCode = "en-us"
 title = "Dangling Pointers"
 disqusshortname = "danglingpointers"
 preservetaxonomynames = true
+pygmentscodefences = true
+pygmentsuseclasses = true

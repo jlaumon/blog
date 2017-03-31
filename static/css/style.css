@@ -243,8 +243,9 @@ body {
     sans-serif;
     background-color:#fff
 }
-div.highlight {
-    padding:1em
+code {
+	font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
+	font-size: 1.em;
 }
 img {
     border:0;
