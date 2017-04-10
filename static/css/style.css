@@ -239,8 +239,8 @@ font-style:normal
 }
 body {
     font-weight:200;
-    font-family:'Open Sans',
-    sans-serif;
+    color:#404040;
+    font-family:"Merriweather", serif;
     background-color:#fff
 }
 code {
