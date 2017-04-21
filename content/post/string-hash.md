@@ -28,7 +28,7 @@ For this usage, **32 bits** hashes are often enough. The chances of having a col
 
 ## Collision Detection
 
-The chances of having collision may be low, but detecting them during development is still critical otherwise you will get really weird bugs. 
+The chances of having collision may be low, but detecting them during development is still critical otherwise you will get really weird bugs.
 
 The basic idea is simple: every time we hash a string, we access a global map (a hash map actually) to check if the hash was already associated with a different string.
 
@@ -42,11 +42,11 @@ Last thing to note about our implementation: we store the strings in 64KB buffer
 
 ## Debugging
 
-String hashes are cool, but still, it's hard to tell that 4086421542 is "banana". So the first thing we did is add an option to store both the hash and a pointer to the string inside our StringHash class (enabled with a #define). That's pretty easy thanks to the global hash map mentioned above, even if we construct the StringHash from an int, we can usually find the string back, and we can keep the pointer as long as we want since the strings are never freed.
+The first thing we did is add a getString() function to our StringHash class. That's really easy to implement thanks to the global hash map mentioned above. Also, since the strings are never freed, the function can just return a const char pointer and we never need to worry about the lifetime of the pointed string. With that function, we can use strings instead of hashes in the logs, the debug UIs, the editors and even when serializing to textual data formats. The only limitation being that we can only do it with development builds (the hash map is disabled in the final build), but that's usually not a problem.
 
-Having the string pointer in the class makes it easy to see the string in the debugger but it makes the class bigger, which is not great. Fortunately there's another solution: the Visual Studio Debug Visualizers (aka. the [Natvis files](https://msdn.microsoft.com/en-us/library/jj620914.aspx)).
+So far so good, but still, it's hard to tell that 4086421542 is "banana" when you look at a StringHash variable in the debugger. And so, the second thing we did is store the pointer returned by getString() along with the hash inside the StringHash class. It makes the string visible in the debugger but it also makes the class bigger, which is not great. Fortunately there's another option: the Visual Studio Debug Visualizers (aka. the [Natvis files](https://msdn.microsoft.com/en-us/library/jj620914.aspx)) and that's what we used in the end (at least on the platforms that support it).
 
-Natvis are basically XML "scripts" that tell the debugger how to display a class. In our case, we need to use the [CustomListItems](https://msdn.microsoft.com/en-us/library/jj620914.aspx#CustomListItems-expansion) tag to do a lookup inside the global hash map and find the string. That's where having a simple hash map implementation becomes important, scripting in XML is *painful*.
+Natvis are basically XML "scripts" that tell the debugger how to display a class. In this particular case, we need to use the [CustomListItems](https://msdn.microsoft.com/en-us/library/jj620914.aspx#CustomListItems-expansion) tag to do a lookup inside the global hash map and find the string. That's where having a simple hash map implementation becomes important, scripting in XML is *painful*.
 
 First thing to note, since the key of the map is already a hash, we don't need a function to rehash it. If you're using an std::unordered_map, the 3rd template parameter should be a funtion that does nothing.
 
