@@ -2,11 +2,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Data-Oriented Design on Dangling Pointers</title>
-    <link>http://danglingpointers.com/tags/data-oriented-design/</link>
+    <link>http://danglingpointers.com/tags/data-oriented-design/index.xml</link>
     <description>Recent content in Data-Oriented Design on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 19 Mar 2016 12:04:48 +0100</lastBuildDate>
     <atom:link href="http://danglingpointers.com/tags/data-oriented-design/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
@@ -15,11 +14,11 @@
       <pubDate>Sat, 19 Mar 2016 12:04:48 +0100</pubDate>
       
       <guid>http://danglingpointers.com/post/mike-actons-dod-workshop-2015/</guid>
-      <description>
-
-&lt;p&gt;I attended Mike Acton&amp;rsquo;s master class during last year&amp;rsquo;s &lt;a href=&#34;http://www.game-connection.com/master-classes-0&#34;&gt;Game Connection&lt;/a&gt; in Paris.
+      <description>&lt;p&gt;I attended Mike Acton&amp;rsquo;s master class during last year&amp;rsquo;s &lt;a href=&#34;http://www.game-connection.com/master-classes-0&#34;&gt;Game Connection&lt;/a&gt; in Paris.
 Unsurprisingly it was about data-oriented design, but it was a workshop, a practical exercise, and it showed us (or at least me)
 a new facet of the concept, as well as a few interesting techniques.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
 
 &lt;p&gt;If you&amp;rsquo;re new to the concept of data-oriented design, you should first &lt;a href=&#34;http://gamesfromwithin.com/data-oriented-design&#34;&gt;read an introduction&lt;/a&gt;.&lt;/p&gt;
 
@@ -27,7 +26,7 @@ a new facet of the concept, as well as a few interesting techniques.&lt;/p&gt;
 what it implied. In this article ‒ which is pretty much just the tale of this master class ‒ I&amp;rsquo;ll try to explain what it means,
 and why it&amp;rsquo;s so important.&lt;/p&gt;
 
-&lt;h2 id=&#34;the-exercise:6e3ad040f607df156a680e97bc2396fa&#34;&gt;The exercise&lt;/h2&gt;
+&lt;h2 id=&#34;the-exercise&#34;&gt;The exercise&lt;/h2&gt;
 
 &lt;p&gt;The exercise was to try to make &lt;a href=&#34;https://github.com/syoyo/tinyobjloader&#34;&gt;tinyobjloader&lt;/a&gt; faster. It&amp;rsquo;s a small open-source library that
 parses OBJ files, simple text files used to store 3D geometry (meshes).&lt;/p&gt;
@@ -38,7 +37,7 @@ He wasn&amp;rsquo;t directly doing the exercise however, he just kept asking us 
 &lt;p&gt;That can sound like a weird setup for a master class but ended up working perfectly. It was very interactive and we all left
 convinced we could do something similar on our own.&lt;/p&gt;
 
-&lt;h2 id=&#34;the-usual-profiling:6e3ad040f607df156a680e97bc2396fa&#34;&gt;The usual profiling&lt;/h2&gt;
+&lt;h2 id=&#34;the-usual-profiling&#34;&gt;The usual profiling&lt;/h2&gt;
 
 &lt;p&gt;After a quick look at the code to understand what it did (Mike hadn&amp;rsquo;t read it beforehand either, that&amp;rsquo;s how confident he is),
 we made a small test app and ran it on a few OBJ files that Mike had brought (he hadn&amp;rsquo;t read the code, but he wasn&amp;rsquo;t unprepared).&lt;/p&gt;
@@ -54,7 +53,7 @@ data into a slightly different format.&lt;/p&gt;
 especially when the mesh is big. This deduplication took the biggest part of the time, and seemed to be a good candidate
 for optimization. We decided to focus on that.&lt;/p&gt;
 
-&lt;h2 id=&#34;so-what-should-we-do:6e3ad040f607df156a680e97bc2396fa&#34;&gt;So, what should we do?&lt;/h2&gt;
+&lt;h2 id=&#34;so-what-should-we-do&#34;&gt;So, what should we do?&lt;/h2&gt;
 
 &lt;p&gt;First general reaction on our part: let&amp;rsquo;s replace that std::map with a hash map!&lt;/p&gt;
 
@@ -67,7 +66,7 @@ for optimization. We decided to focus on that.&lt;/p&gt;
 &lt;p&gt;After a few minutes of discussion, it turned out, no, not necessarily.&lt;/p&gt;
 
 &lt;p&gt;I&amp;rsquo;m not going too much into details here because it&amp;rsquo;s a little bit long to explain
-(I made an &lt;a href=&#34;#appendix:6e3ad040f607df156a680e97bc2396fa&#34;&gt;appendix&lt;/a&gt; for that!), just know that since DirectX 10 / OpenGL 3, the graphics APIs are flexible enough
+(I made an &lt;a href=&#34;#appendix&#34;&gt;appendix&lt;/a&gt; for that!), just know that since DirectX 10 / OpenGL 3, the graphics APIs are flexible enough
 to handle the first format directly.&lt;/p&gt;
 
 &lt;p&gt;And more importantly, not doing this conversion pretty much avoids the duplication.&lt;/p&gt;
@@ -80,7 +79,7 @@ at a more global level, from the OBJ reading to the vertex shader, we found out 
 &lt;p&gt;However that&amp;rsquo;s no fun. For the sake of the exercise, we decided to pretend we absolutely needed this conversion.
 And deduplicating vertices with an std::map was still too slow.&lt;/p&gt;
 
-&lt;h2 id=&#34;so-what-should-we-do-2:6e3ad040f607df156a680e97bc2396fa&#34;&gt;So, what should we do? #2&lt;/h2&gt;
+&lt;h2 id=&#34;so-what-should-we-do-2&#34;&gt;So, what should we do? #2&lt;/h2&gt;
 
 &lt;blockquote&gt;
 &lt;p&gt;Do we need to deduplicate the vertices?&lt;/p&gt;
@@ -140,7 +139,7 @@ our knowledge of the data told us the trade was worth it.&lt;/p&gt;
 &lt;p&gt;At this point, the afternoon was well under way but we still had time to try something else. So we decided to try to keep the deduplication
 and see what we could do to improve it.&lt;/p&gt;
 
-&lt;h2 id=&#34;so-what-should-we-do-3:6e3ad040f607df156a680e97bc2396fa&#34;&gt;So, what should we do? #3&lt;/h2&gt;
+&lt;h2 id=&#34;so-what-should-we-do-3&#34;&gt;So, what should we do? #3&lt;/h2&gt;
 
 &lt;p&gt;Hmm. The std::map is very slow because it gets so big. Maybe we could only check the last N vertices we encountered instead of all of them?&lt;/p&gt;
 
@@ -188,7 +187,7 @@ everything would fit in the CPU&amp;rsquo;s cache).&lt;/p&gt;
 &lt;a href=&#34;https://en.wikipedia.org/wiki/Quadratic_probing&#34;&gt;quadratic probing&lt;/a&gt; for example. But I digress, what&amp;rsquo;s important here is not the solution,
 it&amp;rsquo;s &lt;strong&gt;the methodology&lt;/strong&gt;.&lt;/p&gt;
 
-&lt;h1 id=&#34;so-what-s-the-conclusion:6e3ad040f607df156a680e97bc2396fa&#34;&gt;So, what&amp;rsquo;s the conclusion?&lt;/h1&gt;
+&lt;h1 id=&#34;so-what-s-the-conclusion&#34;&gt;So, what&amp;rsquo;s the conclusion?&lt;/h1&gt;
 
 &lt;p&gt;&lt;em&gt;Know your data&lt;/em&gt;. Know &lt;strong&gt;statistics&lt;/strong&gt; about your data. Know what the most common case is, and how frequent it is.
 That&amp;rsquo;s the only way of making sensible decisions about the solution.&lt;/p&gt;
@@ -198,9 +197,9 @@ like command line utilities, scripts and spreadsheets and you can learn anything
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;appendix:6e3ad040f607df156a680e97bc2396fa&#34;&gt;Appendix&lt;/h2&gt;
+&lt;h2 id=&#34;appendix&#34;&gt;Appendix&lt;/h2&gt;
 
-&lt;h3 id=&#34;the-mesh-conversion:6e3ad040f607df156a680e97bc2396fa&#34;&gt;The mesh conversion&lt;/h3&gt;
+&lt;h3 id=&#34;the-mesh-conversion&#34;&gt;The mesh conversion&lt;/h3&gt;
 
 &lt;p&gt;For those who are interested, let&amp;rsquo;s explain the conversion that happens inside &lt;em&gt;tinyobjloader&lt;/em&gt;.&lt;/p&gt;
 
@@ -297,8 +296,7 @@ But the vertices are so small (3 16 bits ints) that adding an index buffer to de
 memory in the end. But that may still be worth it if you consider &lt;a href=&#34;https://www.opengl.org/wiki/Post_Transform_Cache&#34;&gt;post-transform vertex cache&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;So, is it worth it? Do you have lots of duplicates in your case? Are they close enough to fit in the post-transform vertex cache of your target platform?
-These are the questions you should ask yourself, and now you also know how to answer them :)&lt;/p&gt;
-</description>
+These are the questions you should ask yourself, and now you also know how to answer them :)&lt;/p&gt;</description>
     </item>
     
   </channel>

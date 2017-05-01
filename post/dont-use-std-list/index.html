@@ -24,8 +24,10 @@
     <link rel="canonical" href="http://danglingpointers.com/post/dont-use-std-list/">
     
 
-    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="//fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
 <link rel="stylesheet" href="http://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="http://danglingpointers.com/css/pygments/vs.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
 
@@ -49,11 +51,11 @@
 				<ul class="tags">
 					
 					
-					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
-					
-					<li><a href="http://danglingpointers.com/tags/c">C&#43;&#43; (1)</a></li>
+					<li><a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (1)</a></li>
 					
 					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
 					
 				</ul>
 			</li>
@@ -74,16 +76,16 @@
   <h1 itemprop="name" id="title">Don’t use std::list</h1>
   <div>
         <article itemprop="articleBody" id="content">
-           
-
-<p>I feel like I’ve been saying this a lot lately ‒ at least once per intern we take at Pastagames ‒ so I guess it&rsquo;s time I write it down.
+           <p>I feel like I’ve been saying this a lot lately ‒ at least once per intern we take at Pastagames ‒ so I guess it&rsquo;s time I write it down.
 There&rsquo;s nothing new here, this has been said a hundred times over on the Internet,
 but since a lot of people are still not aware of it, here is my contribution.</p>
+
+<p></p>
 
 <p>Before we continue, be sure to know what a <a href="http://en.wikipedia.org/wiki/Doubly_linked_list">doubly linked list</a> is and how
 <a href="http://en.wikipedia.org/wiki/CPU_cache">memory accesses</a> work (you just need to read the overview).</p>
 
-<h2 id="so-what-s-wrong-with-std-list:edbd15956b7b4ef31d6e0b4877bac24c">So what&rsquo;s wrong with std::list?</h2>
+<h2 id="so-what-s-wrong-with-std-list">So what&rsquo;s wrong with std::list?</h2>
 
 <p>Mostly one thing: each node is allocated separately – nodes are not contiguous in memory.
 It means that when you access a node, the chances that it&rsquo;s already in the cache is virtually 0%
@@ -93,7 +95,7 @@ it&rsquo;s cache pollution. So in short, lots of cache misses and very bad use o
 
 <p><img src="images/stdlist.png" alt="Memory layout of an std::list" /></p>
 
-<h2 id="how-bad-is-a-cache-miss:edbd15956b7b4ef31d6e0b4877bac24c">How bad is a cache miss?</h2>
+<h2 id="how-bad-is-a-cache-miss">How bad is a cache miss?</h2>
 
 <p>It&rsquo;s a complicated question, because a lot of things can affect the actual latency of the memory and
 current CPUs know several tricks to hide this latency (notably
@@ -114,7 +116,7 @@ Imagine all you could do with this time.</p>
 <p>So yeah, it&rsquo;s pretty bad. Cache misses are one of the most (the most?) common bottlenecks in today&rsquo;s programs,
 so it&rsquo;s worth taking them into account at every step.</p>
 
-<h2 id="what-s-the-alternative-solution-s:edbd15956b7b4ef31d6e0b4877bac24c">What&rsquo;s the alternative solution(s)?</h2>
+<h2 id="what-s-the-alternative-solution-s">What&rsquo;s the alternative solution(s)?</h2>
 
 <p>Usually, an array and an int (containing the size of the list) are enough. Yes, that’s it.</p>
 
@@ -148,14 +150,14 @@ instead. An array and two ints, that is. One index for the head, one for the tai
 <p>Dozens of other (more complex) alternatives exist, but the simple solutions above should cover 90% of
 the cases. And with what you learned reading this, you should be able to improvise a sensible solution for the 9.9% remaining.</p>
 
-<h2 id="when-is-an-std-list-really-useful:edbd15956b7b4ef31d6e0b4877bac24c">When is an std::list really useful?</h2>
+<h2 id="when-is-an-std-list-really-useful">When is an std::list really useful?</h2>
 
 <p>That&rsquo;s the remaining 0.1%, if you&rsquo;re paying attention. It&rsquo;s when the items are so big that moving them around
 would be more expensive than doing the memory allocation plus waiting for the cache misses. And because one
 item would cover many cache-lines, having them contiguous in memory would make almost no difference.
 But hey, you could also use an array of pointers.</p>
 
-<h2 id="std-map:edbd15956b7b4ef31d6e0b4877bac24c">Bonus point: ever heard about std::map?</h2>
+<h2 id="std-map">Bonus point: ever heard about std::map?</h2>
 
 <p>The std::map is an associative container that uses a binary search tree to speed up searches.</p>
 
@@ -171,13 +173,12 @@ They are better stored separately because when doing a search you only need to r
 <p>Depending on the use case, you can also sort the arrays or have a small cache to speed up searches.
 But if the arrays are small, that may not even be necessary.</p>
 
-<h2 id="bottom-line:edbd15956b7b4ef31d6e0b4877bac24c">Bottom line</h2>
+<h2 id="bottom-line">Bottom line</h2>
 
 <p>The STL is full of fancy algorithms with interesting complexity (O (log N) or better for the most part).
 But fancy algorithm always have a big hidden constant k that make them slower than simple O(N) algorithms for any small N.</p>
 
 <p>std::list is the exception to this rule. It’s worse than an array for any N. Don’t use std::list.</p>
-
         </article>
   </div>
 </section>
@@ -190,14 +191,14 @@ But fancy algorithm always have a big hidden constant k that make them slower th
         <section id="datecount">
           <h4 id="date"> Thu Dec 24, 2015 </h4>
           <h5 id="wc"> 1100 Words </h5>
-          <h5 id="readtime"> Read in about 6 Min </h5>
+          <h5 id="readtime"> Read in about 5 Min </h5>
         </section>
         <ul id="categories">
           
         </ul>
         <ul id="tags">
           
-            <li> <a href="http://danglingpointers.com/tags/c">C&#43;&#43;</a> </li>
+            <li> <a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43;</a> </li>
           
         </ul>
     </div>
@@ -213,7 +214,7 @@ But fancy algorithm always have a big hidden constant k that make them slower th
 
 </aside>
 
-<meta itemprop="wordCount" content="1080">
+<meta itemprop="wordCount" content="1056">
 <meta itemprop="datePublished" content="2015-12-24">
 <meta itemprop="url" content="http://danglingpointers.com/post/dont-use-std-list/">
 

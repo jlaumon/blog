@@ -2,12 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>C&#43;&#43; on Dangling Pointers</title>
-    <link>http://danglingpointers.com/tags/c/</link>
+    <link>http://danglingpointers.com/tags/c&#43;&#43;/index.xml</link>
     <description>Recent content in C&#43;&#43; on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 24 Dec 2015 17:00:19 +0200</lastBuildDate>
-    <atom:link href="http://danglingpointers.com/tags/c/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://danglingpointers.com/tags/c&#43;&#43;/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Don’t use std::list</title>
@@ -15,16 +14,16 @@
       <pubDate>Thu, 24 Dec 2015 17:00:19 +0200</pubDate>
       
       <guid>http://danglingpointers.com/post/dont-use-std-list/</guid>
-      <description>
-
-&lt;p&gt;I feel like I’ve been saying this a lot lately ‒ at least once per intern we take at Pastagames ‒ so I guess it&amp;rsquo;s time I write it down.
+      <description>&lt;p&gt;I feel like I’ve been saying this a lot lately ‒ at least once per intern we take at Pastagames ‒ so I guess it&amp;rsquo;s time I write it down.
 There&amp;rsquo;s nothing new here, this has been said a hundred times over on the Internet,
 but since a lot of people are still not aware of it, here is my contribution.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
 
 &lt;p&gt;Before we continue, be sure to know what a &lt;a href=&#34;http://en.wikipedia.org/wiki/Doubly_linked_list&#34;&gt;doubly linked list&lt;/a&gt; is and how
 &lt;a href=&#34;http://en.wikipedia.org/wiki/CPU_cache&#34;&gt;memory accesses&lt;/a&gt; work (you just need to read the overview).&lt;/p&gt;
 
-&lt;h2 id=&#34;so-what-s-wrong-with-std-list:edbd15956b7b4ef31d6e0b4877bac24c&#34;&gt;So what&amp;rsquo;s wrong with std::list?&lt;/h2&gt;
+&lt;h2 id=&#34;so-what-s-wrong-with-std-list&#34;&gt;So what&amp;rsquo;s wrong with std::list?&lt;/h2&gt;
 
 &lt;p&gt;Mostly one thing: each node is allocated separately – nodes are not contiguous in memory.
 It means that when you access a node, the chances that it&amp;rsquo;s already in the cache is virtually 0%
@@ -34,7 +33,7 @@ it&amp;rsquo;s cache pollution. So in short, lots of cache misses and very bad u
 
 &lt;p&gt;&lt;img src=&#34;images/stdlist.png&#34; alt=&#34;Memory layout of an std::list&#34; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;how-bad-is-a-cache-miss:edbd15956b7b4ef31d6e0b4877bac24c&#34;&gt;How bad is a cache miss?&lt;/h2&gt;
+&lt;h2 id=&#34;how-bad-is-a-cache-miss&#34;&gt;How bad is a cache miss?&lt;/h2&gt;
 
 &lt;p&gt;It&amp;rsquo;s a complicated question, because a lot of things can affect the actual latency of the memory and
 current CPUs know several tricks to hide this latency (notably
@@ -55,7 +54,7 @@ Imagine all you could do with this time.&lt;/p&gt;
 &lt;p&gt;So yeah, it&amp;rsquo;s pretty bad. Cache misses are one of the most (the most?) common bottlenecks in today&amp;rsquo;s programs,
 so it&amp;rsquo;s worth taking them into account at every step.&lt;/p&gt;
 
-&lt;h2 id=&#34;what-s-the-alternative-solution-s:edbd15956b7b4ef31d6e0b4877bac24c&#34;&gt;What&amp;rsquo;s the alternative solution(s)?&lt;/h2&gt;
+&lt;h2 id=&#34;what-s-the-alternative-solution-s&#34;&gt;What&amp;rsquo;s the alternative solution(s)?&lt;/h2&gt;
 
 &lt;p&gt;Usually, an array and an int (containing the size of the list) are enough. Yes, that’s it.&lt;/p&gt;
 
@@ -89,14 +88,14 @@ instead. An array and two ints, that is. One index for the head, one for the tai
 &lt;p&gt;Dozens of other (more complex) alternatives exist, but the simple solutions above should cover 90% of
 the cases. And with what you learned reading this, you should be able to improvise a sensible solution for the 9.9% remaining.&lt;/p&gt;
 
-&lt;h2 id=&#34;when-is-an-std-list-really-useful:edbd15956b7b4ef31d6e0b4877bac24c&#34;&gt;When is an std::list really useful?&lt;/h2&gt;
+&lt;h2 id=&#34;when-is-an-std-list-really-useful&#34;&gt;When is an std::list really useful?&lt;/h2&gt;
 
 &lt;p&gt;That&amp;rsquo;s the remaining 0.1%, if you&amp;rsquo;re paying attention. It&amp;rsquo;s when the items are so big that moving them around
 would be more expensive than doing the memory allocation plus waiting for the cache misses. And because one
 item would cover many cache-lines, having them contiguous in memory would make almost no difference.
 But hey, you could also use an array of pointers.&lt;/p&gt;
 
-&lt;h2 id=&#34;std-map:edbd15956b7b4ef31d6e0b4877bac24c&#34;&gt;Bonus point: ever heard about std::map?&lt;/h2&gt;
+&lt;h2 id=&#34;std-map&#34;&gt;Bonus point: ever heard about std::map?&lt;/h2&gt;
 
 &lt;p&gt;The std::map is an associative container that uses a binary search tree to speed up searches.&lt;/p&gt;
 
@@ -112,13 +111,12 @@ They are better stored separately because when doing a search you only need to r
 &lt;p&gt;Depending on the use case, you can also sort the arrays or have a small cache to speed up searches.
 But if the arrays are small, that may not even be necessary.&lt;/p&gt;
 
-&lt;h2 id=&#34;bottom-line:edbd15956b7b4ef31d6e0b4877bac24c&#34;&gt;Bottom line&lt;/h2&gt;
+&lt;h2 id=&#34;bottom-line&#34;&gt;Bottom line&lt;/h2&gt;
 
 &lt;p&gt;The STL is full of fancy algorithms with interesting complexity (O (log N) or better for the most part).
 But fancy algorithm always have a big hidden constant k that make them slower than simple O(N) algorithms for any small N.&lt;/p&gt;
 
-&lt;p&gt;std::list is the exception to this rule. It’s worse than an array for any N. Don’t use std::list.&lt;/p&gt;
-</description>
+&lt;p&gt;std::list is the exception to this rule. It’s worse than an array for any N. Don’t use std::list.&lt;/p&gt;</description>
     </item>
     
   </channel>

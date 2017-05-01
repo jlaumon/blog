@@ -2,11 +2,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Links on Dangling Pointers</title>
-    <link>http://danglingpointers.com/tags/links/</link>
+    <link>http://danglingpointers.com/tags/links/index.xml</link>
     <description>Recent content in Links on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 24 Dec 2015 18:00:19 +0200</lastBuildDate>
     <atom:link href="http://danglingpointers.com/tags/links/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
@@ -16,6 +15,8 @@
       
       <guid>http://danglingpointers.com/post/links/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;images/would-you-like-to-knwo-more.jpg&#34; alt=&#34;Would you like to know more?&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
 
 &lt;p&gt;I wanted to add some kind of blogroll / links menu (that ancient thing from before twitter) to share interesting blogs or articles I bump into. But since I&amp;rsquo;m not really passionate about webdesign,
 any change to this website could take years (estimation based on actual numbers).&lt;/p&gt;
@@ -32,8 +33,7 @@ it&amp;rsquo;s a gist with links to a lot of really interesting articles. Thanks
 
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.molecular-matters.com/&#34;&gt;Molecular Musings&lt;/a&gt;: Dev blog of the Molecule Engine / Stefan Reinalter&amp;rsquo;s blog.
 Best engine related blog I know.&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+&lt;/ul&gt;</description>
     </item>
     
   </channel>

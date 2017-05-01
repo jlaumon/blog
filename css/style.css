@@ -239,12 +239,13 @@ font-style:normal
 }
 body {
     font-weight:200;
-    font-family:'Open Sans',
-    sans-serif;
+    color:#404040;
+    font-family:"Merriweather", serif;
     background-color:#fff
 }
-div.highlight {
-    padding:1em
+code {
+	font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
+	font-size: 1.em;
 }
 img {
     border:0;
