@@ -28,7 +28,7 @@ For this usage, **32 bits** hashes are often enough. The chances of having a col
 
 ## Collision Detection
 
-The chances of having collision may be low, but detecting them during development is still critical otherwise you will get really weird bugs.
+The chances of having collisions may be low, but detecting them during development is still critical, otherwise you will get really weird bugs.
 
 The basic idea is simple: every time we hash a string, we access a global map (a hash map actually) to check if the hash was already associated with a different string.
 
@@ -42,13 +42,15 @@ Last thing to note about our implementation: we store the strings in 64KB buffer
 
 ## Debugging
 
-The first thing we did is add a getString() function to our StringHash class. That's really easy to implement thanks to the global hash map mentioned above. Also, since the strings are never freed, the function can just return a const char pointer and we never need to worry about the lifetime of the pointed string. With that function, we can use strings instead of hashes in the logs, the debug UIs, the editors and even when serializing to textual data formats. The only limitation being that we can only do it with development builds (the hash map is disabled in the final build), but that's usually not a problem.
+The first thing we did is add a `const char* getString()` function to our StringHash class. That's really easy to implement since we just need to access to the global hash map mentioned above. Since the strings are never freed, the pointer returned by the function will always be valid. 
 
-So far so good, but still, it's hard to tell that 4086421542 is "banana" when you look at a StringHash variable in the debugger. And so, the second thing we did is store the pointer returned by getString() along with the hash inside the StringHash class. It makes the string visible in the debugger but it also makes the class bigger, which is not great. Fortunately there's another option: the Visual Studio Debug Visualizers (aka. the [Natvis files](https://msdn.microsoft.com/en-us/library/jj620914.aspx)) and that's what we used in the end (at least on the platforms that support it).
+With this `getString()`, we can use strings instead of hashes in the **logs**, the **debug UIs**, the **editors** and even when **serializing** to textual data formats. The only limitation is that we can only use it in **development builds** because the collision detection (and the hash map) are disabled the final build. But that's usually not a problem. To simplify things the `getString()` function stays defined in the final build, but always returns an empty string.
 
-Natvis are basically XML "scripts" that tell the debugger how to display a class. In this particular case, we need to use the [CustomListItems](https://msdn.microsoft.com/en-us/library/jj620914.aspx#CustomListItems-expansion) tag to do a lookup inside the global hash map and find the string. That's where having a simple hash map implementation becomes important, scripting in XML is *painful*.
+So far so good, but still, it's hard to tell that 4086421542 is "banana" when you look at a StringHash variable in the debugger. So the second thing we did is **store the pointer** returned by `getString()` along with the hash inside the StringHash class. It makes the string visible in the debugger but it also makes the class bigger, which is not great. Fortunately there's another option: the **Visual Studio Debug Visualizers** (aka. the [Natvis files](https://msdn.microsoft.com/en-us/library/jj620914.aspx)) and that's what we used in the end (at least on the platforms that support it).
 
-First thing to note, since the key of the map is already a hash, we don't need a function to rehash it. If you're using an std::unordered_map, the 3rd template parameter should be a funtion that does nothing.
+Natvis are basically XML "scripts" that tell the debugger how to display a class. In this particular case, we need to use the [CustomListItems](https://msdn.microsoft.com/en-us/library/jj620914.aspx#CustomListItems-expansion) tag to do a lookup inside the global hash map and find the string. That's where having a **simple hash map implementation** becomes important, scripting in XML is *painful*.
+
+First thing to note, since the key of the map is **already a hash**, we don't need a function to rehash it. If you're using an std::unordered_map, the 3rd template parameter should be a funtion that does nothing.
 
 Next, a hash map that uses [linear probing](https://en.wikipedia.org/wiki/Linear_probing) makes everything a lot easier: we can just jump at the right bucket index and do a linear search from there (note that std::unordered_map does **not** use linear probing, you need a custom hash map [like this one](https://github.com/rigtorp/HashMap)). 
 
@@ -81,7 +83,7 @@ Here is what the natvis look like (based on the hash map implementation linked a
 </AutoVisualizer>
 ```
 
-Very verbose, but not very complicated. We start looking at `m_hash % num_buckets` and check out every bucket until we find our hash or get back where we started.
+Very verbose, but not so complicated. We start looking at `m_hash % num_buckets` and check out every bucket until we find our hash or get back where we started.
 
 It's also possible to follow the chaining used by std::unordered_map (although more complicated), but another reason to use to linear probing is that some consoles only partially support the natvis file syntax and have a simpler "linear search" tag instead of the very complex CustomListItems tag. But that's another story.
 
@@ -91,7 +93,8 @@ Here is what it looks like in the debugger:
 
 Exactly like when we store the string inside the class.
 
-One last trick worth mentioning: we need to make sure the global hash map is initalized before any global StringHash variable, because their constructor is going to use the map to check for collisions. A typical solution for that is to use a getter function and put the hash map inside as a static variable, this way the map is initialized during the first call. But we also need to declare a global pointer to the hash map, otherwise we can't access it from the natvis file.
+One last thing worth mentioning: global StringHash variables are going to access the global hash map in their constructor so we need to make sure that the map is initialized *before* any StringHash. A typical solution for that (since in C++, global variable initialization order is not defined) is to make the hash map **static inside a function**. However, we *also* need to declare a global pointer to the hash map, otherwise we can't access it from the natvis file.
+
 
 ```c++
 
@@ -118,7 +121,7 @@ StringMap* StringHash::s_GlobalStringMap = GetGlobalStringMap();
 
 ## Compile Time Hashes
 
-Another advantage of using a simple hash function is that it's easy to make a constexpr version of it (even with the restrictions of c++11).
+Another advantage of using a simple hash function is that it's easy to make a **constexpr** version of it (even with the restrictions of c++11).
 
 For example, djb2:
 
@@ -153,7 +156,7 @@ constexpr uint32_t HashStr(const char* _str)
 }
 ```
 
-If you also declare the StringHash constructors constexpr, all the string hashes of literals will be calculated at compile time. Yay!
+If you also declare the StringHash constructors constexpr, all the hashes of string literals will be calculated at **compile time**. Yay!
 
 Of course this is incompatible with the collision detection / debugging part, but with a few macros and #ifdefs, it's pretty easy to have the debug features in development builds and the constexpr for release builds. 
 
