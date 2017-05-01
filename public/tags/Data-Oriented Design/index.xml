@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Data-Oriented Design on Dangling Pointers</title>
+    <link>http://danglingpointers.com/tags/data-oriented-design/index.xml</link>
+    <description>Recent content in Data-Oriented Design on Dangling Pointers</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <atom:link href="http://danglingpointers.com/tags/data-oriented-design/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Mike Acton&#39;s Data-Oriented Design Workshop (2015)</title>
+      <link>http://danglingpointers.com/post/mike-actons-dod-workshop-2015/</link>
+      <pubDate>Sat, 19 Mar 2016 12:04:48 +0100</pubDate>
+      
+      <guid>http://danglingpointers.com/post/mike-actons-dod-workshop-2015/</guid>
+      <description>&lt;p&gt;I attended Mike Acton&amp;rsquo;s master class during last year&amp;rsquo;s &lt;a href=&#34;http://www.game-connection.com/master-classes-0&#34;&gt;Game Connection&lt;/a&gt; in Paris.
+Unsurprisingly it was about data-oriented design, but it was a workshop, a practical exercise, and it showed us (or at least me)
+a new facet of the concept, as well as a few interesting techniques.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;re new to the concept of data-oriented design, you should first &lt;a href=&#34;http://gamesfromwithin.com/data-oriented-design&#34;&gt;read an introduction&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Know your data&lt;/em&gt;, that&amp;rsquo;s what Mike Acton keeps saying. I&amp;rsquo;d heard it before the master class but never really had thought about
+what it implied. In this article ‒ which is pretty much just the tale of this master class ‒ I&amp;rsquo;ll try to explain what it means,
+and why it&amp;rsquo;s so important.&lt;/p&gt;
+
+&lt;h2 id=&#34;the-exercise&#34;&gt;The exercise&lt;/h2&gt;
+
+&lt;p&gt;The exercise was to try to make &lt;a href=&#34;https://github.com/syoyo/tinyobjloader&#34;&gt;tinyobjloader&lt;/a&gt; faster. It&amp;rsquo;s a small open-source library that
+parses OBJ files, simple text files used to store 3D geometry (meshes).&lt;/p&gt;
+
+&lt;p&gt;Mike had the only computer and was de facto doing everything.
+He wasn&amp;rsquo;t directly doing the exercise however, he just kept asking us what he should do and sometimes hinted us with questions.&lt;/p&gt;
+
+&lt;p&gt;That can sound like a weird setup for a master class but ended up working perfectly. It was very interactive and we all left
+convinced we could do something similar on our own.&lt;/p&gt;
+
+&lt;h2 id=&#34;the-usual-profiling&#34;&gt;The usual profiling&lt;/h2&gt;
+
+&lt;p&gt;After a quick look at the code to understand what it did (Mike hadn&amp;rsquo;t read it beforehand either, that&amp;rsquo;s how confident he is),
+we made a small test app and ran it on a few OBJ files that Mike had brought (he hadn&amp;rsquo;t read the code, but he wasn&amp;rsquo;t unprepared).&lt;/p&gt;
+
+&lt;p&gt;The sizes of the files we tested ranged from a few MB to about 800MB. The big ones were so slow we didn&amp;rsquo;t wait until they finished,
+we waited several minutes then killed the app.&lt;/p&gt;
+
+&lt;p&gt;Next, we fired up &lt;a href=&#34;http://www.codersnotes.com/sleepy/&#34;&gt;Very Sleepy&lt;/a&gt; (a profiler) to check where the time was spent. I&amp;rsquo;ll skip over the details here,
+what you need to know is that &lt;em&gt;tinyobjloader&lt;/em&gt; actually does two conceptually separate things: it parses the OBJ file and then converts the parsed
+data into a slightly different format.&lt;/p&gt;
+
+&lt;p&gt;The conversion part involves storing all the vertices into an std::map to deduplicate them, and that&amp;rsquo;s very slow,
+especially when the mesh is big. This deduplication took the biggest part of the time, and seemed to be a good candidate
+for optimization. We decided to focus on that.&lt;/p&gt;
+
+&lt;h2 id=&#34;so-what-should-we-do&#34;&gt;So, what should we do?&lt;/h2&gt;
+
+&lt;p&gt;First general reaction on our part: let&amp;rsquo;s replace that std::map with a hash map!&lt;/p&gt;
+
+&lt;p&gt;Tut tut, that&amp;rsquo;s a pretty impulsive decision. Mike redirected the group with a question:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Do we need that conversion in the first place?&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;After a few minutes of discussion, it turned out, no, not necessarily.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m not going too much into details here because it&amp;rsquo;s a little bit long to explain
+(I made an &lt;a href=&#34;#appendix&#34;&gt;appendix&lt;/a&gt; for that!), just know that since DirectX 10 / OpenGL 3, the graphics APIs are flexible enough
+to handle the first format directly.&lt;/p&gt;
+
+&lt;p&gt;And more importantly, not doing this conversion pretty much avoids the duplication.&lt;/p&gt;
+
+&lt;p&gt;Here I could recognize data-oriented thinking. What is it we&amp;rsquo;re actually trying to do? By considering the flow of data
+at a more global level, from the OBJ reading to the vertex shader, we found out we were doing more than required.&lt;/p&gt;
+
+&lt;p&gt;OK, problem solved. We could just not do this conversion and it would certainly be a lot faster.&lt;/p&gt;
+
+&lt;p&gt;However that&amp;rsquo;s no fun. For the sake of the exercise, we decided to pretend we absolutely needed this conversion.
+And deduplicating vertices with an std::map was still too slow.&lt;/p&gt;
+
+&lt;h2 id=&#34;so-what-should-we-do-2&#34;&gt;So, what should we do? #2&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Do we need to deduplicate the vertices?&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Maybe you saw this one coming. Would it work without deduplicating the vertices? Yes. But since there would be more vertices,
+it would take more memory and the GPU would have more work to do.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;How much memory? How much work?&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This is where the fun starts, and where I started to understand the meaning of &lt;em&gt;Know your data&lt;/em&gt;. How many vertices ended up duplicated
+by the conversion of those OBJ files?&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s find out! Mike hacked into the source code to add a few calls to &lt;code&gt;printf&lt;/code&gt;. &lt;code&gt;printf(&amp;quot;a\n&amp;quot;)&lt;/code&gt; whenever a duplicated vertex was encountered, &lt;code&gt;printf(&amp;quot;b\n&amp;quot;)&lt;/code&gt; otherwise.&lt;/p&gt;
+
+&lt;p&gt;He then ran the app on a few OBJ files and captured the output into a file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;app.exe thing.OBJ &amp;gt; 1.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;How many vertices in total? If you&amp;rsquo;re a linux-style command line person, like Mike, you can do:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;wc -l 1.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which counts the number of lines in the file (Windows users, check out &lt;a href=&#34;http://cmder.net/&#34;&gt;cmder&lt;/a&gt;). And if you&amp;rsquo;re not that kind of person,
+getting the number of lines is still pretty easy with a decent text editor, like
+&lt;a href=&#34;https://notepad-plus-plus.org/&#34;&gt;notepad++&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;How many duplicated vertices?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;grep a 1.txt | wc -l
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;grep&lt;/code&gt; prints all the lines containing &amp;lsquo;a&amp;rsquo; and &lt;code&gt;wc&lt;/code&gt; counts them. In notepad++, you can do a &amp;lsquo;Find&amp;rsquo; (ctrl+f) &amp;lsquo;a&amp;rsquo; and click on the &amp;lsquo;Count&amp;rsquo; button to get the same
+result.&lt;/p&gt;
+
+&lt;p&gt;The result varied from file to file but in the end the number of duplicated vertices wasn&amp;rsquo;t very high. Something around 10-30%,
+if I recall correctly.&lt;/p&gt;
+
+&lt;p&gt;We calculated how much memory it represented in term of vertex buffer and index buffer and concluded that it wasn&amp;rsquo;t much either. In a game, usually, the majority of
+the VRAM is used to store textures, so incrementing the space taken by meshes, even by 25%, is not a big deal. And it&amp;rsquo;s a small price to pay to
+save minutes or hours every time you build the data.&lt;/p&gt;
+
+&lt;p&gt;What about how much more work it represents? Again, in a game, the GPU usually spends a pretty small part of the frame running vertex shaders, so a small increase
+there is probably affordable.&lt;/p&gt;
+
+&lt;p&gt;In a real case, we ought to &lt;strong&gt;validate those assumptions&lt;/strong&gt; more thoroughly. How much time is actually spent in the vertex shaders, how much memory
+is spent on meshes. We could also make a script that runs the app above on all the meshes of the game and gather the results in a CSV.&lt;/p&gt;
+
+&lt;p&gt;Here we were again, deciding not to do something in order to save time. We decided to keep the conversion, but avoid doing the deduplication of the vertices.
+This time however, it was a trade: we traded time during the building of the data, for time and memory at runtime. But it was an &lt;strong&gt;informed decision&lt;/strong&gt;,
+our knowledge of the data told us the trade was worth it.&lt;/p&gt;
+
+&lt;p&gt;At this point, the afternoon was well under way but we still had time to try something else. So we decided to try to keep the deduplication
+and see what we could do to improve it.&lt;/p&gt;
+
+&lt;h2 id=&#34;so-what-should-we-do-3&#34;&gt;So, what should we do? #3&lt;/h2&gt;
+
+&lt;p&gt;Hmm. The std::map is very slow because it gets so big. Maybe we could only check the last N vertices we encountered instead of all of them?&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;How can you tell if it&amp;rsquo;s a good idea? And how much is N?&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Again, let&amp;rsquo;s observe the data. Mike modified the std::map to also store the last index of each vertex, so that when we encountered a vertex that&amp;rsquo;s already
+in the map, we could print the distance between the two occurrences.&lt;/p&gt;
+
+&lt;p&gt;We made an histogram to make the values more readable:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sort -n 1.txt | uniq -c
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;sort&lt;/code&gt; sorts the values, &lt;code&gt;uniq&lt;/code&gt; counts and remove contiguous duplicates (there&amp;rsquo;s no alternative with notepad++, but you can do the same with very few
+lines of python). The output looks something like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;1 5
+3 6
+14 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Meaning that a distance of &lt;code&gt;1&lt;/code&gt; has been encountered five times, and so on. But that&amp;rsquo;s just an example I made up, not the actual output we got.&lt;/p&gt;
+
+&lt;p&gt;The output we got seemed to show that a lot of duplicated vertices were close to each others,
+but there were so many numbers that extracting informations visually was pretty difficult.&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s when Mike showed us the second tool of the trade: &lt;strong&gt;the spreadsheet&lt;/strong&gt;. With any spreadsheet application, you can easily calculate
+the average, standard deviation, &lt;a href=&#34;https://en.wikipedia.org/wiki/Percentile&#34;&gt;percentiles&lt;/a&gt; and even make graphs.&lt;/p&gt;
+
+&lt;p&gt;That helped us confirm that most duplicated vertices were close to each others, and only a small number were very far apart. A few printfs later,
+we had the minimum values of N to catch either 80%, 90% or 95% of the duplicated vertices. I don&amp;rsquo;t remember the exact numbers, but they were small,
+around a hundred or so.&lt;/p&gt;
+
+&lt;p&gt;With this knowledge, we could have devised a plan to make a cache small enough to be at the same time very fast and efficient enough, but
+the day was coming to an end and we stopped there.&lt;/p&gt;
+
+&lt;p&gt;I think I would have tried a two levels cache with a naive linear search.
+Something like 60-70% of the duplicated vertices were extremely close to each other, maybe with a distance less than 20. So a L1 cache of 20 vertices and
+a L2 cache of around 100-200 vertices could have caught 90-95% of the duplications and would most certainly be a lot faster than the std::map (because
+everything would fit in the CPU&amp;rsquo;s cache).&lt;/p&gt;
+
+&lt;p&gt;And if the linear search is not fast enough, we could still sort the cache buffer and do a binary search. Or make some kind of fixed size hash map, with
+&lt;a href=&#34;https://en.wikipedia.org/wiki/Quadratic_probing&#34;&gt;quadratic probing&lt;/a&gt; for example. But I digress, what&amp;rsquo;s important here is not the solution,
+it&amp;rsquo;s &lt;strong&gt;the methodology&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h1 id=&#34;so-what-s-the-conclusion&#34;&gt;So, what&amp;rsquo;s the conclusion?&lt;/h1&gt;
+
+&lt;p&gt;&lt;em&gt;Know your data&lt;/em&gt;. Know &lt;strong&gt;statistics&lt;/strong&gt; about your data. Know what the most common case is, and how frequent it is.
+That&amp;rsquo;s the only way of making sensible decisions about the solution.&lt;/p&gt;
+
+&lt;p&gt;And what&amp;rsquo;s more: &lt;strong&gt;investigating your data is super easy!&lt;/strong&gt; A few minutes of hacking with printfs, simple tools
+like command line utilities, scripts and spreadsheets and you can learn anything you need.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;appendix&#34;&gt;Appendix&lt;/h2&gt;
+
+&lt;h3 id=&#34;the-mesh-conversion&#34;&gt;The mesh conversion&lt;/h3&gt;
+
+&lt;p&gt;For those who are interested, let&amp;rsquo;s explain the conversion that happens inside &lt;em&gt;tinyobjloader&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;In the OBJ file, there&amp;rsquo;s a list of triangles (that&amp;rsquo;s not the actual OBJ syntax, mine is prettier):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Triangle 1: 1/1/1  2/2/1  3/3/1
+Triangle 2: 3/3/1  2/2/1  4/4/1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Triangles contain 3 groups of indices, one group per vertex. Each index points respectively to a position, a 2D texture coordinate (UV) and a normal.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Position 1:  0.0   0.0   0.0
+Position 2:  1.0   0.0   0.0
+Position 3:  0.0   1.0   0.0
+Position 4:  1.0   1.0   0.0
+
+UV 1:        0.0   0.0
+UV 2:        1.0   0.0
+UV 3:        0.0   1.0
+UV 4:        1.0   1.0
+
+Normal 1:    0.0   0.0   1.0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The problem here is that OpenGL/DirectX tell us that we need to have only one index per vertex to make an index buffer,
+and incidentally, we need to have the same number of positions, UVs and normals. The naive conversion gives us this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Triangle 0: 1  2  3
+Triangle 1: 4  5  6
+
+
+Position 1:  0.0   0.0   0.0
+Position 2:  1.0   0.0   0.0
+Position 3:  0.0   1.0   0.0
+Position 4:  0.0   1.0   0.0
+Position 5:  1.0   0.0   0.0
+Position 6:  1.0   1.0   0.0
+
+UV 1:        0.0   0.0
+UV 2:        1.0   0.0
+UV 3:        0.0   1.0
+UV 4:        0.0   1.0
+UV 5:        1.0   0.0
+UV 6:        1.0   1.0
+
+Normal 1:    0.0   0.0   1.0
+Normal 2:    0.0   0.0   1.0
+Normal 3:    0.0   0.0   1.0
+Normal 4:    0.0   0.0   1.0
+Normal 5:    0.0   0.0   1.0
+Normal 6:    0.0   0.0   1.0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ouch, that got a lot bigger. As you can see, vertex 2-5 and 3-4 are identical, leading to a lot of duplicated data.
+We could deduplicate them, and that&amp;rsquo;s exactly what the std::map in &lt;em&gt;tinyobjloader&lt;/em&gt; does. It maps a triplet of indices to a single index, and gets us this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Triangle 0: 1  2  3
+Triangle 1: 3  2  4
+
+
+Position 1:  0.0   0.0   0.0
+Position 2:  1.0   0.0   0.0
+Position 3:  0.0   1.0   0.0
+Position 4:  1.0   1.0   0.0
+
+UV 1:        0.0   0.0
+UV 2:        1.0   0.0
+UV 3:        0.0   1.0
+UV 4:        1.0   1.0
+
+Normal 1:    0.0   0.0   1.0
+Normal 2:    0.0   0.0   1.0
+Normal 3:    0.0   0.0   1.0
+Normal 4:    0.0   0.0   1.0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s better, but on top of being slow to generate, the normals are still duplicated and we can&amp;rsquo;t do anything about it. Or can we?&lt;/p&gt;
+
+&lt;p&gt;With this format, the index list usually goes into an index buffer, and the positions/UVs/normals go into vertex buffers,
+but since OpenGL 3.0 / DirectX 10, there are other ways of feeding data to a shader and we could use the mesh in its first form.
+We could:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;put the triplet of indices in a vertex buffer&lt;/li&gt;
+&lt;li&gt;put positions/UVs/normals into uniform buffers (constant buffers in DX terms)&lt;/li&gt;
+&lt;li&gt;draw the vertex buffer without index buffer&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And then in the vertex shader, we would just have to read the uniform buffers at the index given by the current vertex to get the actual vertex attributes.
+That&amp;rsquo;s one more indirection inside the vertex shader, but that&amp;rsquo;s usually negligible.&lt;/p&gt;
+
+&lt;p&gt;With this solution, some data is still duplicated in the vertex buffer (&lt;code&gt;2/2/1&lt;/code&gt; is present twice in this example).
+But the vertices are so small (3 16 bits ints) that adding an index buffer to deduplicate them would probably take more
+memory in the end. But that may still be worth it if you consider &lt;a href=&#34;https://www.opengl.org/wiki/Post_Transform_Cache&#34;&gt;post-transform vertex cache&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;So, is it worth it? Do you have lots of duplicates in your case? Are they close enough to fit in the post-transform vertex cache of your target platform?
+These are the questions you should ask yourself, and now you also know how to answer them :)&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

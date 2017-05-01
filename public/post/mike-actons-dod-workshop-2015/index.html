@@ -24,8 +24,10 @@
     <link rel="canonical" href="http://danglingpointers.com/post/mike-actons-dod-workshop-2015/">
     
 
-    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="//fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
 <link rel="stylesheet" href="http://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="http://danglingpointers.com/css/pygments/vs.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
 
@@ -49,11 +51,11 @@
 				<ul class="tags">
 					
 					
-					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
-					
-					<li><a href="http://danglingpointers.com/tags/c">C&#43;&#43; (1)</a></li>
+					<li><a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (1)</a></li>
 					
 					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
 					
 				</ul>
 			</li>
@@ -74,11 +76,11 @@
   <h1 itemprop="name" id="title">Mike Acton&#39;s Data-Oriented Design Workshop (2015)</h1>
   <div>
         <article itemprop="articleBody" id="content">
-           
-
-<p>I attended Mike Acton&rsquo;s master class during last year&rsquo;s <a href="http://www.game-connection.com/master-classes-0">Game Connection</a> in Paris.
+           <p>I attended Mike Acton&rsquo;s master class during last year&rsquo;s <a href="http://www.game-connection.com/master-classes-0">Game Connection</a> in Paris.
 Unsurprisingly it was about data-oriented design, but it was a workshop, a practical exercise, and it showed us (or at least me)
 a new facet of the concept, as well as a few interesting techniques.</p>
+
+<p></p>
 
 <p>If you&rsquo;re new to the concept of data-oriented design, you should first <a href="http://gamesfromwithin.com/data-oriented-design">read an introduction</a>.</p>
 
@@ -86,7 +88,7 @@ a new facet of the concept, as well as a few interesting techniques.</p>
 what it implied. In this article ‒ which is pretty much just the tale of this master class ‒ I&rsquo;ll try to explain what it means,
 and why it&rsquo;s so important.</p>
 
-<h2 id="the-exercise:6e3ad040f607df156a680e97bc2396fa">The exercise</h2>
+<h2 id="the-exercise">The exercise</h2>
 
 <p>The exercise was to try to make <a href="https://github.com/syoyo/tinyobjloader">tinyobjloader</a> faster. It&rsquo;s a small open-source library that
 parses OBJ files, simple text files used to store 3D geometry (meshes).</p>
@@ -97,7 +99,7 @@ He wasn&rsquo;t directly doing the exercise however, he just kept asking us what
 <p>That can sound like a weird setup for a master class but ended up working perfectly. It was very interactive and we all left
 convinced we could do something similar on our own.</p>
 
-<h2 id="the-usual-profiling:6e3ad040f607df156a680e97bc2396fa">The usual profiling</h2>
+<h2 id="the-usual-profiling">The usual profiling</h2>
 
 <p>After a quick look at the code to understand what it did (Mike hadn&rsquo;t read it beforehand either, that&rsquo;s how confident he is),
 we made a small test app and ran it on a few OBJ files that Mike had brought (he hadn&rsquo;t read the code, but he wasn&rsquo;t unprepared).</p>
@@ -113,7 +115,7 @@ data into a slightly different format.</p>
 especially when the mesh is big. This deduplication took the biggest part of the time, and seemed to be a good candidate
 for optimization. We decided to focus on that.</p>
 
-<h2 id="so-what-should-we-do:6e3ad040f607df156a680e97bc2396fa">So, what should we do?</h2>
+<h2 id="so-what-should-we-do">So, what should we do?</h2>
 
 <p>First general reaction on our part: let&rsquo;s replace that std::map with a hash map!</p>
 
@@ -126,7 +128,7 @@ for optimization. We decided to focus on that.</p>
 <p>After a few minutes of discussion, it turned out, no, not necessarily.</p>
 
 <p>I&rsquo;m not going too much into details here because it&rsquo;s a little bit long to explain
-(I made an <a href="#appendix:6e3ad040f607df156a680e97bc2396fa">appendix</a> for that!), just know that since DirectX 10 / OpenGL 3, the graphics APIs are flexible enough
+(I made an <a href="#appendix">appendix</a> for that!), just know that since DirectX 10 / OpenGL 3, the graphics APIs are flexible enough
 to handle the first format directly.</p>
 
 <p>And more importantly, not doing this conversion pretty much avoids the duplication.</p>
@@ -139,7 +141,7 @@ at a more global level, from the OBJ reading to the vertex shader, we found out 
 <p>However that&rsquo;s no fun. For the sake of the exercise, we decided to pretend we absolutely needed this conversion.
 And deduplicating vertices with an std::map was still too slow.</p>
 
-<h2 id="so-what-should-we-do-2:6e3ad040f607df156a680e97bc2396fa">So, what should we do? #2</h2>
+<h2 id="so-what-should-we-do-2">So, what should we do? #2</h2>
 
 <blockquote>
 <p>Do we need to deduplicate the vertices?</p>
@@ -199,7 +201,7 @@ our knowledge of the data told us the trade was worth it.</p>
 <p>At this point, the afternoon was well under way but we still had time to try something else. So we decided to try to keep the deduplication
 and see what we could do to improve it.</p>
 
-<h2 id="so-what-should-we-do-3:6e3ad040f607df156a680e97bc2396fa">So, what should we do? #3</h2>
+<h2 id="so-what-should-we-do-3">So, what should we do? #3</h2>
 
 <p>Hmm. The std::map is very slow because it gets so big. Maybe we could only check the last N vertices we encountered instead of all of them?</p>
 
@@ -247,7 +249,7 @@ everything would fit in the CPU&rsquo;s cache).</p>
 <a href="https://en.wikipedia.org/wiki/Quadratic_probing">quadratic probing</a> for example. But I digress, what&rsquo;s important here is not the solution,
 it&rsquo;s <strong>the methodology</strong>.</p>
 
-<h1 id="so-what-s-the-conclusion:6e3ad040f607df156a680e97bc2396fa">So, what&rsquo;s the conclusion?</h1>
+<h1 id="so-what-s-the-conclusion">So, what&rsquo;s the conclusion?</h1>
 
 <p><em>Know your data</em>. Know <strong>statistics</strong> about your data. Know what the most common case is, and how frequent it is.
 That&rsquo;s the only way of making sensible decisions about the solution.</p>
@@ -257,9 +259,9 @@ like command line utilities, scripts and spreadsheets and you can learn anything
 
 <hr />
 
-<h2 id="appendix:6e3ad040f607df156a680e97bc2396fa">Appendix</h2>
+<h2 id="appendix">Appendix</h2>
 
-<h3 id="the-mesh-conversion:6e3ad040f607df156a680e97bc2396fa">The mesh conversion</h3>
+<h3 id="the-mesh-conversion">The mesh conversion</h3>
 
 <p>For those who are interested, let&rsquo;s explain the conversion that happens inside <em>tinyobjloader</em>.</p>
 
@@ -357,7 +359,6 @@ memory in the end. But that may still be worth it if you consider <a href="https
 
 <p>So, is it worth it? Do you have lots of duplicates in your case? Are they close enough to fit in the post-transform vertex cache of your target platform?
 These are the questions you should ask yourself, and now you also know how to answer them :)</p>
-
         </article>
   </div>
 </section>
