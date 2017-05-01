@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Dangling Pointers</title>
+    <link>http://danglingpointers.com/tags/</link>
+    <description>Recent content in Tags on Dangling Pointers</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 24 Dec 2015 17:00:19 +0200</lastBuildDate>
+    
+	<atom:link href="http://danglingpointers.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>C&#43;&#43;</title>
+      <link>http://danglingpointers.com/tags/c&#43;&#43;/</link>
+      <pubDate>Thu, 24 Dec 2015 17:00:19 +0200</pubDate>
+      
+      <guid>http://danglingpointers.com/tags/c&#43;&#43;/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Data-Oriented Design</title>
+      <link>http://danglingpointers.com/tags/data-oriented-design/</link>
+      <pubDate>Sat, 19 Mar 2016 12:04:48 +0100</pubDate>
+      
+      <guid>http://danglingpointers.com/tags/data-oriented-design/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Links</title>
+      <link>http://danglingpointers.com/tags/links/</link>
+      <pubDate>Thu, 24 Dec 2015 18:00:19 +0200</pubDate>
+      
+      <guid>http://danglingpointers.com/tags/links/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
