@@ -28,6 +28,10 @@
   </url>
   
   <url>
+    <loc>http://danglingpointers.com/tags/c/</loc>
+  </url>
+  
+  <url>
     <loc>http://danglingpointers.com/</loc>
     <lastmod>2016-03-19T12:04:48+01:00</lastmod>
     <priority>0</priority>
@@ -36,7 +40,6 @@
   <url>
     <loc>http://danglingpointers.com/tags/data-oriented-design/</loc>
     <lastmod>2016-03-19T12:04:48+01:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
