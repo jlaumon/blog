@@ -2,6 +2,6 @@ baseurl = "http://danglingpointers.com/"
 languageCode = "en-us"
 title = "Dangling Pointers"
 disqusshortname = "danglingpointers"
-preservetaxonomynames = true
+preservetaxonomynames = false
 pygmentscodefences = true
 pygmentsuseclasses = true
