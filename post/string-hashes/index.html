@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="description" content="">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="keywords" content="C&#43;&#43;, Engine, ">
+
+
+<meta property="article:tag" content="C&#43;&#43;">
+<meta property="article:tag" content="Engine">
+
+
+
+
+
+    <base href="http://danglingpointers.com/">
+    <title> String Hashes - Dangling Pointers</title>
+    <link rel="canonical" href="http://danglingpointers.com/post/string-hashes/">
+    
+
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="http://fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="http://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="http://danglingpointers.com/css/pygments/vs.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+
+
+</head>
+
+<body lang="en" itemscope itemtype="http://schema.org/Article">
+<header id="header">
+	<h1 style="text-align:center"><a href="http://danglingpointers.com/">Dangling Pointers</a></h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
+    <nav id="nav">
+            <ul id="mainnav">
+			<li>
+                <a href="http://danglingpointers.com/tags/">
+                <i class="fa fa-tags"></i>
+				All tags
+				</a>
+				
+				<ul class="tags">
+					
+					
+					<li><a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (2)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/engine">Engine (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+		
+		
+
+            <ul id="social">
+            
+        </ul>
+
+    </nav>
+</header>
+
+
+
+<section id="main">
+  <h1 itemprop="name" id="title">String Hashes</h1>
+  <div>
+        <article itemprop="articleBody" id="content">
+           <p>Strings are often used as <strong>identifiers</strong> in games: object names, sound effect names, particle type names, etc. They&rsquo;re a bit like enums with the advantage of allowing your game to be data-driven: you don&rsquo;t necessarily need to recompile your program to accept new values.</p>
+
+<p>But strings are no fun: storing them efficiently is a headache, they&rsquo;re bigger and they&rsquo;re slower than enums.</p>
+
+<p>Fortunately there&rsquo;s an alternative: <strong>string hashes</strong>. We like them a lot at <a href="http://www.pastagames.com/">Pastagames</a>, and here are our humble solutions to the practical problems that come with them.</p>
+
+<p></p>
+
+<p><em>This article was also posted on <a href="http://www.pastagames.com/string-hashes/">Pastagames&rsquo; blog</a>.</em></p>
+
+<h2 id="hash-function">Hash Function</h2>
+
+<p>There are tons of hash functions out there, so it&rsquo;s sometimes a little bit hard to choose. Fortunately there are <a href="http://aras-p.info/blog/2016/08/09/More-Hash-Function-Tests/">great summaries</a> on the Internet.</p>
+
+<p>We definitely want to hash mostly short strings, and in this case simpler functions are better. In the article linked above, Aras recommends <strong>FNV-1a</strong>. If you don&rsquo;t care about javascript as a platform, <strong>Murmur2A</strong> and <strong>Murmur3</strong> may be slightly more efficient.</p>
+
+<p>At Pastagames, we chose <strong>djb2</strong> some years ago. All in all, it makes very little difference because we don&rsquo;t hash strings that often anyway. The goal is to use the hash everywhere instead of the string, so we basically calculate the hash once and then we&rsquo;re done.</p>
+
+<p>For this usage, <strong>32 bits</strong> hashes are often enough. The chances of having a collision are higher than with 64 bits hashes but still very, very low. In our biggest project, we have around 30K unique strings and we haven&rsquo;t got a single collision. And if we ever have one, well, we can just change one of the strings.</p>
+
+<h2 id="collision-detection">Collision Detection</h2>
+
+<p>The chances of having collisions may be low, but detecting them during development is still critical, otherwise you will get really weird bugs.</p>
+
+<p>The basic idea is simple: every time we hash a string, we access a global map (a hash map actually) to check if the hash was already associated with a different string.</p>
+
+<p>In our implementation, this global hash map is mutexed, but to limit the contention when accessing it from multiple threads, we added two layers of <strong>thread local caches</strong>.</p>
+
+<p>The first layer keeps the 16 most recent hashes and the second layer, the 128 most recent. Of course, those sizes are very dependent on how we use the string hashes and may not help in your case (remember, <a href="post/mike-actons-dod-workshop-2015/">know your data</a>). In our case, it also helped with the performance in debug builds (where the hash map is a lot slower because inlining is disabled), but not so much in optimized builds (to be fair, our cache implementation is pretty naive and we really stopped at &ldquo;good enough&rdquo;).</p>
+
+<p>An alternative to the caches would be to replace the mutex by a <a href="https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock">readers-writer lock</a>, or even use a <a href="https://github.com/preshing/junction">lock free hash map</a> (although we do want to keep the hash map implementation simple, for reasons detailed below).</p>
+
+<p>Last thing to note about our implementation: we store the strings in 64KB buffers to reduce the number of memory allocations. Each buffer acts as a linear allocator, and when it&rsquo;s full we just allocate a new one. We never free the strings so we don&rsquo;t even need to keep track of these buffers. YOLO.</p>
+
+<h2 id="debugging">Debugging</h2>
+
+<p>The first thing we did is add a <code>const char* getString()</code> function to our StringHash class. That&rsquo;s really easy to implement since we just need to access to the global hash map mentioned above. Since the strings are never freed, the pointer returned by the function will always be valid.</p>
+
+<p>With this <code>getString()</code>, we can use strings instead of hashes in the <strong>logs</strong>, the <strong>debug UIs</strong>, the <strong>editors</strong> and even when <strong>serializing</strong> to textual data formats. The only limitation is that we can only use it in <strong>development builds</strong> because the collision detection (and the hash map) are disabled the final build. But that&rsquo;s usually not a problem. To simplify things the <code>getString()</code> function stays defined in the final build, but always returns an empty string.</p>
+
+<p>So far so good, but still, it&rsquo;s hard to tell that 4086421542 is &ldquo;banana&rdquo; when you look at a StringHash variable in the debugger. So the second thing we did is <strong>store the pointer</strong> returned by <code>getString()</code> along with the hash inside the StringHash class. It makes the string visible in the debugger but it also makes the class bigger, which is not great. Fortunately there&rsquo;s another option: the <strong>Visual Studio Debug Visualizers</strong> (aka. the <a href="https://msdn.microsoft.com/en-us/library/jj620914.aspx">Natvis files</a>) and that&rsquo;s what we used in the end (at least on the platforms that support it).</p>
+
+<p>Natvis are basically XML &ldquo;scripts&rdquo; that tell the debugger how to display a class. In this particular case, we need to use the <a href="https://msdn.microsoft.com/en-us/library/jj620914.aspx#CustomListItems-expansion">CustomListItems</a> tag to do a lookup inside the global hash map and find the string. That&rsquo;s where having a <strong>simple hash map implementation</strong> becomes important, scripting in XML is <em>painful</em>.</p>
+
+<p>First thing to note, since the key of the map is <strong>already a hash</strong>, we don&rsquo;t need a function to rehash it. If you&rsquo;re using an std::unordered_map, the 3rd template parameter should be a funtion that does nothing.</p>
+
+<p>Next, a hash map that uses <a href="https://en.wikipedia.org/wiki/Linear_probing">linear probing</a> makes everything a lot easier: we can just jump at the right bucket index and do a linear search from there (note that std::unordered_map does <strong>not</strong> use linear probing, you need a custom hash map <a href="https://github.com/rigtorp/HashMap">like this one</a>).</p>
+
+<p>Here is what the natvis look like (based on the hash map implementation linked above):</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+
+<span class="nt">&lt;AutoVisualizer</span> <span class="na">xmlns=</span><span class="s">&quot;http://schemas.microsoft.com/vstudio/debugger/natvis/2010&quot;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;Type</span> <span class="na">Name=</span><span class="s">&quot;Pasta::StringHash&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Expand&gt;</span>
+        <span class="nt">&lt;CustomListItems&gt;</span>
+        <span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;buckets&quot;</span> <span class="na">InitialValue=</span><span class="s">&quot;s_GlobalStringMap-&gt;buckets_.mpBegin&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;num_buckets&quot;</span> <span class="na">InitialValue=</span><span class="s">&quot;s_GlobalStringMap-&gt;buckets_.mpEnd - s_GlobalStringMap-&gt;m_map.buckets_.mpBegin&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;start_bucket&quot;</span> <span class="na">InitialValue=</span><span class="s">&quot;m_hash % num_buckets&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;i&quot;</span> <span class="na">InitialValue=</span><span class="s">&quot;start_bucket&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;Loop&gt;</span>
+          <span class="nt">&lt;If</span> <span class="na">Condition=</span><span class="s">&quot;buckets[i].first == m_hash&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;Item</span> <span class="na">Name=</span><span class="s">&quot;string&quot;</span><span class="nt">&gt;</span>buckets[i].second, na<span class="nt">&lt;/Item&gt;</span>
+            <span class="nt">&lt;Break</span> <span class="nt">/&gt;</span>
+          <span class="nt">&lt;/If&gt;</span>
+          <span class="nt">&lt;Exec&gt;</span>i = (i + 1) % num_buckets<span class="nt">&lt;/Exec&gt;</span>
+        <span class="nt">&lt;/Loop&gt;</span>
+      <span class="nt">&lt;/CustomListItems&gt;</span>
+      <span class="nt">&lt;Item</span> <span class="na">Name=</span><span class="s">&quot;hash&quot;</span><span class="nt">&gt;</span>m_hash<span class="nt">&lt;/Item&gt;</span>
+    <span class="nt">&lt;/Expand&gt;</span>
+<span class="nt">&lt;/Type&gt;</span>
+
+<span class="nt">&lt;/AutoVisualizer&gt;</span>
+</code></pre></div>
+
+<p>Very verbose, but not so complicated. We start looking at <code>m_hash % num_buckets</code> and check out every bucket until we find our hash or get back where we started.</p>
+
+<p>It&rsquo;s also possible to follow the chaining used by std::unordered_map (although more complicated), but another reason to use to linear probing is that some consoles only partially support the natvis file syntax and have a simpler &ldquo;linear search&rdquo; tag instead of the very complex CustomListItems tag. But that&rsquo;s another story.</p>
+
+<p>Here is what it looks like in the debugger:</p>
+
+<p><img src="images/stringhash_debugger.png" alt="StringHash natvis" /></p>
+
+<p>Exactly like when we store the string inside the class.</p>
+
+<p>One last thing worth mentioning: global StringHash variables are going to access the global hash map in their constructor so we need to make sure that the map is initialized <em>before</em> any StringHash. A typical solution for that (since in C++, global variable initialization order is not defined) is to make the hash map <strong>static inside a function</strong>. However, we <em>also</em> need to declare a global pointer to the hash map, otherwise we can&rsquo;t access it from the natvis file.</p>
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="c1">// --- StringHash.h ---</span>
+<span class="k">struct</span> <span class="n">StringHash</span>
+<span class="p">{</span>
+  <span class="p">...</span>
+  <span class="c1">// Declaring the map inside the StringHash class will help the debugger find it</span>
+  <span class="c1">// (in case another global variable with the same name exist) and will prevent</span>
+  <span class="c1">// the variable from being optimized away (which can happen since it&#39;s never </span>
+  <span class="c1">// referenced in the code.)</span>
+  <span class="k">static</span> <span class="n">StringMap</span><span class="o">*</span> <span class="n">s_GlobalStringMap</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// --- StringHash.cpp ---</span>
+<span class="k">static</span> <span class="n">StringMap</span><span class="o">*</span> <span class="n">GetGlobalStringMap</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="k">static</span> <span class="n">StringHash</span><span class="o">::</span><span class="n">StringMap</span> <span class="n">s_StringMap</span><span class="p">;</span>
+  <span class="k">return</span> <span class="o">&amp;</span><span class="n">s_StringMap</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">StringMap</span><span class="o">*</span> <span class="n">StringHash</span><span class="o">::</span><span class="n">s_GlobalStringMap</span> <span class="o">=</span> <span class="n">GetGlobalStringMap</span><span class="p">();</span>
+</code></pre></div>
+
+<h2 id="compile-time-hashes">Compile Time Hashes</h2>
+
+<p>Another advantage of using a simple hash function is that it&rsquo;s easy to make a <strong>constexpr</strong> version of it (even with the restrictions of c++11).</p>
+
+<p>For example, djb2:</p>
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="kt">uint32_t</span> <span class="nf">HashStr</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">_str</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">src</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="kt">uint32_t</span> <span class="n">hash</span> <span class="o">=</span> <span class="mi">5381</span><span class="p">;</span>
+  
+  <span class="kt">char</span> <span class="n">c</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">((</span><span class="n">c</span> <span class="o">=</span> <span class="o">*</span><span class="n">_str</span><span class="o">++</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="n">c</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="n">hash</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Becomes:</p>
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="k">constexpr</span> <span class="kt">uint32_t</span> <span class="nf">HashStrRecur</span><span class="p">(</span><span class="kt">uint32_t</span> <span class="n">_hash</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">_str</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">_str</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="nl">_hash</span> <span class="p">:</span> <span class="n">HashStrRecur</span><span class="p">(((</span><span class="n">_hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">_hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">_str</span><span class="p">,</span> <span class="n">_str</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">constexpr</span> <span class="kt">uint32_t</span> <span class="nf">HashStr</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">_str</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">_str</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">HashStrRecur</span><span class="p">(</span><span class="mi">5381</span><span class="p">,</span> <span class="n">_str</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>If you also declare the StringHash constructors constexpr, all the hashes of string literals will be calculated at <strong>compile time</strong>. Yay!</p>
+
+<p>Of course this is incompatible with the collision detection / debugging part, but with a few macros and #ifdefs, it&rsquo;s pretty easy to have the debug features in development builds and the constexpr for release builds.</p>
+
+<h2 id="that-s-all-folks">That&rsquo;s all folks!</h2>
+
+<p>Phew, that was a little longer than expected.</p>
+
+<p>Next up, the fiber based job system. Completely inspired by the Naughty Dog GDC presentation, but with a few small differences and a few more implementation details.</p>
+        </article>
+  </div>
+</section>
+
+
+
+<aside id="meta">
+
+    <div>
+        <section id="datecount">
+          <h4 id="date"> Sat May 6, 2017 </h4>
+          <h5 id="wc"> 1500 Words </h5>
+          <h5 id="readtime"> Read in about 7 Min </h5>
+        </section>
+        <ul id="categories">
+          
+        </ul>
+        <ul id="tags">
+          
+            <li> <a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43;</a> </li>
+          
+            <li> <a href="http://danglingpointers.com/tags/engine">Engine</a> </li>
+          
+        </ul>
+    </div>
+
+    <div>
+        <section id="prev">
+            &nbsp;
+        </section><section id="next">
+            &nbsp;<a class="next" href="http://danglingpointers.com/post/mike-actons-dod-workshop-2015/">Mike Acton&#39;s Data-Oriented Design Workshop (2015) <i class="icon-arrow-right"></i></a>
+        </section>
+    </div>
+
+
+</aside>
+
+<meta itemprop="wordCount" content="1422">
+<meta itemprop="datePublished" content="2017-05-06">
+<meta itemprop="url" content="http://danglingpointers.com/post/string-hashes/">
+
+
+<aside id=comments>
+    <div><h2> Comments </h2></div>
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'danglingpointers';
+    var disqus_identifier = 'http:\/\/danglingpointers.com\/post\/string-hashes\/';
+    var disqus_title = 'String Hashes';
+    var disqus_url = 'http:\/\/danglingpointers.com\/post\/string-hashes\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</aside>
+
+<footer>
+  <div>
+    <p>
+    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+	<a href="http://danglingpointers.com/about">About this blog</a>.
+
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+(function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
+fitText(document.getElementById('title'), 1)
+</script>
+</body>
+</html>
+

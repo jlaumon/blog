@@ -6,10 +6,25 @@
     <description>Recent content in Posts on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 19 Mar 2016 12:04:48 +0100</lastBuildDate>
+    <lastBuildDate>Sat, 06 May 2017 12:03:27 +0200</lastBuildDate>
     
 	<atom:link href="http://danglingpointers.com/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>String Hashes</title>
+      <link>http://danglingpointers.com/post/string-hashes/</link>
+      <pubDate>Sat, 06 May 2017 12:03:27 +0200</pubDate>
+      
+      <guid>http://danglingpointers.com/post/string-hashes/</guid>
+      <description>&lt;p&gt;Strings are often used as &lt;strong&gt;identifiers&lt;/strong&gt; in games: object names, sound effect names, particle type names, etc. They&amp;rsquo;re a bit like enums with the advantage of allowing your game to be data-driven: you don&amp;rsquo;t necessarily need to recompile your program to accept new values.&lt;/p&gt;
+
+&lt;p&gt;But strings are no fun: storing them efficiently is a headache, they&amp;rsquo;re bigger and they&amp;rsquo;re slower than enums.&lt;/p&gt;
+
+&lt;p&gt;Fortunately there&amp;rsquo;s an alternative: &lt;strong&gt;string hashes&lt;/strong&gt;. We like them a lot at &lt;a href=&#34;http://www.pastagames.com/&#34;&gt;Pastagames&lt;/a&gt;, and here are our humble solutions to the practical problems that come with them.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Mike Acton&#39;s Data-Oriented Design Workshop (2015)</title>
