@@ -11,7 +11,7 @@ Strings are often used as **identifiers** in games: object names, sound effect n
 
 But strings are no fun: storing them efficiently is a headache, they're bigger and they're slower than enums.
 
-Fortunately there's an alternative: **string hashes**. We like them a lot at Pastagames, and here are our humble solutions to the practical problems that come with them.
+Fortunately there's an alternative: **string hashes**. We like them a lot at [Pastagames](http://www.pastagames.com/), and here are our humble solutions to the practical problems that come with them.
 
 <!--more-->
 
