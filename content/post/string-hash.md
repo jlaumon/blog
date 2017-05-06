@@ -1,5 +1,5 @@
 +++
-date = "2017-01-28T13:44:19+02:00"
+date = "2017-05-06T12:03:27+02:00"
 description = ""
 tags = ["C++", "Engine"]
 title = "String Hashes"
@@ -15,6 +15,7 @@ Fortunately there's an alternative: **string hashes**. We like them a lot at Pas
 
 <!--more-->
 
+*This article was also posted on [Pastagames' blog](http://www.pastagames.com/string-hashes/).*
 
 ## Hash Function
 
