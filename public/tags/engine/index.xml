@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>C&#43;&#43; on Dangling Pointers</title>
-    <link>http://danglingpointers.com/tags/c&#43;&#43;/</link>
-    <description>Recent content in C&#43;&#43; on Dangling Pointers</description>
+    <title>Engine on Dangling Pointers</title>
+    <link>http://danglingpointers.com/tags/engine/</link>
+    <description>Recent content in Engine on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 06 May 2017 12:03:27 +0200</lastBuildDate>
     
-	<atom:link href="http://danglingpointers.com/tags/c++/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://danglingpointers.com/tags/engine/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -22,19 +22,6 @@
 &lt;p&gt;But strings are no fun: storing them efficiently is a headache, they&amp;rsquo;re bigger and they&amp;rsquo;re slower than enums.&lt;/p&gt;
 
 &lt;p&gt;Fortunately there&amp;rsquo;s an alternative: &lt;strong&gt;string hashes&lt;/strong&gt;. We like them a lot at &lt;a href=&#34;http://www.pastagames.com/&#34;&gt;Pastagames&lt;/a&gt;, and here are our humble solutions to the practical problems that come with them.&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Don’t use std::list</title>
-      <link>http://danglingpointers.com/post/dont-use-std-list/</link>
-      <pubDate>Thu, 24 Dec 2015 17:00:19 +0200</pubDate>
-      
-      <guid>http://danglingpointers.com/post/dont-use-std-list/</guid>
-      <description>&lt;p&gt;I feel like I’ve been saying this a lot lately ‒ at least once per intern we take at Pastagames ‒ so I guess it&amp;rsquo;s time I write it down.
-There&amp;rsquo;s nothing new here, this has been said a hundred times over on the Internet,
-but since a lot of people are still not aware of it, here is my contribution.&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;</description>
     </item>
