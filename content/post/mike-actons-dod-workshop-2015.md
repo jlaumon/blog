@@ -1,6 +1,6 @@
 +++
 date = "2016-03-19T12:04:48+01:00"
-description = ""
+description = "The tale of one of Mike Acton's master class. Know your data!"
 tags = ["Data-Oriented Design"]
 title = "Mike Acton's Data-Oriented Design Workshop (2015)"
 draft = false

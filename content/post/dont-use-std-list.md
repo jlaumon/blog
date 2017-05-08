@@ -2,6 +2,7 @@
 date = "2015-12-24T17:00:19+02:00"
 draft = false
 title = "Don’t use std::list"
+description = "Why you should not use std::list."
 tags = [ "C++" ]
 
 +++

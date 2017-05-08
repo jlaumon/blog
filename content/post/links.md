@@ -2,6 +2,7 @@
 date = "2015-12-24T18:00:19+02:00"
 draft = false
 title = "Other blogs and links"
+description = "Interesting links about engine programming, debugging and optimization."
 tags = [ "Links" ]
 
 +++

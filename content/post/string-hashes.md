@@ -1,6 +1,6 @@
 +++
 date = "2017-05-06T12:03:27+02:00"
-description = ""
+description = "An article about string hashes and how they are implmented in Pastagames' engine."
 tags = ["C++", "Engine"]
 title = "String Hashes"
 
