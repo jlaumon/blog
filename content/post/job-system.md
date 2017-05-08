@@ -15,3 +15,7 @@ separate sync counter (for synchornizing IO loadings & other stuff)
 auto recycling
 
 2- implem
+
+	1- concurrent queue
+	2- wake up queue
+	3- counter ID
