@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="description" content="">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="description" content="How Pastagames uses its fiber based job system.">
+<meta name="keywords" content="Engine, ">
+
+
+<meta property="article:tag" content="Engine">
+
+
+
+
+
+    <base href="http://danglingpointers.com/">
+    <title> Job System - Dangling Pointers</title>
+    <link rel="canonical" href="http://danglingpointers.com/post/job-system/">
+    
+
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="http://fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="http://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="http://danglingpointers.com/css/pygments/vs.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+
+
+</head>
+
+<body lang="en" itemscope itemtype="http://schema.org/Article">
+<header id="header">
+	<h1 style="text-align:center"><a href="http://danglingpointers.com/">Dangling Pointers</a></h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
+    <nav id="nav">
+            <ul id="mainnav">
+			<li>
+                <a href="http://danglingpointers.com/tags/">
+                <i class="fa fa-tags"></i>
+				All tags
+				</a>
+				
+				<ul class="tags">
+					
+					
+					<li><a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (2)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/engine">Engine (2)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+		
+		
+
+            <ul id="social">
+            
+        </ul>
+
+    </nav>
+</header>
+
+
+
+<section id="main">
+  <h1 itemprop="name" id="title">Job System</h1>
+  <div>
+        <article itemprop="articleBody" id="content">
+           <p>We have a fiber based job system at Pastagames. I started coding it just after seeing this <a href="http://www.gdcvault.com/play/1022186/Parallelizing-the-Naughty-Dog-Engine">Naughty Dog GDC Talk</a> back in 2015. And so far, we&rsquo;re really happy with it.</p>
+
+<p>In this article, I&rsquo;ll focus more on how we use it than on how we implemented it ‒ our implementation is very close to what Christian Gyrling presented in his talk.</p>
+
+<p>If you haven&rsquo;t seen the GDC Talk yet, you should watch it first. It&rsquo;s very interesting and it&rsquo;s probably necessary to follow what I&rsquo;m talking about.</p>
+
+<p></p>
+
+<h1 id="the-basic-idea">The basic idea</h1>
+
+<p>Let&rsquo;s start with the basics.</p>
+
+<p>Launching jobs gives you a &ldquo;counter&rdquo;, the value of the counter is the number of jobs you launched. When a job finishes, the counter is decremented by one; when all of them are finished, the value is zero.</p>
+
+<p>To know if a job (or a group of jobs) is finished, you can check if the value of the counter is zero, or, you can also call a function that will make you wait until the counter reaches a certain value.</p>
+
+<p>If you&rsquo;re in a job when you wait on a counter, the fiber executing this job is suspended and another one replaces it. The worker thread running the fibers never stops, that&rsquo;s what makes the whole thing very efficient.</p>
+
+<p>If you&rsquo;re not in a job however, the thread itself gets suspended, and that&rsquo;s a lot more expensive. But it can be useful to be able to do that in some cases: most of our code runs in jobs, but we still have a few dedicated threads that sometimes need to wait on a counter (some networking threads, various debug related threads and&hellip; the main thread ‒ yeah we still have this one.)</p>
+
+<h1 id="generalizing">Generalizing</h1>
+
+<p>The counters are what makes the system so flexible, so we decided to use them to represent <strong>all the asynchronous tasks</strong> in our engine.</p>
+
+<p>You want to load a file? The File Manager gives you a counter to wait on while a dedicated I/O thread does the work. Or you can keep the counter around and check its value every once in a while to see if it&rsquo;s finished.</p>
+
+<p>You want to load a material? The Resource Manager is going to launch a job and give you back a counter. This job is going to ask the File Manager for the material file, and then, depending on the content of the file, ask again the Resource Manager to load textures and shaders. This in turn will start new jobs and etc.</p>
+
+<p>You want to load a whole level of your game? That&rsquo;s the same story, just a deeper dependency graph. And inside this hierarchy of loadings, all the code is very simple because it&rsquo;s basically doing <strong>synchronous loadings</strong>: it starts a task and waits immediately on it. As long as the top caller is not waiting on the returned counter and instead checks every frame if the work is done, you get <strong>asynchronous loadings</strong>.</p>
+
+<p>We apply the same idea for every system/manager in the engine. Updating a system is just a matter of launching a job, which in turn may spawn more jobs if its work can be parallelized. Most of the time we avoid updating more than one system at a time to simplify the thread safety, and that just means we just have to wait on the initial counter before moving on to the next system.</p>
+
+<h1 id="lifetime-of-counters">Lifetime of counters</h1>
+
+<p>In the Naughty Dog Engine, freeing a counter is explicit, they have the function <code>WaitForCounterAndFree</code>. It means that if they don&rsquo;t want to free a counter, they can reuse it. But it also means that it&rsquo;s up to the user to orchestrate the freeing of the counter when more than one job is waiting on it, and that the engine has to detect if a counter is used after being freed.</p>
+
+<p>This seemed too complicated / too error prone for us, so we decided to automatically free a counter when it reaches zero, and instead of giving a pointer to the user, we give them an <strong>opaque handle</strong>.</p>
+
+<p>These handles are just ints. Half the bits represent an index into a big array of counters, and the other half represent a version number. If the version in the handle matches the version of the counter in the array, the handle is considered valid and we can read the counter value or wait on it. Otherwise it means that the counter was freed and its value is implicitely zero. Trying to wait on an invalid counter just returns immediately since the associated work is already finished.</p>
+
+<p>Not having to care about the counter ownership allowed us to simplify a lot of things. For example, if ten jobs try to load the same material, the Resource Manager can give them all the same handle instead of allocating ten different counters. Or if the material is already loaded, it&rsquo;s not even going to allocate a counter and just return an invalid handle directly.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>This job system and its synchronization via counters is way more powerful and simpler to use than the one we had before. Since we added it, we replaced all the non-I/O related threads we had by jobs, and today, we tend to write more parallelized code just because of how simple it&rsquo;s become.</p>
+
+<p>Actually, we use jobs so much now, that understanding what&rsquo;s displayed in our frame profiler can sometimes be a challenge. There are so many jobs being suspended and resumed that it&rsquo;s not always clear what&rsquo;s happening.</p>
+
+<p>One of the next item in our todo list will be to add a mode to our profiler that shows times per fiber instead of per thread, as well as showing the dependencies between the jobs.</p>
+
+<p>I&rsquo;ll probably write a second article about this job system, just to give a few details about the implementation. Until next time!</p>
+        </article>
+  </div>
+</section>
+
+
+
+<aside id="meta">
+
+    <div>
+        <section id="datecount">
+          <h4 id="date"> Sun Aug 27, 2017 </h4>
+          <h5 id="wc"> 1000 Words </h5>
+          <h5 id="readtime"> Read in about 5 Min </h5>
+        </section>
+        <ul id="categories">
+          
+        </ul>
+        <ul id="tags">
+          
+            <li> <a href="http://danglingpointers.com/tags/engine">Engine</a> </li>
+          
+        </ul>
+    </div>
+
+    <div>
+        <section id="prev">
+            &nbsp;
+        </section><section id="next">
+            &nbsp;<a class="next" href="http://danglingpointers.com/post/string-hashes/">String Hashes <i class="icon-arrow-right"></i></a>
+        </section>
+    </div>
+
+
+</aside>
+
+<meta itemprop="wordCount" content="979">
+<meta itemprop="datePublished" content="2017-08-27">
+<meta itemprop="url" content="http://danglingpointers.com/post/job-system/">
+
+
+<aside id=comments>
+    <div><h2> Comments </h2></div>
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'danglingpointers';
+    var disqus_identifier = 'http:\/\/danglingpointers.com\/post\/job-system\/';
+    var disqus_title = 'Job System';
+    var disqus_url = 'http:\/\/danglingpointers.com\/post\/job-system\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</aside>
+
+<footer>
+  <div>
+    <p>
+    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+	<a href="http://danglingpointers.com/about">About this blog</a>.
+
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+(function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
+fitText(document.getElementById('title'), 1)
+</script>
+</body>
+</html>
+
