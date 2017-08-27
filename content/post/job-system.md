@@ -9,7 +9,7 @@ draft = true
 
 We have a fiber based job system at Pastagames. I started coding it just after seeing this [Naughty Dog GDC Talk](http://www.gdcvault.com/play/1022186/Parallelizing-the-Naughty-Dog-Engine) back in 2015. And so far, we're really happy with it.
 
-In this article, I'll focus on how we use it and not so much on how we implemented it ‒ our implementation is very close to what Christian Gyrling presented in his talk.
+In this article, I'll focus more on how we use it than on how we implemented it ‒ our implementation is very close to what Christian Gyrling presented in his talk.
 
 If you haven't seen the GDC Talk yet, you should watch it first. It's very interesting and it's probably necessary to follow what I'm talking about.
 
