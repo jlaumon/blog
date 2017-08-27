@@ -6,10 +6,25 @@
     <description>Recent content on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 06 May 2017 12:03:27 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 27 Aug 2017 11:14:19 +0200</lastBuildDate>
     
 	<atom:link href="http://danglingpointers.com/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Job System</title>
+      <link>http://danglingpointers.com/post/job-system/</link>
+      <pubDate>Sun, 27 Aug 2017 11:14:19 +0200</pubDate>
+      
+      <guid>http://danglingpointers.com/post/job-system/</guid>
+      <description>&lt;p&gt;We have a fiber based job system at Pastagames. I started coding it just after seeing this &lt;a href=&#34;http://www.gdcvault.com/play/1022186/Parallelizing-the-Naughty-Dog-Engine&#34;&gt;Naughty Dog GDC Talk&lt;/a&gt; back in 2015. And so far, we&amp;rsquo;re really happy with it.&lt;/p&gt;
+
+&lt;p&gt;In this article, I&amp;rsquo;ll focus more on how we use it than on how we implemented it ‒ our implementation is very close to what Christian Gyrling presented in his talk.&lt;/p&gt;
+
+&lt;p&gt;If you haven&amp;rsquo;t seen the GDC Talk yet, you should watch it first. It&amp;rsquo;s very interesting and it&amp;rsquo;s probably necessary to follow what I&amp;rsquo;m talking about.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>String Hashes</title>
