@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="description" content="">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="description" content="Spin Lock implementation tricks from Naughty Dog&#39;s lead programmer Jason Gregory.">
+<meta name="keywords" content="Engine, Concurrency, C&#43;&#43;, ">
+
+
+<meta property="article:tag" content="Engine">
+<meta property="article:tag" content="Concurrency">
+<meta property="article:tag" content="C&#43;&#43;">
+
+
+
+
+
+    <base href="http://danglingpointers.com/">
+    <title> Spin Lock Implementation - Dangling Pointers</title>
+    <link rel="canonical" href="http://danglingpointers.com/post/spinlock-implementation/">
+    
+
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="http://fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="http://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="http://danglingpointers.com/css/pygments/vs.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+
+
+</head>
+
+<body lang="en" itemscope itemtype="http://schema.org/Article">
+<header id="header">
+	<h1 style="text-align:center"><a href="http://danglingpointers.com/">Dangling Pointers</a></h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
+    <nav id="nav">
+            <ul id="mainnav">
+			<li>
+                <a href="http://danglingpointers.com/tags/">
+                <i class="fa fa-tags"></i>
+				All tags
+				</a>
+				
+				<ul class="tags">
+					
+					
+					<li><a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (3)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/engine">Engine (3)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/concurrency">Concurrency (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+		
+		
+
+            <ul id="social">
+            
+        </ul>
+
+    </nav>
+</header>
+
+
+
+<section id="main">
+  <h1 itemprop="name" id="title">Spin Lock Implementation</h1>
+  <div>
+        <article itemprop="articleBody" id="content">
+           <p>I attended a <a href="https://www.game-connection.com/masterclasses/">Game Connection master class</a> this year again. This time it was with <a href="http://www.gameenginebook.com/bio.html">Jason Gregory</a> (Lead Programmer at <a href="https://www.naughtydog.com/">Naughty Dog</a>) on concurrent programming, and it was very interesting.</p>
+
+<p>I won&rsquo;t give a full account because we saw <em>way</em> too many things (500 slides!).</p>
+
+<p>Instead, I&rsquo;ll just write about a few <a href="https://en.wikipedia.org/wiki/Spinlock">spin lock</a> implementation tricks that he showed us.</p>
+
+<p></p>
+
+<h2 id="the-spin-lock">The spin lock</h2>
+
+<p>Here is the spin lock that we had at Pastagames. It&rsquo;s pretty a straightforward (one could almost say naive) implementation:</p>
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="kt">void</span> <span class="nf">Lock</span><span class="p">(</span><span class="n">AtomicI32</span><span class="o">&amp;</span> <span class="n">_spinLock</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(;;)</span>
+    <span class="p">{</span>
+        <span class="n">i32</span> <span class="n">expected</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="n">i32</span> <span class="n">store</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">_spinLock</span><span class="p">.</span><span class="n">compareExchange_Acquire</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">store</span><span class="p">))</span>
+            <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>It tries to exchange a 0 with a 1 in an atomic integer. 0 means it&rsquo;s unlocked, 1 means it&rsquo;s locked. If the value inside the atomic was already 1 (ie. already locked by someone else), it loops and tries again. <code>AtomicI32</code> is a custom type, but it&rsquo;s the same idea as <code>std::atomic&lt;int&gt;</code>.</p>
+
+<p>And here is the new and improved version based on Naughty Dog&rsquo;s spin lock that Jason Gregory showed us:</p>
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="kt">void</span> <span class="nf">Lock</span><span class="p">(</span><span class="n">AtomicI32</span><span class="o">&amp;</span> <span class="n">_spinLock</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(;;)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">_spinLock</span><span class="p">.</span><span class="n">load_Acquire</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">i32</span> <span class="n">expected</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="n">i32</span> <span class="n">store</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">_spinLock</span><span class="p">.</span><span class="n">compareExchange_Acquire</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">store</span><span class="p">))</span>
+                <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">EMIT_PAUSE_INSTRUCTION</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="take-a-break">Take a break</h2>
+
+<p>The first obvious difference is this <code>EMIT_PAUSE_INSTRUCTION</code> macro. On x86/x64, it translates into the <a href="https://software.intel.com/en-us/node/524249">_mm_pause()</a> intrinsic, which in turn emits an instruction called <code>PAUSE</code>.</p>
+
+<p>This <code>PAUSE</code> instruction helps the CPU understand it&rsquo;s inside a spin lock loop: instead of speculatively execute many iterations of the loop, it&rsquo;s going to relax and wait for the result of the current iteration before starting the next. It saves energy, leaves more resources for the other thread if the CPU supports hyperthreading, and also avoids costly pipeline flushes when the atomic is written to by another thread.</p>
+
+<p><em>Note: Other CPU architectures may have a similar instruction, although their actual effect may be slightly different; on ARM, there&rsquo;s <code>YIELD</code>.</em></p>
+
+<h2 id="only-play-if-you-re-going-to-win">Only play if you&rsquo;re going to win</h2>
+
+<p>The second difference is the load that appeared before the compare-exchange. Or more precisely, it&rsquo;s the fact that we&rsquo;re only attempting the compare-exchange if the lock appears to be free (and so is likely to succeed).</p>
+
+<p>What you may not know about the <code>CMPXCHG</code> (compare-exchange) instruction on x86/x64  (at least <em>I</em> didn&rsquo;t), is that it always writes to the target memory location, even if the comparison fails (in this case, it just writes back the old value). And it&rsquo;s important, because if the current CPU core writes to a memory location, it means all the other cores will have to invalidate their copy of the cacheline in their cache.</p>
+
+<p>Picture this: two threads/cores are competing to get a lock, but the lock is already taken by a third one.</p>
+
+<p>With the first version of the code, the two spinning cores will keep invalidating each other&rsquo;s copy of the cacheline and have to go through a higher, shared, cache level (or memory) to communicate the updated cacheline. It generates plenty of traffic between caches (and maybe between caches and memory), and all of that for nothing - the cacheline content is identical!</p>
+
+<p><img src="https://media.giphy.com/media/DOnYXfamcw8k8/giphy.gif" alt="Useless!" /></p>
+
+<p>In the second version however, the two spinning cores only read, so the cacheline stays valid in both cores L1 caches. It&rsquo;s also valid in the third core&rsquo;s cache (the one that has the lock) since it was the last one to write. That means no message needs to be exchanged until the lock is actully released, and even releasing it may be faster since the third core doesn&rsquo;t need to fetch the cacheline first. Way better!</p>
+
+<p><em>Note: Other CPU architectures often implement compare-exchange with two separate instructions: first a &ldquo;load-link&rdquo;, and then a &ldquo;store-conditional&rdquo; (<a href="https://en.wikipedia.org/wiki/Load-link/store-conditional">LL/SC</a>). The store-conditional may actually be conditional in this case and this may be a non-problem for these architectures. But even in this case, the additional load we&rsquo;re doing is harmless.</em></p>
+
+<p>And that&rsquo;s it for the spin lock tricks!</p>
+
+<p>Finally, if you want to know more about how cache coherency works in a multi-core environment, <a href="https://fgiesen.wordpress.com/2014/07/07/cache-coherency/">Fabian Giesen wrote a pretty comprehensive article about it</a>.</p>
+        </article>
+  </div>
+</section>
+
+
+
+<aside id="meta">
+
+    <div>
+        <section id="datecount">
+          <h4 id="date"> Sun Dec 31, 2017 </h4>
+          <h5 id="wc"> 700 Words </h5>
+          <h5 id="readtime"> Read in about 4 Min </h5>
+        </section>
+        <ul id="categories">
+          
+        </ul>
+        <ul id="tags">
+          
+            <li> <a href="http://danglingpointers.com/tags/engine">Engine</a> </li>
+          
+            <li> <a href="http://danglingpointers.com/tags/concurrency">Concurrency</a> </li>
+          
+            <li> <a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43;</a> </li>
+          
+        </ul>
+    </div>
+
+    <div>
+        <section id="prev">
+            &nbsp;
+        </section><section id="next">
+            &nbsp;<a class="next" href="http://danglingpointers.com/post/job-system/">Job System <i class="icon-arrow-right"></i></a>
+        </section>
+    </div>
+
+
+</aside>
+
+<meta itemprop="wordCount" content="678">
+<meta itemprop="datePublished" content="2017-12-31">
+<meta itemprop="url" content="http://danglingpointers.com/post/spinlock-implementation/">
+
+
+<aside id=comments>
+    <div><h2> Comments </h2></div>
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'danglingpointers';
+    var disqus_identifier = 'http:\/\/danglingpointers.com\/post\/spinlock-implementation\/';
+    var disqus_title = 'Spin Lock Implementation';
+    var disqus_url = 'http:\/\/danglingpointers.com\/post\/spinlock-implementation\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</aside>
+
+<footer>
+  <div>
+    <p>
+    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+	<a href="http://danglingpointers.com/about">About this blog</a>.
+
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+(function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
+fitText(document.getElementById('title'), 1)
+</script>
+</body>
+</html>
+

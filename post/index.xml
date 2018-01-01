@@ -6,10 +6,25 @@
     <description>Recent content in Posts on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 27 Aug 2017 11:14:19 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 31 Dec 2017 13:03:00 +0100</lastBuildDate>
     
 	<atom:link href="http://danglingpointers.com/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Spin Lock Implementation</title>
+      <link>http://danglingpointers.com/post/spinlock-implementation/</link>
+      <pubDate>Sun, 31 Dec 2017 13:03:00 +0100</pubDate>
+      
+      <guid>http://danglingpointers.com/post/spinlock-implementation/</guid>
+      <description>&lt;p&gt;I attended a &lt;a href=&#34;https://www.game-connection.com/masterclasses/&#34;&gt;Game Connection master class&lt;/a&gt; this year again. This time it was with &lt;a href=&#34;http://www.gameenginebook.com/bio.html&#34;&gt;Jason Gregory&lt;/a&gt; (Lead Programmer at &lt;a href=&#34;https://www.naughtydog.com/&#34;&gt;Naughty Dog&lt;/a&gt;) on concurrent programming, and it was very interesting.&lt;/p&gt;
+
+&lt;p&gt;I won&amp;rsquo;t give a full account because we saw &lt;em&gt;way&lt;/em&gt; too many things (500 slides!).&lt;/p&gt;
+
+&lt;p&gt;Instead, I&amp;rsquo;ll just write about a few &lt;a href=&#34;https://en.wikipedia.org/wiki/Spinlock&#34;&gt;spin lock&lt;/a&gt; implementation tricks that he showed us.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Job System</title>
