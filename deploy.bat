@@ -5,7 +5,7 @@ rmdir /s /q public
 
 echo "Copying CNAME"
 mkdir public
-cp CNAME public
+xcopy CNAME public
 
 echo "Generating content"
 hugo
