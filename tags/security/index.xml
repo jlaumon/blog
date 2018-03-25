@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Security on Dangling Pointers</title>
+    <link>http://danglingpointers.com/tags/security/</link>
+    <description>Recent content in Security on Dangling Pointers</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 25 Mar 2018 13:59:49 +0200</lastBuildDate>
+    
+	<atom:link href="http://danglingpointers.com/tags/security/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Meltdown and Spectre explained, again</title>
+      <link>http://danglingpointers.com/post/meltdown-spectre/</link>
+      <pubDate>Sun, 25 Mar 2018 13:59:49 +0200</pubDate>
+      
+      <guid>http://danglingpointers.com/post/meltdown-spectre/</guid>
+      <description>&lt;p&gt;You may have heard of &lt;strong&gt;Meltdown&lt;/strong&gt; and &lt;strong&gt;Spectre&lt;/strong&gt;. In January, these two new &lt;strong&gt;security vulnerabilities&lt;/strong&gt; were made public, and it was kind of a big deal: all modern processors were more or less vulnerable, all systems affected, they could steal your passwords and everything.&lt;/p&gt;
+
+&lt;p&gt;Things have settled down a little bit since then; security patches have been released and no actual attacks have been reported. But still, discoveries of that scale are not common, so I was curious: How do these vulnerabilities work?&lt;/p&gt;
+
+&lt;p&gt;The explanations I could find on the Internet came in two flavors:
+the one for security experts (&lt;a href=&#34;https://googleprojectzero.blogspot.fr/2018/01/reading-privileged-memory-with-side.html&#34;&gt;extremely technical, very hard to follow&lt;/a&gt;) and the ones for scared customers (&lt;a href=&#34;https://www.youtube.com/watch?v=syAdX44pokE&#34;&gt;that will make you doubt everything you known about computers&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;So I decided to write my own: for people that have some knowledge about CPUs, but no interest in actually exploiting the vulnerabilities.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;images/spectre.png&#34; alt=&#34;Spectre&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
