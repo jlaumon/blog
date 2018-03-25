@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="description" content="Meltdown and Spectre explained to people that have some knowledge about CPUs but no interest in exploiting the vulnerabilities.">
+<meta name="keywords" content="Security, ">
+
+
+<meta property="article:tag" content="Security">
+
+
+
+
+
+    <base href="http://danglingpointers.com/">
+    <title> Meltdown and Spectre explained, again - Dangling Pointers</title>
+    <link rel="canonical" href="http://danglingpointers.com/post/meltdown-spectre/">
+    
+
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="http://fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="http://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="http://danglingpointers.com/css/pygments/vs.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+
+
+</head>
+
+<body lang="en" itemscope itemtype="http://schema.org/Article">
+<header id="header">
+	<h1 style="text-align:center"><a href="http://danglingpointers.com/">Dangling Pointers</a></h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
+    <nav id="nav">
+            <ul id="mainnav">
+			<li>
+                <a href="http://danglingpointers.com/tags/">
+                <i class="fa fa-tags"></i>
+				All tags
+				</a>
+				
+				<ul class="tags">
+					
+					
+					<li><a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (3)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/engine">Engine (3)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/concurrency">Concurrency (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/security">Security (1)</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+		
+		
+
+            <ul id="social">
+            
+        </ul>
+
+    </nav>
+</header>
+
+
+
+<section id="main">
+  <h1 itemprop="name" id="title">Meltdown and Spectre explained, again</h1>
+  <div>
+        <article itemprop="articleBody" id="content">
+           <p>You may have heard of <strong>Meltdown</strong> and <strong>Spectre</strong>. In January, these two new <strong>security vulnerabilities</strong> were made public, and it was kind of a big deal: all modern processors were more or less vulnerable, all systems affected, they could steal your passwords and everything.</p>
+
+<p>Things have settled down a little bit since then; security patches have been released and no actual attacks have been reported. But still, discoveries of that scale are not common, so I was curious: How do these vulnerabilities work?</p>
+
+<p>The explanations I could find on the Internet came in two flavors:
+the one for security experts (<a href="https://googleprojectzero.blogspot.fr/2018/01/reading-privileged-memory-with-side.html">extremely technical, very hard to follow</a>) and the ones for scared customers (<a href="https://www.youtube.com/watch?v=syAdX44pokE">that will make you doubt everything you known about computers</a>).</p>
+
+<p>So I decided to write my own: for people that have some knowledge about CPUs, but no interest in actually exploiting the vulnerabilities.</p>
+
+<p><img src="images/spectre.png" alt="Spectre" /></p>
+
+<p></p>
+
+<h2 id="background-knowledge-virtual-memory">Background knowledge: Virtual memory</h2>
+
+<p>Some introduction is necessary to understand the rest of the article. I hope you know that modern <a href="https://en.wikipedia.org/wiki/CPU_cache">CPUs have caches</a> for memory accesses. What you may not know (and that I&rsquo;m going to explain here), is that they also use a <a href="https://en.wikipedia.org/wiki/Virtual_memory">virtual memory</a> system.</p>
+
+<p>The addresses you see in the debugger when you debug a program is called a <strong>virtual address</strong>. It&rsquo;s not the actual address where the data resides in the RAM, it&rsquo;s a mapping created by the kernel (the core of the OS). The actual address is called the <strong>physical address</strong>. The memory is mapped in chunks, called  <strong>memory pages</strong>, of usually 4KB (but they can be larger).</p>
+
+<p>The kernel manages these mappings in what is called a <strong>page table</strong>. The translation from virtual to physical is done automatically by the CPU, in hardware, based on this table. <strong>Each process has its own page table</strong>, meaning several processes can use the same virtual address without overwriting each other&rsquo;s memory: each will be mapped to a different physical address. User processes can only access the memory through virtual addresses. The kernel is the only one that can see, and deal with, the page table and physical addresses.</p>
+
+<p>Each page can also have access protections, pretty much like files. Some of them can be read-only, some of them can only be read with the right access level (usually meaning that you need to be inside the kernel to do so).</p>
+
+<p>If a process tries to access an address that is protected, or that is not mapped to a physical address, a <strong>page fault</strong> is triggered. It behaves like an exception: if uncatched, the program crashes.</p>
+
+<p>So, to recap, <strong>a process cannot access other processes&rsquo; memory</strong> because it doesn&rsquo;t have any mappings for it in its page table. <strong>A process also can&rsquo;t read the kernel&rsquo;s memory</strong>, because even if there may be an entry in the page table for it, it&rsquo;s protected.</p>
+
+<p>That is some strong security, right? Note that virtual memory is also useful for reasons other than security (<a href="https://en.wikipedia.org/wiki/Paging">paging</a> and <a href="http://ourmachinery.com/post/virtual-memory-tricks/">others</a>), but it&rsquo;s off-topic here.</p>
+
+<h2 id="meltdown">Meltdown</h2>
+
+<p>This attack was dubbed &ldquo;Variant 3: rogue data cache load&rdquo; in the initial paper, and thus always explained last in every article I could find. But since it&rsquo;s the simplest one, we&rsquo;re going to cover it first.</p>
+
+<p>It was initially discovered on Intel processors, but ARM admitted some of their processors are also affected. AMD CPUs are, however, apparently not vulnerable.</p>
+
+<h3 id="the-attack">The attack</h3>
+
+<p>Consider the following code snippet, where <code>kernel_mem</code> points to some data belonging to the OS:</p>
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="cp">#define CACHELINE 64</span>
+<span class="kt">char</span><span class="o">*</span> <span class="n">kernel_mem</span> <span class="o">=</span> <span class="p">...</span>
+<span class="kt">char</span> <span class="n">user_mem</span><span class="p">[</span><span class="mi">256</span> <span class="o">*</span> <span class="n">CACHELINE</span><span class="p">];</span>
+
+<span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">kernel_mem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">CACHELINE</span><span class="p">;</span> <span class="c1">// BOOM</span>
+<span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="n">user_mem</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+</code></pre></div>
+
+<p>It should read <code>user_mem</code> at an index depending on the value read from <code>kernel_mem</code>. Except, like I said in the paragraph above, the memory pages belonging to the kernel are protected, so the line where <code>kernel_mem</code> is read will trigger a page fault (hence the comment &ldquo;BOOM&rdquo;) and the line where <code>user_mem</code> is read will never be executed.</p>
+
+<p>Or will it?</p>
+
+<p>The thing is, modern CPUs don&rsquo;t really execute instructions one at a time (that&rsquo;s too slow), instead, they are <strong>pipelined</strong>. Each instruction passes through a certain number of <strong>stages</strong>, each corresponding to a component within the CPU core. The goal being to try to keep each component as busy as possible by allowing multiple instructions to be <em>in flight</em> simultaneously.</p>
+
+<p>There are limits to that simultaneity however, and here, reading <code>user_mem</code> clearly depends on reading the value of <code>kernel_mem</code> <em>first</em>. But if the value is in the cache, it can be available very quickly, allowing the second instruction to start executing <strong>before the memory access rights have been validated</strong> (and that&rsquo;s what makes Intel/ARM CPUs vulnerable).</p>
+
+<p>Of course after a while, the access rights check returns a failure, the pipeline is flushed (meaning the reading of <code>user_mem</code> is aborted before being finalized) and the page fault interrupt handler is executed.</p>
+
+<p>But, because the reading of <code>user_mem</code> was partially executed, the cache line containing <code>user_mem[index]</code> was loaded into the cache!</p>
+
+<p>All the attacker has to do after that, is read <code>user_mem</code> at every multiple of the cache line size, and measure how long takes every read. If one read is significantly faster than the others, it means that this cache line was in the cache, and the value of <code>kernel_mem[0]</code> can be deduced from the index of the read.</p>
+
+<p>Repeat the process to leak an arbitrary amount of data and that&rsquo;s pretty much it.</p>
+
+<h3 id="mitigation">Mitigation</h3>
+
+<p>Simplest attack, but also simplest fix: all the major OSes decided to just remove all the kernel pages from the page table, rendering the attack impossible.</p>
+
+<p>This has a cost however: every time a process does a <strong>syscall</strong> (ie. calling a function inside the kernel), the kernel will have to map all its memory pages, and then unmap them before returning to the process that called it. The cost is mainly visible for servers that need to do a lot of I/O, as they usually involve lots of syscalls. Games are almost not impacted as they usually try to minimize syscalls anyway.</p>
+
+<p>Hopefully the next generation of Intel/ARM CPUs will fix the vulnerability entirely and the costly patches in the OSes will not be necessary anymore.</p>
+
+<h2 id="spectre">Spectre</h2>
+
+<p>This time, instead of trying to bypass the different protections set up by the virtual memory, the attack goal will be to run code directly inside the <em>victim</em>&rsquo;s environment (which could be the kernel or another process), to take advantage of their access rights.</p>
+
+<h3 id="variant-1-bounds-check-bypass">Variant 1: Bounds check bypass</h3>
+
+<p>To have some control over the code executed, this variant will target principally <a href="https://en.wikipedia.org/wiki/Interpreter_(computing)">interpreters</a> and <a href="https://en.wikipedia.org/wiki/Just-in-time_compilation">just-in-time compilation</a> engines that execute &ldquo;untrusted&rdquo; code provided by a user. For example, a javascript engine in a web browser or the <a href="https://opensource.com/article/17/9/intro-ebpf">eBPF interpreter</a> in the linux kernel.</p>
+
+<p>Such interpreters need to have a lot of safeties, to make sure a user cannot harm the host (intentionally or not). One of such safeties is testing every array access to make sure it is not <em>out-of-bounds</em>. And this is exactly what this first variant of Spectre is about: <strong>bypassing bounds checks</strong>.</p>
+
+<p>Consider this code, which is very similar to the example for Meltdown, except it&rsquo;s supposed to be run by the victim:</p>
+<div class="highlight"><pre><code class="language-C++" data-lang="C++"><span></span><span class="cp">#define CACHELINE 64</span>
+
+<span class="kt">char</span><span class="o">*</span> <span class="n">victim_array</span> <span class="o">=</span> <span class="p">...;</span>
+<span class="kt">int</span>   <span class="n">victim_array_size</span> <span class="o">=</span> <span class="p">...;</span>
+
+<span class="kt">char</span> <span class="n">attacker_mem</span><span class="p">[</span><span class="mi">256</span> <span class="o">*</span> <span class="n">CACHELINE</span><span class="p">];</span>
+<span class="kt">int</span>  <span class="n">attacker_offset</span> <span class="o">=</span> <span class="p">...;</span> <span class="c1">// Greater than victim_array_size</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">attacker_offset</span> <span class="o">&lt;</span> <span class="n">victim_array_size</span><span class="p">)</span> 
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">out_of_bounds_value</span> <span class="o">=</span> <span class="n">victim_array</span><span class="p">[</span><span class="n">attacker_offset</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">value</span> <span class="o">=</span> <span class="n">attacker_mem</span><span class="p">[</span><span class="n">out_of_bounds_value</span> <span class="o">*</span> <span class="n">CACHELINE</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>If <code>attacker_offset</code> is greater or equal to <code>victim_array_size</code>, the code inside the if will never be executed, right?</p>
+
+<p>Except modern CPUs have another secret weapons: <strong>branch predictors</strong>. The branch predictor is a component that will, as the name suggest, try to guess the result of a branch (eg. an if) before its condition is actually evaluated. Based on the guess, the CPU can start executing instructions that are after the branch immediately, thus keeping its pipeline fed all the time. This is called <strong>speculative execution</strong>.</p>
+
+<p>Of course, if after evaluating the branch the branch predictor is proved wrong, the pipeline will be flushed and all the intermediary results will be discarded. Except that&hellip; some values read by the speculative execution may have been loaded into the cache! Again!</p>
+
+<p>So, in this example, if the branch predictor can be trained to predict a <code>true</code> (by running the code many times with a valid <code>attacker_offset</code>), and if <code>victim_array_size</code> is not in the cache (so that the condition takes a long time to evaluate), the code inside the if will be speculatively executed, loading values of <code>attacker_mem</code> into the cache and indirectly leaking <em>out-of-bounds</em> values from <code>victim_array</code>. If you go far enough out of bounds, you can leak anything in the victim&rsquo;s memory. And since it&rsquo;s only speculatively executed, there&rsquo;s no risk of triggering a page fault if the address was not valid.</p>
+
+<h3 id="mitigation-for-variant-1">Mitigation for Variant 1</h3>
+
+<p>The web browsers, being one of the main targets, all decided to reduce the resolution of the timers available in javascript. It doesn&rsquo;t prevent the speculative execution from leaking data into the cache, but the timers are not precise enough to measure if values are in the cache or not.</p>
+
+<p>The main other alternative is to prevent the speculative execution after a vulnerable bound check. Both x86 and ARM processors have some capability for <em>serializing</em> memory reads with some kind of fence instruction. The addition of these instructions can be done semi-automatically by the compiler, but the vulnerable code still needs to be identified and recompiled with the right compiler option.</p>
+
+<p>The cost of this mitigation should be negligible since the number of vulnerable branches is relatively low.</p>
+
+<h3 id="variant-2-branch-target-injection">Variant 2: Branch target injection</h3>
+
+<p>Brief intermission to explain another important technical detail: <strong>there are several types of branches</strong>.</p>
+
+<p>An <code>if</code> statement is what is called a conditional branch, the processor will jump to the <code>else</code> block if the condition is <code>false</code>. In this case, the position of the else block is fixed, it doesn&rsquo;t need to be evaluated by the CPU. There is another type of branch, called <strong>indirect branches</strong>, where the target is not known in advance because it is the result of some calculation. For example, calling a <strong>function pointer</strong>, making a <strong>virtual call</strong>, or even executing a <strong><code>return</code> statement</strong> (since the return address depends on the caller).</p>
+
+<p>The branch predictor also knows how to predict the target of these branches. Again, it&rsquo;s to make sure the CPU can start executing the instructions that come after it without having to wait.</p>
+
+<p>This <strong>second variant of Spectre</strong> is all about training the branch predictor to make an indirect branch - run by the kernel - jump to the attacker&rsquo;s code, where the same old cache leaking trick will be used.</p>
+
+<p>Seems easy? In the first variant, it <em>was</em> easy because you could just run the code many times with a value that would make the <code>if</code> condition evaluate to <code>true</code>, until the branch predictor would predict the next as <code>true</code>. But here, it&rsquo;s not just <code>true</code>/<code>false</code>, <strong>the branch predictor has to predict a whole address</strong>&hellip; and we can&rsquo;t make the branch in the kernel jump to that address to train it.</p>
+
+<p>Fortunately (or unfortunately), there are some implementations details that can be exploited. Branch predictors implementations differ for each CPU vendor/each CPU generation, but they all rely more or less on the same base: they have some kind of <strong>cache that stores the histories of branches</strong> and use it for their predictions.</p>
+
+<p>In the cache, <strong>the branches are identified by their address</strong> in the code, but a common optimization is to use only some bits of the address, or to hash the address into a value that uses a smaller number of bits, or both; saves space in the cache and helps making the hardware faster. But that also means that the predictor won&rsquo;t be able to distinguish branches that end up with the same identifier, and these branches will influence the each others predictions. That looks like a sensible optimization: worst case, some branches are mispredicted. <em>No big deal, heh?</em></p>
+
+<p>To train the branch predictor, the attacker only has to run a <em>second program</em> with <strong>a branch whose address conflicts with the target kernel branch</strong> of the <em>first program</em>, and make it jump repeatedly to the address of the cache-leaking code. And bingo!</p>
+
+<p><img src="images/training.gif" alt="Training" /></p>
+
+<h3 id="mitigation-for-variant-2">Mitigation for Variant 2</h3>
+
+<p>This variant is the hardest to set up. The attacker needs to know the details of the victim&rsquo;s branch predictor, and there are a few other details that I omitted for simplicity. But it&rsquo;s also the most powerful and the hardest to fix: <strong>virtually all indirect branches are vulnerable</strong>.</p>
+
+<p>Intel and AMD published microcode updates for their x86 CPU, to add the capability to disable speculative execution around indirect branches and to flush the branch predictor history (called <a href="https://lkml.org/lkml/2018/1/22/598">IBPB, IBRS and STIBP</a>). But these features are <em>painfully</em> expensive on current generations of CPUs, so it was not realistic to rely only on that. <a href="https://www.theregister.co.uk/2018/01/22/intel_spectre_fix_linux/">Linus Torvalds was not happy</a>. Also, <a href="https://www.theverge.com/2018/1/29/16944326/microsoft-spectre-processor-bug-emergency-windows-update-reboot-fix">Intel initial update was buggy</a>, that didn&rsquo;t help.</p>
+
+<p>Luckily, there are also software workarounds, and those are a lot cheaper (although they don&rsquo;t cover 100% of the cases, so the new CPU features described above are still useful). These workaround either use the same kind of barrier instructions as the mitigation for the 1st variant, or, in the case of Google&rsquo;s <a href="https://support.google.com/faqs/answer/7625886">retpoline</a>, they exploit implementation details of the branch predictor to trick the CPU into speculatively execute an infinite loop. Talk about irony!</p>
+
+<p>All the major OSes published patches that used both techniques to mitigate the vulnerabilities, but there is a <em>lot</em> of code to patch out there, so it&rsquo;s possible we&rsquo;ll continue to hear about this for some time. Depending on you CPU, the mitigations for this vulnerability are probably the most expensive of the three. But as for Meltdown, mostly the programs that do a lot of syscalls are impacted.</p>
+
+<h2 id="conclusion">Conclusion?</h2>
+
+<p>Reading about a good hack can be frightening, and at the same time I find it very entertaining. I hope you enjoyed reading this article!</p>
+
+<p>CPUs are fascinatingly complex nowadays, and maybe sometimes <a href="https://www.youtube.com/watch?v=ajccZ7LdvoQ">we trust them</a> a little bit <a href="https://danluu.com/cpu-bugs/">too much</a>. If you want to know more about branch predictors (and I know you do, because they&rsquo;re awesome), I recommend this <a href="https://danluu.com/branch-prediction/">article from Dan Luu</a> which explains a lot of the different techniques in a very clear manner.</p>
+        </article>
+  </div>
+</section>
+
+
+
+<aside id="meta">
+
+    <div>
+        <section id="datecount">
+          <h4 id="date"> Sun Mar 25, 2018 </h4>
+          <h5 id="wc"> 2400 Words </h5>
+          <h5 id="readtime"> Read in about 12 Min </h5>
+        </section>
+        <ul id="categories">
+          
+        </ul>
+        <ul id="tags">
+          
+            <li> <a href="http://danglingpointers.com/tags/security">Security</a> </li>
+          
+        </ul>
+    </div>
+
+    <div>
+        <section id="prev">
+            &nbsp;
+        </section><section id="next">
+            &nbsp;<a class="next" href="http://danglingpointers.com/post/spinlock-implementation/">Spin Lock Implementation <i class="icon-arrow-right"></i></a>
+        </section>
+    </div>
+
+
+</aside>
+
+<meta itemprop="wordCount" content="2385">
+<meta itemprop="datePublished" content="2018-03-25">
+<meta itemprop="url" content="http://danglingpointers.com/post/meltdown-spectre/">
+
+
+<aside id=comments>
+    <div><h2> Comments </h2></div>
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'danglingpointers';
+    var disqus_identifier = 'http:\/\/danglingpointers.com\/post\/meltdown-spectre\/';
+    var disqus_title = 'Meltdown and Spectre explained, again';
+    var disqus_url = 'http:\/\/danglingpointers.com\/post\/meltdown-spectre\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</aside>
+
+<footer>
+  <div>
+    <p>
+    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+	<a href="http://danglingpointers.com/about">About this blog</a>.
+
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+(function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
+fitText(document.getElementById('title'), 1)
+</script>
+</body>
+</html>
+

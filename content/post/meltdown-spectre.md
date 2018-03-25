@@ -1,9 +1,8 @@
 +++
 date = "2018-03-25T13:59:49+02:00"
-description = ""
+description = "Meltdown and Spectre explained to people that have some knowledge about CPUs but no interest in exploiting the vulnerabilities."
 tags = [ "Security" ]
 title = "Meltdown and Spectre explained, again"
-draft = true
 
 +++
 

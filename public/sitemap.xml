@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://danglingpointers.com/post/meltdown-spectre/</loc>
+    <lastmod>2018-03-25T13:59:49+02:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://danglingpointers.com/post/spinlock-implementation/</loc>
     <lastmod>2017-12-31T13:03:00+01:00</lastmod>
   </url>
@@ -55,7 +60,7 @@
   
   <url>
     <loc>http://danglingpointers.com/</loc>
-    <lastmod>2017-12-31T13:03:00+01:00</lastmod>
+    <lastmod>2018-03-25T13:59:49+02:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -79,7 +84,13 @@
   
   <url>
     <loc>http://danglingpointers.com/post/</loc>
-    <lastmod>2017-12-31T13:03:00+01:00</lastmod>
+    <lastmod>2018-03-25T13:59:49+02:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://danglingpointers.com/tags/security/</loc>
+    <lastmod>2018-03-25T13:59:49+02:00</lastmod>
     <priority>0</priority>
   </url>
   
