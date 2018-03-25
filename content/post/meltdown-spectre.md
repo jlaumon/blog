@@ -1,8 +1,8 @@
 +++
-date = "2018-01-21T10:33:38+01:00"
+date = "2018-03-25T13:59:49+02:00"
 description = ""
 tags = [ "Security" ]
-title = "Meltdown and Spectre explained"
+title = "Meltdown and Spectre explained, again"
 draft = true
 
 +++
@@ -12,34 +12,30 @@ You may have heard of **Meltdown** and **Spectre**. In January, these two new **
 Things have settled down a little bit since then; security patches have been released and no actual attacks have been reported. But still, discoveries of that scale are not common, so I was curious: How do these vulnerabilities work? 
 
 The explanations I could find on the Internet came in two flavors:
-the one for security experts and academics ([extremely technical, very hard to follow](https://googleprojectzero.blogspot.fr/2018/01/reading-privileged-memory-with-side.html)) and the ones for scared customers ([that will make you doubt everything you known about computers](https://www.youtube.com/watch?v=syAdX44pokE)).
+the one for security experts ([extremely technical, very hard to follow](https://googleprojectzero.blogspot.fr/2018/01/reading-privileged-memory-with-side.html)) and the ones for scared customers ([that will make you doubt everything you known about computers](https://www.youtube.com/watch?v=syAdX44pokE)).
 
-So I decided to write my own, for people that have some knowledge about CPUs, but no interest in actually exploiting the vulnerability.
+So I decided to write my own: for people that have some knowledge about CPUs, but no interest in actually exploiting the vulnerabilities.
 
-<img style="display: block; margin-left: auto; margin-right: auto;" src="images/spectre.png">
+![Spectre](images/spectre.png)
 
 <!--more-->
 
 
-## Background 
+## Background knowledge: Virtual memory
 
-Some background knowledge is necessary, so I'm going to explain some of it here, but not all. 
+Some introduction is necessary to understand the rest of the article. I hope you know that modern [CPUs have caches](https://en.wikipedia.org/wiki/CPU_cache) for memory accesses. What you may not know (and that I'm going to explain here), is that they also use a [virtual memory](https://en.wikipedia.org/wiki/Virtual_memory) system. 
 
-Note that everything I write here only applies to *modern* CPUs/systems (eg. computer/laptops/mobiles/consoles, but not eg. gameboys).
+The addresses you see in the debugger when you debug a program is called a **virtual address**. It's not the actual address where the data resides in the RAM, it's a mapping created by the kernel (the core of the OS). The actual address is called the **physical address**. The memory is mapped in chunks, called  **memory pages**, of usually 4KB (but they can be larger).
 
-### Virtual memory
-
-The addresses you see in the debugger when you write a program is called a **virtual address**. It's not the actual address where the data resides in the RAM, it's a mapping created by the kernel (the core of the OS). The actual address is called the **physical address**. The memory is mapped in chunks, called  **memory pages**, of usually 4KB (but they can be larger).
-
-The kernel manages these mappings in what is called a **page table**. The translation from virtual to physical is done automatically by the CPU, in hardware, based on this table. Each process has its own page table, and can only access the memory through virtual addresses. The kernel is the only one that can see, and deal with, the page table and physical addresses.
+The kernel manages these mappings in what is called a **page table**. The translation from virtual to physical is done automatically by the CPU, in hardware, based on this table. **Each process has its own page table**, meaning several processes can use the same virtual address without overwriting each other's memory: each will be mapped to a different physical address. User processes can only access the memory through virtual addresses. The kernel is the only one that can see, and deal with, the page table and physical addresses.
 
 Each page can also have access protections, pretty much like files. Some of them can be read-only, some of them can only be read with the right access level (usually meaning that you need to be inside the kernel to do so).
 
 If a process tries to access an address that is protected, or that is not mapped to a physical address, a **page fault** is triggered. It behaves like an exception: if uncatched, the program crashes.
 
-So, to recap, **a process cannot access other processes' memory** because it doesn't have any mappings for it in its page table. Knowing the virtual address of another process' data is useless without the proper entry in the page table. **A process also can't read the kernel's memory**, because even if there may be an entry in the page table for it, it's protected.
+So, to recap, **a process cannot access other processes' memory** because it doesn't have any mappings for it in its page table. **A process also can't read the kernel's memory**, because even if there may be an entry in the page table for it, it's protected.
 
-That is some strong security, right? Note that virtual memory is also useful for other reasons (notably [paging](https://en.wikipedia.org/wiki/Paging), [but not only](http://ourmachinery.com/post/virtual-memory-tricks/)).
+That is some strong security, right? Note that virtual memory is also useful for reasons other than security ([paging](https://en.wikipedia.org/wiki/Paging) and [others](http://ourmachinery.com/post/virtual-memory-tricks/)), but it's off-topic here.
 
 ## Meltdown
 
@@ -124,58 +120,42 @@ So, in this example, if the branch predictor can be trained to predict a `true` 
 
 The web browsers, being one of the main targets, all decided to reduce the resolution of the timers available in javascript. It doesn't prevent the speculative execution from leaking data into the cache, but the timers are not precise enough to measure if values are in the cache or not.
 
-The main other alternative is to prevent the speculative execution after a bound check. Both x86-x64 and ARM processors have some capability for *serializing* memory reads with some kind of fence instruction. The addition of these instructions can be done semi-automatically by the compiler, but the vulnerable code still needs to be identified and recompiled with the right compiler option.
+The main other alternative is to prevent the speculative execution after a vulnerable bound check. Both x86 and ARM processors have some capability for *serializing* memory reads with some kind of fence instruction. The addition of these instructions can be done semi-automatically by the compiler, but the vulnerable code still needs to be identified and recompiled with the right compiler option.
 
 The cost of this mitigation should be negligible since the number of vulnerable branches is relatively low.
 
 ### Variant 2: Branch target injection
 
-Brief intermission to explain another important technical detail: there are several types of branches. 
+Brief intermission to explain another important technical detail: **there are several types of branches**. 
 
-An `if` statement is what is called a conditional branch, the processor will jump to the `else` block if the condition is `false`. In this case, the position of the else block is fixed, it doesn't need to be evaluated by the CPU. There is another type of branch, called **indirect branches**, where the target is not known in advance because it is the result of some calculation. For example, calling a function pointer, making a virtual call, or even executing a `return` statement (since the return address depends on the caller).
+An `if` statement is what is called a conditional branch, the processor will jump to the `else` block if the condition is `false`. In this case, the position of the else block is fixed, it doesn't need to be evaluated by the CPU. There is another type of branch, called **indirect branches**, where the target is not known in advance because it is the result of some calculation. For example, calling a **function pointer**, making a **virtual call**, or even executing a **`return` statement** (since the return address depends on the caller).
 
 The branch predictor also knows how to predict the target of these branches. Again, it's to make sure the CPU can start executing the intructions that come after it without having to wait.
 
-This second variant of Spectre is all about training the branch predictor to make an indirect branch run by the kernel jump to the attacker's code, where the same old cache leaking trick will be used.
+This **second variant of Spectre** is all about training the branch predictor to make an indirect branch - run by the kernel - jump to the attacker's code, where the same old cache leaking trick will be used.
 
-Seems easy, right? In the first variant, it *was* easy because one could just run the code many times with a value that would make the `if` condition evaluate to true, until the branch predictor would predict the next time would be true as well. But here, it's not just true/false, the branch predictor has to predict a whole address... and we can't make the kernel jump to that address to train it (otherwise this complicated attack would not be necessary).
+Seems easy? In the first variant, it *was* easy because you could just run the code many times with a value that would make the `if` condition evaluate to `true`, until the branch predictor would predict the next as `true`. But here, it's not just `true`/`false`, **the branch predictor has to predict a whole address**... and we can't make the branch in the kernel jump to that address to train it.
 
-Fortunately, there are some implementations details of the 
+Fortunately (or unfortunately), there are some implementations details that can be exploited. Branch predictors implementations differ for each CPU vendor/each CPU generation, but they all rely more or less on the same base: they have some kind of **cache that stores the histories of branches** and use it for their predictions. 
+
+In the cache, **the branches are identified by their address** in the code, but a common optimization is to use only some bits of the address, or to hash the address into a value that uses a smaller number of bits, or both; saves space in the cache and helps making the hardware faster. But that also means that the predictor won't be able to distinguish branches that end up with the same identifier, and these branches will influence the each others predictions. That looks like a sensible optimization: worst case, some branches are mispredicted. *No big deal, heh?*
+
+To train the branche predictor, the attacker only has to run a *second program* with **a branch whose address conflicts with the target kernel branch** of the *first program*, and make it jump repeatedly to the address of the cache-leaking code. And bingo!
+
+![Training](images/training.gif)
 
 ### Mitigation for Variant 2
 
-Google found a software construct to 
+This variant is the hardest to set up. The attacker needs to know the details of the victim's branch predictor, and there are a few other details that I omitted for simplicity. But it's also the most powerful and the hardest to fix: **virtually all indirect branches are vulnerable**.
 
+Intel and AMD published microcode updates for their x86 CPU, to add the capability to disable speculative execution around indirect branches and to flush the branch predictor history (called [IBPB, IBRS and STIBP](https://lkml.org/lkml/2018/1/22/598)). But these features are *painfully* expensive on current generations of CPUs, so it was not realistic to rely only on that. [Linus Torvalds was not happy](https://www.theregister.co.uk/2018/01/22/intel_spectre_fix_linux/). Also, [Intel initial update was buggy](https://www.theverge.com/2018/1/29/16944326/microsoft-spectre-processor-bug-emergency-windows-update-reboot-fix), that didn't help.
 
+Luckily, there are also software workarounds, and those are a lot cheaper (although they don't cover 100% of the cases, so the new CPU features described above are still useful). These workaround either use the same kind of barrier instructions as the mitigation for the 1st variant, or, in the case of Google's [retpoline](https://support.google.com/faqs/answer/7625886), they exploit implementation details of the branch predictor to trick the CPU into speculatively execute an infinite loop. Talk about irony!
 
-both invalidating the branch predictor and preventing the speculative execution with the use of a barrier instruction. On x86, the solution is more funny,  use a software construct that will prevent the speculative execution. The actual solution depends on the CPU architecture. For example ARM processors have some capability for flushing the branch predictor history. 
+All the major OSes published patches that used both techniques to mitigate the vulnerabilities, but there is a *lot* of code to patch out there, so it's possible we'll continue to hear about this for some time. Depending on you CPU, the mitigations for this vulnerability are probably the most expensive of the three. But as for Meltdown, mostly the programs that do a lot of syscalls are impacted.
 
----
+## Conclusion?
 
-direct branches mean that the processor will jump to a known position to execute the code there (for example, a function call, the processor will jump at the function's address), conditional branches mean that it will jump if a certain condition is met (for example, in an `if` statement, the processor will jump to the `else` block if the condition is false), and finally indirect branches, which mean that the processor will jump at a position that will only be known 
+CPUs are fascinatingly complex. And maybe, as developers, [we trust them](https://www.youtube.com/watch?v=ajccZ7LdvoQ) a little bit [too much](https://danluu.com/cpu-bugs/). It's frightening, and at the same time weirdly entertaining to read about a good hack, so I'm kind of happy not to work in security. It makes it *not my problem*. An innocent bystander with a guilty pleasure. I hope you enjoyed reading this article!
 
-
-
-
-
-read kernel address from user space, use result to compute a user address and read it; it generates a page fault but you know if value was 1 or 0 depending on whether the user address is in the cache
-
-can avoid page fault by putting the code inside an if that will not be taken
-
-2- spectre 1
-
-same thing but from kernel space (no page fault in this case, the if is required)
-hard to find code in the kernel that can do that, but hard to patch them all
-interpreter / JIT can be used to generate this kind of code pattern
-could be web browser instead of kernel, javascript instead of user space program
-
-3- spectre 2
-
-same thing except instead of having the leaking code inside an if, you jump to it with an indirect branch
-big improvement: the leaking code can be anywhere in the kernel/target code (and there is plenty of code using this pattern)
-but also very hard to train the branch predictor to make it jump to this address
-
-mitigation: 
-- patch bound accesses with special code that prevents speculative execution https://developer.arm.com/support/security-update/compiler-support-for-mitigations
-- disabling speculative execution when entering the kernel, or flushing the branch predictor history during context switches (was added as a microcode update but extremely slow) https://lkml.org/lkml/2018/1/22/598
-- retpoline, software construct using call+ret to make speculative execution execute an infinite loop (a lot faster and can be placed automatically by the compiler, but does not cover 100% of the cases) https://support.google.com/faqs/answer/7625886
+Last thing, if you want to know more about branch predictors (and I know you do, they're awesome), I recommend this [article from Dan Luu](https://danluu.com/branch-prediction/) which explains a lot of the different techniques in a very clear manner.
