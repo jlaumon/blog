@@ -7,7 +7,7 @@ draft = true
 
 +++
 
-You may have heard of **Meltdown** and **Spectre**. In January, these two new **security vulnerabilites** were made public, and it was kind of a big deal: all modern processors were more or less vulnerable, all systems affected, they could steal your passwords and everything.
+You may have heard of **Meltdown** and **Spectre**. In January, these two new **security vulnerabilities** were made public, and it was kind of a big deal: all modern processors were more or less vulnerable, all systems affected, they could steal your passwords and everything.
 
 Things have settled down a little bit since then; security patches have been released and no actual attacks have been reported. But still, discoveries of that scale are not common, so I was curious: How do these vulnerabilities work? 
 
@@ -114,7 +114,7 @@ Except modern CPUs have another secret weapons: **branch predictors**. The branc
 
 Of course, if after evaluating the branch the branch predictor is proved wrong, the pipeline will be flushed and all the intermediary results will be discarded. Except that... some values read by the speculative execution may have been loaded into the cache! Again!
 
-So, in this example, if the branch predictor can be trained to predict a `true` (by running the code many times with a valid `attacker_offset`), and if `victim_array_size` is not in the cache (so that the condition takes a long time to evaluate), the code inside the if will be speculately executed, loading values of `attacker_mem` into the cache and indirectly leaking *out-of-bounds* values from `victim_array`. If you go far enough out of bounds, you can leak anything in the victim's memory. And since it's only speculatively executed, there's no risk of triggering a page fault if the address was not valid.
+So, in this example, if the branch predictor can be trained to predict a `true` (by running the code many times with a valid `attacker_offset`), and if `victim_array_size` is not in the cache (so that the condition takes a long time to evaluate), the code inside the if will be speculatively executed, loading values of `attacker_mem` into the cache and indirectly leaking *out-of-bounds* values from `victim_array`. If you go far enough out of bounds, you can leak anything in the victim's memory. And since it's only speculatively executed, there's no risk of triggering a page fault if the address was not valid.
 
 ### Mitigation for Variant 1
 
@@ -130,7 +130,7 @@ Brief intermission to explain another important technical detail: **there are se
 
 An `if` statement is what is called a conditional branch, the processor will jump to the `else` block if the condition is `false`. In this case, the position of the else block is fixed, it doesn't need to be evaluated by the CPU. There is another type of branch, called **indirect branches**, where the target is not known in advance because it is the result of some calculation. For example, calling a **function pointer**, making a **virtual call**, or even executing a **`return` statement** (since the return address depends on the caller).
 
-The branch predictor also knows how to predict the target of these branches. Again, it's to make sure the CPU can start executing the intructions that come after it without having to wait.
+The branch predictor also knows how to predict the target of these branches. Again, it's to make sure the CPU can start executing the instructions that come after it without having to wait.
 
 This **second variant of Spectre** is all about training the branch predictor to make an indirect branch - run by the kernel - jump to the attacker's code, where the same old cache leaking trick will be used.
 
@@ -140,7 +140,7 @@ Fortunately (or unfortunately), there are some implementations details that can 
 
 In the cache, **the branches are identified by their address** in the code, but a common optimization is to use only some bits of the address, or to hash the address into a value that uses a smaller number of bits, or both; saves space in the cache and helps making the hardware faster. But that also means that the predictor won't be able to distinguish branches that end up with the same identifier, and these branches will influence the each others predictions. That looks like a sensible optimization: worst case, some branches are mispredicted. *No big deal, heh?*
 
-To train the branche predictor, the attacker only has to run a *second program* with **a branch whose address conflicts with the target kernel branch** of the *first program*, and make it jump repeatedly to the address of the cache-leaking code. And bingo!
+To train the branch predictor, the attacker only has to run a *second program* with **a branch whose address conflicts with the target kernel branch** of the *first program*, and make it jump repeatedly to the address of the cache-leaking code. And bingo!
 
 ![Training](images/training.gif)
 
@@ -156,6 +156,6 @@ All the major OSes published patches that used both techniques to mitigate the v
 
 ## Conclusion?
 
-CPUs are fascinatingly complex. And maybe, as developers, [we trust them](https://www.youtube.com/watch?v=ajccZ7LdvoQ) a little bit [too much](https://danluu.com/cpu-bugs/). It's frightening, and at the same time weirdly entertaining to read about a good hack, so I'm kind of happy not to work in security. It makes it *not my problem*. An innocent bystander with a guilty pleasure. I hope you enjoyed reading this article!
+Reading about a good hack can be frightening, and at the same time I find it very entertaining. I hope you enjoyed reading this article! 
 
-Last thing, if you want to know more about branch predictors (and I know you do, they're awesome), I recommend this [article from Dan Luu](https://danluu.com/branch-prediction/) which explains a lot of the different techniques in a very clear manner.
+CPUs are fascinatingly complex nowadays, and maybe sometimes [we trust them](https://www.youtube.com/watch?v=ajccZ7LdvoQ) a little bit [too much](https://danluu.com/cpu-bugs/). If you want to know more about branch predictors (and I know you do, because they're awesome), I recommend this [article from Dan Luu](https://danluu.com/branch-prediction/) which explains a lot of the different techniques in a very clear manner.
