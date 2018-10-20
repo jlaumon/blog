@@ -8,19 +8,19 @@
 <meta name="MobileOptimized" content="320">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta name="description" content="Interesting links about engine programming, debugging and optimization.">
-<meta name="keywords" content="Links, ">
+<meta name="description" content="Fiber based job system implementation details.">
+<meta name="keywords" content="Engine, ">
 
 
-<meta property="article:tag" content="Links">
+<meta property="article:tag" content="Engine">
 
 
 
 
 
     <base href="http://danglingpointers.com/">
-    <title> Other blogs and links - Dangling Pointers</title>
-    <link rel="canonical" href="http://danglingpointers.com/post/links/">
+    <title> Job System #2 - Dangling Pointers</title>
+    <link rel="canonical" href="http://danglingpointers.com/post/job-system-2/">
     
 
     <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
@@ -78,29 +78,56 @@
 
 
 <section id="main">
-  <h1 itemprop="name" id="title">Other blogs and links</h1>
+  <h1 itemprop="name" id="title">Job System #2</h1>
   <div>
         <article itemprop="articleBody" id="content">
-           <p><img src="images/would-you-like-to-knwo-more.jpg" alt="Would you like to know more?" /></p>
+           <p>Oops! I actually wrote this article one year ago but never finished it. Let&rsquo;s say it&rsquo;s finished, and boom! released.</p>
+
+<p>This is a follow up on the previous article about <a href="post/job-system/">our fiber-based job system</a>. It contains a few details about our implementation, what we found to be important or not.</p>
 
 <p></p>
 
-<p>I wanted to add some kind of blogroll / links menu (that ancient thing from before twitter) to share interesting blogs or articles I bump into. But since I&rsquo;m not really passionate about webdesign,
-any change to this website could take years (estimation based on actual numbers).</p>
+<h3 id="stack-sizes">Stack sizes</h3>
 
-<p>In the meantime, here are a few links that I value a lot:</p>
+<p>We have two sizes of stacks. Initially we had just one but jobs calling middlewares needed really big stacks. Having two sizes really helps keeping the memory usage low. Small stacks are 20KB, large ones are 128KB.</p>
+
+<h3 id="jobs-priority">Jobs priority</h3>
+
+<p>We have three priorities :</p>
 
 <ul>
-<li><p><a href="https://gist.github.com/ocornut/cb980ea183e848685a36">Memory, Cache, CPU optimization resources</a>:
-it&rsquo;s a gist with links to a lot of really interesting articles. Thanks <a href="https://twitter.com/ocornut">Omar</a>.</p></li>
-
-<li><p><a href="http://preshing.com/">Preshing on Programming</a>: Jeff Preshing&rsquo;s blog; lots of great articles about lock free programming (among other things).</p></li>
-
-<li><p><a href="https://randomascii.wordpress.com/">Random ASCII</a>: Bruce Drawson&rsquo;s blog; profiling, debugging and floating point trivia.</p></li>
-
-<li><p><a href="http://blog.molecular-matters.com/">Molecular Musings</a>: Dev blog of the Molecule Engine / Stefan Reinalter&rsquo;s blog.
-Best engine related blog I know.</p></li>
+<li>high for jobs that need to finish this frame</li>
+<li>medium for jobs that will need to finish next frame (eg. rendering jobs)</li>
+<li>low for fully asynchronous jobs (.eg loadings)</li>
 </ul>
+
+<p>The scheduling strategy is very simple: higher priority jobs always run before lower priority ones (same as Naughty Dog&rsquo;s engine.)</p>
+
+<h3 id="yield">Yield</h3>
+
+<p>We added a yield function to split long jobs and allow higher priority jobs to run. The function actually only yields if the job has been running for long enough, this way you can call it without fearing you&rsquo;re calling it too often.</p>
+
+<h3 id="lock-free-queue">Lock-free queue</h3>
+
+<p>One of the most important part of a job system is the job queue.</p>
+
+<p>We&rsquo;ve been using <a href="https://github.com/cameron314/concurrentqueue/">moodycamel&rsquo;s concurrent queue</a> since the beginning and it does the job pretty well. The sub-queues system it uses basically gives us work stealing without having to do anything.</p>
+
+<p><a href="https://blog.molecular-matters.com/2015/09/25/job-system-2-0-lock-free-work-stealing-part-3-going-lock-free/">Molecular Musings&rsquo; blog</a> describes an alternative that could be interesting if you want to roll your own lock free queue.</p>
+
+<h3 id="only-wait-for-zero">Only wait for zero</h3>
+
+<p>Waiting on counter values other than zero is possible but was not really useful to us. It can be used for chaining jobs with just one counter: if job C waits for job B that in turn waits for job A, A can wait for value 2, B for value 1 and C for value 0.</p>
+
+<p>But it&rsquo;s simpler to just use three counters, and that&rsquo;s what we usually do. Removing the possibility of waiting on values other than zero would make the implementation somewhat simpler.</p>
+
+<h3 id="number-of-fibers">Number of fibers</h3>
+
+<p>The number of fibers needed for loadings can sometimes be a problem. Loading an entity starts X jobs for loading materials, which in turn start Y jobs for loading textures, etc.</p>
+
+<p>To avoid using too many fibers, we had to make sure there&rsquo;s a limit on how many simultaneous loadings can be launched for the highest level object (in this example, the entities).</p>
+
+<p>For example, if we have 2000 entities to load in a level, we make a queue and only allow loading 20 of them at a time.</p>
         </article>
   </div>
 </section>
@@ -111,34 +138,34 @@ Best engine related blog I know.</p></li>
 
     <div>
         <section id="datecount">
-          <h4 id="date"> Thu Dec 24, 2015 </h4>
-          <h5 id="wc"> 200 Words </h5>
-          <h5 id="readtime"> Read in about 1 Min </h5>
+          <h4 id="date"> Sat Oct 20, 2018 </h4>
+          <h5 id="wc"> 500 Words </h5>
+          <h5 id="readtime"> Read in about 3 Min </h5>
         </section>
         <ul id="categories">
           
         </ul>
         <ul id="tags">
           
-            <li> <a href="http://danglingpointers.com/tags/links">Links</a> </li>
+            <li> <a href="http://danglingpointers.com/tags/engine">Engine</a> </li>
           
         </ul>
     </div>
 
     <div>
         <section id="prev">
-            &nbsp;<a class="previous" href="http://danglingpointers.com/post/mike-actons-dod-workshop-2015/"><i class="icon-arrow-left"></i> Mike Acton&#39;s Data-Oriented Design Workshop (2015)</a><br>
+            &nbsp;
         </section><section id="next">
-            &nbsp;<a class="next" href="http://danglingpointers.com/post/dont-use-std-list/">Don’t use std::list <i class="icon-arrow-right"></i></a>
+            &nbsp;<a class="next" href="http://danglingpointers.com/post/meltdown-spectre/">Meltdown and Spectre explained, again <i class="icon-arrow-right"></i></a>
         </section>
     </div>
 
 
 </aside>
 
-<meta itemprop="wordCount" content="125">
-<meta itemprop="datePublished" content="2015-12-24">
-<meta itemprop="url" content="http://danglingpointers.com/post/links/">
+<meta itemprop="wordCount" content="438">
+<meta itemprop="datePublished" content="2018-10-20">
+<meta itemprop="url" content="http://danglingpointers.com/post/job-system-2/">
 
 
 <aside id=comments>
@@ -146,9 +173,9 @@ Best engine related blog I know.</p></li>
     <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'danglingpointers';
-    var disqus_identifier = 'http:\/\/danglingpointers.com\/post\/links\/';
-    var disqus_title = 'Other blogs and links';
-    var disqus_url = 'http:\/\/danglingpointers.com\/post\/links\/';
+    var disqus_identifier = 'http:\/\/danglingpointers.com\/post\/job-system-2\/';
+    var disqus_title = 'Job System #2';
+    var disqus_url = 'http:\/\/danglingpointers.com\/post\/job-system-2\/';
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
