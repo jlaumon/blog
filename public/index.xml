@@ -6,10 +6,23 @@
     <description>Recent content on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 25 Mar 2018 13:59:49 +0200</lastBuildDate>
+    <lastBuildDate>Sat, 20 Oct 2018 11:10:00 +0200</lastBuildDate>
     
 	<atom:link href="http://danglingpointers.com/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Job System #2</title>
+      <link>http://danglingpointers.com/post/job-system-2/</link>
+      <pubDate>Sat, 20 Oct 2018 11:10:00 +0200</pubDate>
+      
+      <guid>http://danglingpointers.com/post/job-system-2/</guid>
+      <description>&lt;p&gt;Oops! I actually wrote this article one year ago but never finished it. Let&amp;rsquo;s say it&amp;rsquo;s finished, and boom! released.&lt;/p&gt;
+
+&lt;p&gt;This is a follow up on the previous article about &lt;a href=&#34;post/job-system/&#34;&gt;our fiber-based job system&lt;/a&gt;. It contains a few details about our implementation, what we found to be important or not.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Meltdown and Spectre explained, again</title>

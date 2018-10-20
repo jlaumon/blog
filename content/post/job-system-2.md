@@ -1,14 +1,15 @@
 +++
-date = "2017-09-02T16:04:48+02:00"
-description = ""
-tags = []
+date = "2018-10-20T11:10:00+02:00"
+description = "Fiber based job system implementation details."
+tags = ["Engine"]
 title = "Job System #2"
-draft = true
+draft = false
 
 +++
 
+Oops! I actually wrote this article one year ago but never finished it. Let's say it's finished, and boom! released.
 
-A few details about our implementation. What we found to be important or not.
+This is a follow up on the previous article about [our fiber-based job system](post/job-system/). It contains a few details about our implementation, what we found to be important or not.
 
 <!--more-->
 
@@ -44,7 +45,7 @@ We've been using [moodycamel's concurrent queue](https://github.com/cameron314/c
 
 Waiting on counter values other than zero is possible but was not really useful to us. It can be used for chaining jobs with just one counter: if job C waits for job B that in turn waits for job A, A can wait for value 2, B for value 1 and C for value 0. 
 
-But it's simpler to just use three counters, and that what we usually do. Removing the possibility of waiting on values other than zero would make the implementation somewhat simpler.
+But it's simpler to just use three counters, and that's what we usually do. Removing the possibility of waiting on values other than zero would make the implementation somewhat simpler.
 
 ### Number of fibers
 
@@ -52,5 +53,5 @@ The number of fibers needed for loadings can sometimes be a problem. Loading an 
 
 To avoid using too many fibers, we had to make sure there's a limit on how many simultaneous loadings can be launched for the highest level object (in this example, the entities).
 
-For example, if have 2000 entities to load in a level, we make a queue and only allow loading 20 of them at a time.
+For example, if we have 2000 entities to load in a level, we make a queue and only allow loading 20 of them at a time.
 
