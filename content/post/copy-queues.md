@@ -69,7 +69,7 @@ This is what it looks like with all the details:
 
 ![Background Loadings](images/CopyQueues_bg_loadings.svg)
 
-Here again you might think that adding a second **Copy Queue** would solve it. But actually it would probably look like this:
+Here again you might think that adding a second **Copy Queue** would solve it. But dependeing on how the hardware queues are assigned, it might look like this:
 
 ![Background Loadings with second **Copy Queue**](images/CopyQueues_bg_loadings_2nd_queue.svg)
 
