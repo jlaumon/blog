@@ -16,9 +16,9 @@
 
 
     <base href="http://danglingpointers.com/">
-    <title> Concurrency - Dangling Pointers</title>
-    <link rel="canonical" href="http://danglingpointers.com/tags/concurrency/">
-    <link href="http://danglingpointers.com/tags/concurrency/index.xml" rel="alternate" type="application/rss+xml" title="Concurrency" />
+    <title> GPU - Dangling Pointers</title>
+    <link rel="canonical" href="http://danglingpointers.com/tags/gpu/">
+    <link href="http://danglingpointers.com/tags/gpu/index.xml" rel="alternate" type="application/rss+xml" title="GPU" />
 
     <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
 <link href="http://fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
@@ -26,8 +26,8 @@
 <link rel="stylesheet" href="http://danglingpointers.com/css/pygments/vs.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
-  <link href="http://danglingpointers.com/tags/concurrency/index.xml" rel="alternate" type="application/rss+xml" title="Dangling Pointers" />
-  <link href="http://danglingpointers.com/tags/concurrency/index.xml" rel="feed" type="application/rss+xml" title="Dangling Pointers" />
+  <link href="http://danglingpointers.com/tags/gpu/index.xml" rel="alternate" type="application/rss+xml" title="Dangling Pointers" />
+  <link href="http://danglingpointers.com/tags/gpu/index.xml" rel="feed" type="application/rss+xml" title="Dangling Pointers" />
 
 
 
@@ -80,23 +80,23 @@
 
 <section id="main">
   <div>
-   <h1 id="title">Concurrency</h1>
+   <h1 id="title">GPU</h1>
     
         <article class="post">
     <header>
-      <h2><a href="http://danglingpointers.com/post/spinlock-implementation/">Spin Lock Implementation </a> </h2>
-      <div class="post-meta">Sun, Dec 31, 2017 -  Read in 4 Min </div>
+      <h2><a href="http://danglingpointers.com/post/copy-queues/">Copy Queue woes. </a> </h2>
+      <div class="post-meta">Mon, Apr 1, 2024 -  Read in 3 Min </div>
     </header>
 
-    <p>I attended a <a href="https://www.game-connection.com/masterclasses/">Game Connection master class</a> this year again. This time it was with <a href="http://www.gameenginebook.com/bio.html">Jason Gregory</a> (Lead Programmer at <a href="https://www.naughtydog.com/">Naughty Dog</a>) on concurrent programming, and it was very interesting.</p>
+    <p>Consider this case: you&rsquo;re launching several <strong>Async Compute</strong> jobs. They need some input buffers to be uploaded, and some output buffers to be read back.</p>
 
-<p>I won&rsquo;t give a full account because we saw <em>way</em> too many things (500 slides!).</p>
+<p><img src="images/CopyQueues_base.svg" alt="Base scenario" /></p>
 
-<p>Instead, I&rsquo;ll just write about a few <a href="https://en.wikipedia.org/wiki/Spinlock">spin lock</a> implementation tricks that he showed us.</p>
+<p>How do you minimize the time it takes to get all the outputs back to the CPU? I&rsquo;m focusing on D3D12 and Windows for this article.</p>
 
 <p></p>
     <footer>
-        <a href='http://danglingpointers.com/post/spinlock-implementation/'><nobr>Read more →</nobr></a>
+        <a href='http://danglingpointers.com/post/copy-queues/'><nobr>Read more →</nobr></a>
     </footer>
 </article>
 
@@ -112,7 +112,7 @@
     <a href="http://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
 	<a href="http://danglingpointers.com/about">About this blog</a>.
 
-	<a href="http://danglingpointers.com/tags/concurrency/index.xml" type="application/rss+xml" target="_blank">RSS</a>.
+	<a href="http://danglingpointers.com/tags/gpu/index.xml" type="application/rss+xml" target="_blank">RSS</a>.
 
     </p>
   </div>

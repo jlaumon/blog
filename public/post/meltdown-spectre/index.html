@@ -58,6 +58,8 @@
 					
 					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
 					
+					<li><a href="http://danglingpointers.com/tags/gpu">GPU (1)</a></li>
+					
 					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
 					
 					<li><a href="http://danglingpointers.com/tags/security">Security (1)</a></li>
@@ -120,11 +122,11 @@ the one for security experts (<a href="https://googleprojectzero.blogspot.fr/201
 
 <p>Consider the following code snippet, where <code>kernel_mem</code> points to some data belonging to the OS:</p>
 <div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="cp">#define CACHELINE 64</span>
-<span class="kt">char</span><span class="o">*</span> <span class="n">kernel_mem</span> <span class="o">=</span> <span class="p">...</span>
-<span class="kt">char</span> <span class="n">user_mem</span><span class="p">[</span><span class="mi">256</span> <span class="o">*</span> <span class="n">CACHELINE</span><span class="p">];</span>
+<span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">kernel_mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">user_mem</span><span class="p">[</span><span class="mi">256</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">CACHELINE</span><span class="p">];</span>
 
-<span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">kernel_mem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">CACHELINE</span><span class="p">;</span> <span class="c1">// BOOM</span>
-<span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="n">user_mem</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kernel_mem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">CACHELINE</span><span class="p">;</span><span class="w"> </span><span class="c1">// BOOM</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_mem</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
 </code></pre></div>
 
 <p>It should read <code>user_mem</code> at an index depending on the value read from <code>kernel_mem</code>. Except, like I said in the paragraph above, the memory pages belonging to the kernel are protected, so the line where <code>kernel_mem</code> is read will trigger a page fault (hence the comment &ldquo;BOOM&rdquo;) and the line where <code>user_mem</code> is read will never be executed.</p>
@@ -164,16 +166,16 @@ the one for security experts (<a href="https://googleprojectzero.blogspot.fr/201
 <p>Consider this code, which is very similar to the example for Meltdown, except it&rsquo;s supposed to be run by the victim:</p>
 <div class="highlight"><pre><code class="language-C++" data-lang="C++"><span></span><span class="cp">#define CACHELINE 64</span>
 
-<span class="kt">char</span><span class="o">*</span> <span class="n">victim_array</span> <span class="o">=</span> <span class="p">...;</span>
-<span class="kt">int</span>   <span class="n">victim_array_size</span> <span class="o">=</span> <span class="p">...;</span>
+<span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">victim_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...;</span>
+<span class="kt">int</span><span class="w">   </span><span class="n">victim_array_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...;</span>
 
-<span class="kt">char</span> <span class="n">attacker_mem</span><span class="p">[</span><span class="mi">256</span> <span class="o">*</span> <span class="n">CACHELINE</span><span class="p">];</span>
-<span class="kt">int</span>  <span class="n">attacker_offset</span> <span class="o">=</span> <span class="p">...;</span> <span class="c1">// Greater than victim_array_size</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">attacker_mem</span><span class="p">[</span><span class="mi">256</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">CACHELINE</span><span class="p">];</span>
+<span class="kt">int</span><span class="w">  </span><span class="n">attacker_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...;</span><span class="w"> </span><span class="c1">// Greater than victim_array_size</span>
 
-<span class="k">if</span> <span class="p">(</span><span class="n">attacker_offset</span> <span class="o">&lt;</span> <span class="n">victim_array_size</span><span class="p">)</span> 
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">attacker_offset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">victim_array_size</span><span class="p">)</span><span class="w"> </span>
 <span class="p">{</span>
-    <span class="kt">char</span> <span class="n">out_of_bounds_value</span> <span class="o">=</span> <span class="n">victim_array</span><span class="p">[</span><span class="n">attacker_offset</span><span class="p">];</span>
-    <span class="kt">char</span> <span class="n">value</span> <span class="o">=</span> <span class="n">attacker_mem</span><span class="p">[</span><span class="n">out_of_bounds_value</span> <span class="o">*</span> <span class="n">CACHELINE</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">out_of_bounds_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">victim_array</span><span class="p">[</span><span class="n">attacker_offset</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attacker_mem</span><span class="p">[</span><span class="n">out_of_bounds_value</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">CACHELINE</span><span class="p">];</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -263,7 +265,7 @@ the one for security experts (<a href="https://googleprojectzero.blogspot.fr/201
 
 </aside>
 
-<meta itemprop="wordCount" content="2385">
+<meta itemprop="wordCount" content="2346">
 <meta itemprop="datePublished" content="2018-03-25">
 <meta itemprop="url" content="http://danglingpointers.com/post/meltdown-spectre/">
 
@@ -290,7 +292,7 @@ the one for security experts (<a href="https://googleprojectzero.blogspot.fr/201
 <footer>
   <div>
     <p>
-    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+    <a href="http://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
 	<a href="http://danglingpointers.com/about">About this blog</a>.
 
     </p>
