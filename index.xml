@@ -6,10 +6,25 @@
     <description>Recent content on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 20 Oct 2018 11:10:00 +0200</lastBuildDate>
+    <lastBuildDate>Mon, 01 Apr 2024 17:02:00 +0200</lastBuildDate>
     
 	<atom:link href="http://danglingpointers.com/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Copy Queue woes.</title>
+      <link>http://danglingpointers.com/post/copy-queues/</link>
+      <pubDate>Mon, 01 Apr 2024 17:02:00 +0200</pubDate>
+      
+      <guid>http://danglingpointers.com/post/copy-queues/</guid>
+      <description>&lt;p&gt;Consider this case: you&amp;rsquo;re launching several &lt;strong&gt;Async Compute&lt;/strong&gt; jobs. They need some input buffers to be uploaded, and some output buffers to be read back.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;images/CopyQueues_base.svg&#34; alt=&#34;Base scenario&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;How do you minimize the time it takes to get all the outputs back to the CPU? I&amp;rsquo;m focusing on D3D12 and Windows for this article.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Job System #2</title>

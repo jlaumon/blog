@@ -59,6 +59,8 @@
 					
 					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
 					
+					<li><a href="http://danglingpointers.com/tags/gpu">GPU (1)</a></li>
+					
 					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
 					
 					<li><a href="http://danglingpointers.com/tags/security">Security (1)</a></li>
@@ -133,25 +135,25 @@
 <p>Here is what the natvis look like (based on the hash map implementation linked above):</p>
 <div class="highlight"><pre><code class="language-xml" data-lang="xml"><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
 
-<span class="nt">&lt;AutoVisualizer</span> <span class="na">xmlns=</span><span class="s">&quot;http://schemas.microsoft.com/vstudio/debugger/natvis/2010&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;AutoVisualizer</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.microsoft.com/vstudio/debugger/natvis/2010&quot;</span><span class="nt">&gt;</span>
 
-<span class="nt">&lt;Type</span> <span class="na">Name=</span><span class="s">&quot;Pasta::StringHash&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;Expand&gt;</span>
-        <span class="nt">&lt;CustomListItems&gt;</span>
-        <span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;buckets&quot;</span> <span class="na">InitialValue=</span><span class="s">&quot;s_GlobalStringMap-&gt;buckets_.mpBegin&quot;</span> <span class="nt">/&gt;</span>
-        <span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;num_buckets&quot;</span> <span class="na">InitialValue=</span><span class="s">&quot;s_GlobalStringMap-&gt;buckets_.mpEnd - s_GlobalStringMap-&gt;m_map.buckets_.mpBegin&quot;</span> <span class="nt">/&gt;</span>
-        <span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;start_bucket&quot;</span> <span class="na">InitialValue=</span><span class="s">&quot;m_hash % num_buckets&quot;</span> <span class="nt">/&gt;</span>
-        <span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;i&quot;</span> <span class="na">InitialValue=</span><span class="s">&quot;start_bucket&quot;</span> <span class="nt">/&gt;</span>
-        <span class="nt">&lt;Loop&gt;</span>
-          <span class="nt">&lt;If</span> <span class="na">Condition=</span><span class="s">&quot;buckets[i].first == m_hash&quot;</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;Item</span> <span class="na">Name=</span><span class="s">&quot;string&quot;</span><span class="nt">&gt;</span>buckets[i].second, na<span class="nt">&lt;/Item&gt;</span>
-            <span class="nt">&lt;Break</span> <span class="nt">/&gt;</span>
-          <span class="nt">&lt;/If&gt;</span>
-          <span class="nt">&lt;Exec&gt;</span>i = (i + 1) % num_buckets<span class="nt">&lt;/Exec&gt;</span>
-        <span class="nt">&lt;/Loop&gt;</span>
-      <span class="nt">&lt;/CustomListItems&gt;</span>
-      <span class="nt">&lt;Item</span> <span class="na">Name=</span><span class="s">&quot;hash&quot;</span><span class="nt">&gt;</span>m_hash<span class="nt">&lt;/Item&gt;</span>
-    <span class="nt">&lt;/Expand&gt;</span>
+<span class="nt">&lt;Type</span><span class="w"> </span><span class="na">Name=</span><span class="s">&quot;Pasta::StringHash&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Expand&gt;</span>
+<span class="w">        </span><span class="nt">&lt;CustomListItems&gt;</span>
+<span class="w">        </span><span class="nt">&lt;Variable</span><span class="w"> </span><span class="na">Name=</span><span class="s">&quot;buckets&quot;</span><span class="w"> </span><span class="na">InitialValue=</span><span class="s">&quot;s_GlobalStringMap-&gt;buckets_.mpBegin&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;Variable</span><span class="w"> </span><span class="na">Name=</span><span class="s">&quot;num_buckets&quot;</span><span class="w"> </span><span class="na">InitialValue=</span><span class="s">&quot;s_GlobalStringMap-&gt;buckets_.mpEnd - s_GlobalStringMap-&gt;m_map.buckets_.mpBegin&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;Variable</span><span class="w"> </span><span class="na">Name=</span><span class="s">&quot;start_bucket&quot;</span><span class="w"> </span><span class="na">InitialValue=</span><span class="s">&quot;m_hash % num_buckets&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;Variable</span><span class="w"> </span><span class="na">Name=</span><span class="s">&quot;i&quot;</span><span class="w"> </span><span class="na">InitialValue=</span><span class="s">&quot;start_bucket&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;Loop&gt;</span>
+<span class="w">          </span><span class="nt">&lt;If</span><span class="w"> </span><span class="na">Condition=</span><span class="s">&quot;buckets[i].first == m_hash&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;Item</span><span class="w"> </span><span class="na">Name=</span><span class="s">&quot;string&quot;</span><span class="nt">&gt;</span>buckets[i].second,<span class="w"> </span>na<span class="nt">&lt;/Item&gt;</span>
+<span class="w">            </span><span class="nt">&lt;Break</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">          </span><span class="nt">&lt;/If&gt;</span>
+<span class="w">          </span><span class="nt">&lt;Exec&gt;</span>i<span class="w"> </span>=<span class="w"> </span>(i<span class="w"> </span>+<span class="w"> </span>1)<span class="w"> </span>%<span class="w"> </span>num_buckets<span class="nt">&lt;/Exec&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/Loop&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/CustomListItems&gt;</span>
+<span class="w">      </span><span class="nt">&lt;Item</span><span class="w"> </span><span class="na">Name=</span><span class="s">&quot;hash&quot;</span><span class="nt">&gt;</span>m_hash<span class="nt">&lt;/Item&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Expand&gt;</span>
 <span class="nt">&lt;/Type&gt;</span>
 
 <span class="nt">&lt;/AutoVisualizer&gt;</span>
@@ -169,24 +171,24 @@
 
 <p>One last thing worth mentioning: global StringHash variables are going to access the global hash map in their constructor so we need to make sure that the map is initialized <em>before</em> any StringHash. A typical solution for that (since in C++, global variable initialization order is not defined) is to make the hash map <strong>static inside a function</strong>. However, we <em>also</em> need to declare a global pointer to the hash map, otherwise we can&rsquo;t access it from the natvis file.</p>
 <div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="c1">// --- StringHash.h ---</span>
-<span class="k">struct</span> <span class="n">StringHash</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">StringHash</span>
 <span class="p">{</span>
-  <span class="p">...</span>
-  <span class="c1">// Declaring the map inside the StringHash class will help the debugger find it</span>
-  <span class="c1">// (in case another global variable with the same name exist) and will prevent</span>
-  <span class="c1">// the variable from being optimized away (which can happen since it&#39;s never </span>
-  <span class="c1">// referenced in the code.)</span>
-  <span class="k">static</span> <span class="n">StringMap</span><span class="o">*</span> <span class="n">s_GlobalStringMap</span><span class="p">;</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">  </span><span class="c1">// Declaring the map inside the StringHash class will help the debugger find it</span>
+<span class="w">  </span><span class="c1">// (in case another global variable with the same name exist) and will prevent</span>
+<span class="w">  </span><span class="c1">// the variable from being optimized away (which can happen since it&#39;s never </span>
+<span class="w">  </span><span class="c1">// referenced in the code.)</span>
+<span class="w">  </span><span class="k">static</span><span class="w"> </span><span class="n">StringMap</span><span class="o">*</span><span class="w"> </span><span class="n">s_GlobalStringMap</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="c1">// --- StringHash.cpp ---</span>
-<span class="k">static</span> <span class="n">StringMap</span><span class="o">*</span> <span class="n">GetGlobalStringMap</span><span class="p">()</span>
+<span class="k">static</span><span class="w"> </span><span class="n">StringMap</span><span class="o">*</span><span class="w"> </span><span class="n">GetGlobalStringMap</span><span class="p">()</span>
 <span class="p">{</span>
-  <span class="k">static</span> <span class="n">StringHash</span><span class="o">::</span><span class="n">StringMap</span> <span class="n">s_StringMap</span><span class="p">;</span>
-  <span class="k">return</span> <span class="o">&amp;</span><span class="n">s_StringMap</span><span class="p">;</span>
+<span class="w">  </span><span class="k">static</span><span class="w"> </span><span class="n">StringHash</span><span class="o">::</span><span class="n">StringMap</span><span class="w"> </span><span class="n">s_StringMap</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s_StringMap</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="n">StringMap</span><span class="o">*</span> <span class="n">StringHash</span><span class="o">::</span><span class="n">s_GlobalStringMap</span> <span class="o">=</span> <span class="n">GetGlobalStringMap</span><span class="p">();</span>
+<span class="n">StringMap</span><span class="o">*</span><span class="w"> </span><span class="n">StringHash</span><span class="o">::</span><span class="n">s_GlobalStringMap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetGlobalStringMap</span><span class="p">();</span>
 </code></pre></div>
 
 <h2 id="compile-time-hashes">Compile Time Hashes</h2>
@@ -194,30 +196,30 @@
 <p>Another advantage of using a simple hash function is that it&rsquo;s easy to make a <strong>constexpr</strong> version of it (even with the restrictions of c++11).</p>
 
 <p>For example, djb2:</p>
-<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="kt">uint32_t</span> <span class="nf">HashStr</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">_str</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">HashStr</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">_str</span><span class="p">)</span>
 <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">src</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">src</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
-  <span class="kt">uint32_t</span> <span class="n">hash</span> <span class="o">=</span> <span class="mi">5381</span><span class="p">;</span>
-  
-  <span class="kt">char</span> <span class="n">c</span><span class="p">;</span>
-  <span class="k">while</span> <span class="p">((</span><span class="n">c</span> <span class="o">=</span> <span class="o">*</span><span class="n">_str</span><span class="o">++</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="n">c</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5381</span><span class="p">;</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">_str</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="n">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">hash</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hash</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
 
-  <span class="k">return</span> <span class="n">hash</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">hash</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p>Becomes:</p>
-<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="k">constexpr</span> <span class="kt">uint32_t</span> <span class="nf">HashStrRecur</span><span class="p">(</span><span class="kt">uint32_t</span> <span class="n">_hash</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">_str</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">HashStrRecur</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">_hash</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">_str</span><span class="p">)</span>
 <span class="p">{</span>
-  <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">_str</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="nl">_hash</span> <span class="p">:</span> <span class="n">HashStrRecur</span><span class="p">(((</span><span class="n">_hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">_hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">_str</span><span class="p">,</span> <span class="n">_str</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">_str</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">_hash</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">HashStrRecur</span><span class="p">(((</span><span class="n">_hash</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">_hash</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">*</span><span class="n">_str</span><span class="p">,</span><span class="w"> </span><span class="n">_str</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
 <span class="p">}</span>
 
-<span class="k">constexpr</span> <span class="kt">uint32_t</span> <span class="nf">HashStr</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">_str</span><span class="p">)</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">HashStr</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">_str</span><span class="p">)</span>
 <span class="p">{</span>
-  <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">_str</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">HashStrRecur</span><span class="p">(</span><span class="mi">5381</span><span class="p">,</span> <span class="n">_str</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">_str</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">HashStrRecur</span><span class="p">(</span><span class="mi">5381</span><span class="p">,</span><span class="w"> </span><span class="n">_str</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -241,7 +243,7 @@
     <div>
         <section id="datecount">
           <h4 id="date"> Sat May 6, 2017 </h4>
-          <h5 id="wc"> 1500 Words </h5>
+          <h5 id="wc"> 1400 Words </h5>
           <h5 id="readtime"> Read in about 7 Min </h5>
         </section>
         <ul id="categories">
@@ -267,7 +269,7 @@
 
 </aside>
 
-<meta itemprop="wordCount" content="1422">
+<meta itemprop="wordCount" content="1327">
 <meta itemprop="datePublished" content="2017-05-06">
 <meta itemprop="url" content="http://danglingpointers.com/post/string-hashes/">
 
@@ -294,7 +296,7 @@
 <footer>
   <div>
     <p>
-    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+    <a href="http://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
 	<a href="http://danglingpointers.com/about">About this blog</a>.
 
     </p>

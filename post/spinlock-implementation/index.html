@@ -60,6 +60,8 @@
 					
 					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
 					
+					<li><a href="http://danglingpointers.com/tags/gpu">GPU (1)</a></li>
+					
 					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
 					
 					<li><a href="http://danglingpointers.com/tags/security">Security (1)</a></li>
@@ -94,34 +96,34 @@
 <h2 id="the-spin-lock">The spin lock</h2>
 
 <p>Here is the spin lock that we had at Pastagames. It&rsquo;s pretty a straightforward (one could almost say naive) implementation:</p>
-<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="kt">void</span> <span class="nf">Lock</span><span class="p">(</span><span class="n">AtomicI32</span><span class="o">&amp;</span> <span class="n">_spinLock</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">Lock</span><span class="p">(</span><span class="n">AtomicI32</span><span class="o">&amp;</span><span class="w"> </span><span class="n">_spinLock</span><span class="p">)</span>
 <span class="p">{</span>
-    <span class="k">for</span> <span class="p">(;;)</span>
-    <span class="p">{</span>
-        <span class="n">i32</span> <span class="n">expected</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="n">i32</span> <span class="n">store</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">_spinLock</span><span class="p">.</span><span class="n">compareExchange_Acquire</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">store</span><span class="p">))</span>
-            <span class="k">break</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">i32</span><span class="w"> </span><span class="n">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">i32</span><span class="w"> </span><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_spinLock</span><span class="p">.</span><span class="n">compareExchange_Acquire</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="n">store</span><span class="p">))</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p>It tries to exchange a 0 with a 1 in an atomic integer. 0 means it&rsquo;s unlocked, 1 means it&rsquo;s locked. If the value inside the atomic was already 1 (ie. already locked by someone else), it loops and tries again. <code>AtomicI32</code> is a custom type, but it&rsquo;s the same idea as <code>std::atomic&lt;int&gt;</code>.</p>
 
 <p>And here is the new and improved version based on Naughty Dog&rsquo;s spin lock that Jason Gregory showed us:</p>
-<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="kt">void</span> <span class="nf">Lock</span><span class="p">(</span><span class="n">AtomicI32</span><span class="o">&amp;</span> <span class="n">_spinLock</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">Lock</span><span class="p">(</span><span class="n">AtomicI32</span><span class="o">&amp;</span><span class="w"> </span><span class="n">_spinLock</span><span class="p">)</span>
 <span class="p">{</span>
-    <span class="k">for</span> <span class="p">(;;)</span>
-    <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">_spinLock</span><span class="p">.</span><span class="n">load_Acquire</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="p">{</span>
-            <span class="n">i32</span> <span class="n">expected</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-            <span class="n">i32</span> <span class="n">store</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">_spinLock</span><span class="p">.</span><span class="n">compareExchange_Acquire</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">store</span><span class="p">))</span>
-                <span class="k">break</span><span class="p">;</span>
-        <span class="p">}</span>
-        <span class="n">EMIT_PAUSE_INSTRUCTION</span><span class="p">();</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_spinLock</span><span class="p">.</span><span class="n">load_Acquire</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">i32</span><span class="w"> </span><span class="n">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">            </span><span class="n">i32</span><span class="w"> </span><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_spinLock</span><span class="p">.</span><span class="n">compareExchange_Acquire</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="n">store</span><span class="p">))</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">EMIT_PAUSE_INSTRUCTION</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -191,7 +193,7 @@
 
 </aside>
 
-<meta itemprop="wordCount" content="678">
+<meta itemprop="wordCount" content="653">
 <meta itemprop="datePublished" content="2017-12-31">
 <meta itemprop="url" content="http://danglingpointers.com/post/spinlock-implementation/">
 
@@ -218,7 +220,7 @@
 <footer>
   <div>
     <p>
-    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+    <a href="http://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
 	<a href="http://danglingpointers.com/about">About this blog</a>.
 
     </p>

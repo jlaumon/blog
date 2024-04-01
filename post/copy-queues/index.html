@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="description" content="A story about Copy Queues and waiting.">
+<meta name="keywords" content="GPU, ">
+
+
+<meta property="article:tag" content="GPU">
+
+
+
+
+
+    <base href="http://danglingpointers.com/">
+    <title> Copy Queue woes. - Dangling Pointers</title>
+    <link rel="canonical" href="http://danglingpointers.com/post/copy-queues/">
+    
+
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="http://fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="http://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="http://danglingpointers.com/css/pygments/vs.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+
+
+</head>
+
+<body lang="en" itemscope itemtype="http://schema.org/Article">
+<header id="header">
+	<h1 style="text-align:center"><a href="http://danglingpointers.com/">Dangling Pointers</a></h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
+    <nav id="nav">
+            <ul id="mainnav">
+			<li>
+                <a href="http://danglingpointers.com/tags/">
+                <i class="fa fa-tags"></i>
+				All tags
+				</a>
+				
+				<ul class="tags">
+					
+					
+					<li><a href="http://danglingpointers.com/tags/engine">Engine (4)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (3)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/concurrency">Concurrency (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/gpu">GPU (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/security">Security (1)</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+		
+		
+
+            <ul id="social">
+            
+        </ul>
+
+    </nav>
+</header>
+
+
+
+<section id="main">
+  <h1 itemprop="name" id="title">Copy Queue woes.</h1>
+  <div>
+        <article itemprop="articleBody" id="content">
+           <p>Consider this case: you&rsquo;re launching several <strong>Async Compute</strong> jobs. They need some input buffers to be uploaded, and some output buffers to be read back.</p>
+
+<p><img src="images/CopyQueues_base.svg" alt="Base scenario" /></p>
+
+<p>How do you minimize the time it takes to get all the outputs back to the CPU? I&rsquo;m focusing on D3D12 and Windows for this article.</p>
+
+<p></p>
+
+<p>&ndash;</p>
+
+<p>One obvious thing to add here is a <strong>Copy Queue</strong>. The uploads/readbacks might be a bit faster (because <strong>Copy Queues</strong> are good at saturating the PCIe bus) and it should free some time on the <strong>Compute Queue</strong> itself, right?</p>
+
+<p>However this is what happens:</p>
+
+<p><img src="images/CopyQueues_naive.svg" alt="Naive **Copy Queue**" /></p>
+
+<p>That&rsquo;s because the obvious way of implementing this is to make the <strong>Compute Queue</strong> wait for the <strong>Copy Queue</strong> (until &ldquo;Upload 1&rdquo; is finished) and then make the <strong>Copy Queue</strong> wait for the <strong>Compute Queue</strong> (until &ldquo;Dispatch 1&rdquo; is finished).</p>
+
+<p>So when the &ldquo;CPU 2&rdquo; thread submits its work, both queues are already &ldquo;busy&rdquo; waiting, and the entire thing is delayed.</p>
+
+<p>What can be done?</p>
+
+<p>One option would be to have two <strong>Compute  Queues</strong> and two <strong>Copy Queues</strong>. That&rsquo;s maybe fine with two, but it might become complicated with more jobs. Having N queues (eg. one per thread) would work (there are no hard limits on the number of queues) but then synchronizing all of it with the <strong>Direct Queue</strong>, and keeping track of how resources get uploaded, sounds annoyingly complicated.</p>
+
+<p>One other option would be to have a <strong>Copy Queue</strong> for uploads, and one for readbacks. The complexity is already much more manageable, but it opens up this case:</p>
+
+<p><img src="images/CopyQueues_up_rb_queues.svg" alt="Naive **Copy Queue**" /></p>
+
+<p>Here, &ldquo;Readback 2&rdquo; gets submitted first, because submitting anything is a race between &ldquo;CPU 1&rdquo; and &ldquo;CPU 2&rdquo;, and &ldquo;Readback 1&rdquo; has to wait a very long time.</p>
+
+<p>You could fix that by mutexing the whole process, but <code>ExecuteCommandLists</code> is an expensive call, so making it even more serial isn&rsquo;t ideal.</p>
+
+<p>Yet another option (my favorite) is to not make the queues wait at all! Instead, have a thread wait on the queue, and submit the work when it&rsquo;s the right time.</p>
+
+<p><img src="images/CopyQueues_thread.svg" alt="Thread Wait" /></p>
+
+<p>Here the &ldquo;Upload 1&rdquo; and &ldquo;Upload 2&rdquo; are submitted immediately, but &ldquo;Dispatch 1&rdquo; and &ldquo;Dispatch 2&rdquo; are queued on the CPU side and submitted by that waiting thread once the corresponding upload is finished. Same thing with &ldquo;Readback 1&rdquo; and &ldquo;Readback 2&rdquo;.</p>
+
+<p>So what do you need to set that up exactly?</p>
+
+<ul>
+<li>A <strong>Fence</strong> per queue (you should already have that)</li>
+<li>An extra thread</li>
+<li>For each queue, an array of waiting Command Lists (sorted based on the <strong>Fence</strong> value they need to wait)</li>
+<li>An extra Win32 Event to wake up the thread when a new <strong>Command List</strong> is added to the array</li>
+</ul>
+
+<p>The trick is to use <code>WaitForMultipleObjects</code> to make the thread wait until either: one of the Fences reach a value a <strong>Command List</strong> wants in OR a new <strong>Command List</strong> is added to the front of the list.</p>
+
+<p>It adds a little bit of delay because now the <code>ExecuteCommandLists</code> will only start when the GPU is already done with the dependent work (and that function is quite slow), but it&rsquo;s relatively simple and removes the worst cases very nicely.</p>
+
+<p>This is what it looks like with all the details:</p>
+
+<p><img src="images/CopyQueues_details.svg" alt="Thread Wait" /></p>
+
+<p><strong>Note:</strong> If one thread is not enough to submit all the Command Lists without causing extra delays, you can very easily change that to one thread per queue.</p>
+
+<p>&ndash;</p>
+
+<p><strong>Bonus:</strong> if there are background loadings at the same time, this might also happen:</p>
+
+<p><img src="images/CopyQueues_bg_loadings.svg" alt="Background Loadings" /></p>
+
+<p>Here again you might think that adding a second <strong>Copy Queue</strong> would solve it. But actually it would probably look like this:</p>
+
+<p><img src="images/CopyQueues_bg_loadings_2nd_queue.svg" alt="Background Loadings with second **Copy Queue**" /></p>
+
+<p>However, there is a simple solution! Command queues accept a priority value on creation, set it to <code>D3D12_COMMAND_QUEUE_PRIORITY_HIGH</code> and enjoy the copies nicely overlapping.</p>
+
+<p><img src="images/CopyQueues_bg_loadings_hi_prio.svg" alt="Background Loadings with second **Copy Queue** but high priority" /></p>
+
+<p>And that&rsquo;s it!</p>
+
+<p>Thanks to Jesse Natalie and Matthäus Chajdas who answered my questions when I started looking into this.</p>
+        </article>
+  </div>
+</section>
+
+
+
+<aside id="meta">
+
+    <div>
+        <section id="datecount">
+          <h4 id="date"> Mon Apr 1, 2024 </h4>
+          <h5 id="wc"> 700 Words </h5>
+          <h5 id="readtime"> Read in about 3 Min </h5>
+        </section>
+        <ul id="categories">
+          
+        </ul>
+        <ul id="tags">
+          
+            <li> <a href="http://danglingpointers.com/tags/gpu">GPU</a> </li>
+          
+        </ul>
+    </div>
+
+    <div>
+        <section id="prev">
+            &nbsp;
+        </section><section id="next">
+            &nbsp;<a class="next" href="http://danglingpointers.com/post/job-system-2/">Job System #2 <i class="icon-arrow-right"></i></a>
+        </section>
+    </div>
+
+
+</aside>
+
+<meta itemprop="wordCount" content="638">
+<meta itemprop="datePublished" content="2024-04-01">
+<meta itemprop="url" content="http://danglingpointers.com/post/copy-queues/">
+
+
+<aside id=comments>
+    <div><h2> Comments </h2></div>
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'danglingpointers';
+    var disqus_identifier = 'http:\/\/danglingpointers.com\/post\/copy-queues\/';
+    var disqus_title = 'Copy Queue woes.';
+    var disqus_url = 'http:\/\/danglingpointers.com\/post\/copy-queues\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</aside>
+
+<footer>
+  <div>
+    <p>
+    <a href="http://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+	<a href="http://danglingpointers.com/about">About this blog</a>.
+
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+(function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
+fitText(document.getElementById('title'), 1)
+</script>
+</body>
+</html>
+
