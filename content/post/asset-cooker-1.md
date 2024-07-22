@@ -45,4 +45,4 @@ And to finish, a few words about about **strings**. There are only two types of 
 
 Next time we'll take a look at the **USN journals** and the **incredible startup times** of Asset Cooker. 
 
-Shout at me on [twitter](https://twitter.com/_plop_) or [mastodon](https://mastodon.gamedev.place/@jerem).
+Shout at me on [twitter](https://twitter.com/_plop_/status/1815471030904734199) or [mastodon](https://mastodon.gamedev.place/@jerem/112831813733353420).
