@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="description" content="Asset Cooker, a build system for game assets with a UI. Part 1: Memory and Storage.">
+<meta name="keywords" content="Asset Cooker, C&#43;&#43;, ">
+
+
+<meta property="article:tag" content="Asset Cooker">
+<meta property="article:tag" content="C&#43;&#43;">
+
+
+
+
+
+    <base href="http://danglingpointers.com/">
+    <title> Asset Cooker - Part 1: Memory and Storage - Dangling Pointers</title>
+    <link rel="canonical" href="http://danglingpointers.com/post/asset-cooker-1/">
+    
+
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="http://fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="http://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="http://danglingpointers.com/css/pygments/vs.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+
+
+</head>
+
+<body lang="en" itemscope itemtype="http://schema.org/Article">
+<header id="header">
+	<h1 style="text-align:center"><a href="http://danglingpointers.com/">Dangling Pointers</a></h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
+    <nav id="nav">
+            <ul id="mainnav">
+			<li>
+                <a href="http://danglingpointers.com/tags/">
+                <i class="fa fa-tags"></i>
+				All tags
+				</a>
+				
+				<ul class="tags">
+					
+					
+					<li><a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (4)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/engine">Engine (4)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/asset-cooker">Asset Cooker (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/concurrency">Concurrency (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/gpu">GPU (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/links">Links (1)</a></li>
+					
+					<li><a href="http://danglingpointers.com/tags/security">Security (1)</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+		
+		
+
+            <ul id="social">
+            
+        </ul>
+
+    </nav>
+</header>
+
+
+
+<section id="main">
+  <h1 itemprop="name" id="title">Asset Cooker - Part 1: Memory and Storage</h1>
+  <div>
+        <article itemprop="articleBody" id="content">
+           <p>A few weeks ago, I released my hobby projet: <a href="https://github.com/jlaumon/AssetCooker">Asset Cooker</a>. I even made a <a href="https://www.youtube.com/watch?v=hvbVC4m6BOo">short release trailer</a> for it.</p>
+
+<p><img src="images/chef-hat-heart.png" alt="Asset Cooker icon" /></p>
+
+<p>So, what is <strong>Asset Cooker</strong>?</p>
+
+<p>It&rsquo;s a <strong>build system</strong>. Put very briefly, it has <strong>commands</strong> that have <strong>inputs</strong> and <strong>outputs</strong> (which are files). If the outputs don&rsquo;t exist, or if the inputs are modified, it execute the command to (re)generate the outputs.</p>
+
+<p>I don&rsquo;t plan on describing everything in articles, because that would be too much (and not all of it interesting), but I&rsquo;ll try to do a few (short?) articles about single topics that I find interesting.</p>
+
+<p>In this first article, I&rsquo;m going to talk about <strong>memory and storage</strong>. Asset Cooker has to deal with <strong>a lot of items</strong>. Hundreds of thousands of files, of commands, and of strings. Managing that carefully is very important.</p>
+
+<p></p>
+
+<p>&ndash;</p>
+
+<p>Asset Cooker stores one <a href="https://github.com/jlaumon/AssetCooker/blob/e26bb3c52a69eb90d889194a878c83492edf883e/src/FileSystem.h#L154-L183">FileInfo</a> per file. FileInfos are <strong>small structs</strong> that contain basic informations about a file, like its path or the <strong>USN</strong> representing the last time it was modified (it&rsquo;s just a 64bit number).</p>
+
+<p>The interesting <strong>design decision</strong> here is that FileInfos are <strong>never destroyed</strong>. If a file is deleted, that information is stored in the FileInfo, but the FileInfo stays alive.</p>
+
+<p>If the file is created again later, the <strong>same</strong> FileInfo is updated again. This means all the code can reference FileInfos without worrying about their lifetimes, and that simplifies <strong>a lot of things</strong>.</p>
+
+<p>To support this <strong>efficiently</strong>, all FileInfos are stored in a <strong>custom vector</strong> (<a href="https://github.com/jlaumon/AssetCooker/blob/main/src/VMemArray.h">VMemArray</a>) that uses <strong>virtual memory</strong> to grow while keeping the data address <strong>stable</strong> (unlike eg. <code>std::vector</code>). Essentially, it reserves a few GiBs from the start but only commits pages as needed.</p>
+
+<p>The <strong>file paths</strong> are also stored in a specific VMemArray (<a href="https://github.com/jlaumon/AssetCooker/blob/main/src/StringPool.h">StringPool</a>) so the FileInfo can just keep a pointer to it without caring about lifetime/ownership.</p>
+
+<p>Since everything is stored in these <strong>large arrays</strong>, using <strong>indices</strong> instead of pointers is trivial, and contributes to saving memory. <a href="https://github.com/jlaumon/AssetCooker/blob/e26bb3c52a69eb90d889194a878c83492edf883e/src/FileSystem.h#L122-L141">FileID</a> is such an example of FileInfo <strong>4-byte index</strong>, wrapped in a struct to make it <strong>type safe</strong>. In practice, it&rsquo;s a tiny bit more complicated since each root folder (FileRepo) has its own array of FileInfos, but that just means a few bits of the FileID are used as a FileRepo index.</p>
+
+<p>Another cool trick permitted by this design is that <strong>multiple threads</strong> can read the VMemArray containing FileInfos <strong>without any synchronization</strong>. Since FileInfos are never destroyed, they are only added <strong>at the end</strong> of the array. Threads adding FileInfos still need synchronization, but as long as they update the array size only when they&rsquo;re <strong>done writing</strong>, there can be readers iterating the array <strong>at the same time</strong> without issue.</p>
+
+<p><strong>Commands</strong> follow exactly the <strong>same patterns</strong>: stored in a VMemArray, never destroyed, referenced with type safe indices.</p>
+
+<p>And to finish, a few words about about <strong>strings</strong>. There are only two types of strings: <strong>persistent</strong> strings allocated in a <strong>StringPool</strong>, or <strong>temporary</strong> strings stored in <strong>fixed size buffers</strong> (<a href="https://github.com/jlaumon/AssetCooker/blob/e26bb3c52a69eb90d889194a878c83492edf883e/src/Strings.h#L90-L131">TempString</a>) on the stack. The performance cost of many small allocations is never an issue here!</p>
+
+<p>&ndash;</p>
+
+<p>Next time we&rsquo;ll take a look at the <strong>USN journals</strong> and the <strong>incredible startup times</strong> of Asset Cooker.</p>
+
+<p>Shout at me on <a href="https://twitter.com/_plop_">twitter</a> or <a href="https://mastodon.gamedev.place/@jerem">mastodon</a>.</p>
+        </article>
+  </div>
+</section>
+
+
+
+<aside id="meta">
+
+    <div>
+        <section id="datecount">
+          <h4 id="date"> Mon Jul 22, 2024 </h4>
+          <h5 id="wc"> 600 Words </h5>
+          <h5 id="readtime"> Read in about 3 Min </h5>
+        </section>
+        <ul id="categories">
+          
+        </ul>
+        <ul id="tags">
+          
+            <li> <a href="http://danglingpointers.com/tags/asset-cooker">Asset Cooker</a> </li>
+          
+            <li> <a href="http://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43;</a> </li>
+          
+        </ul>
+    </div>
+
+    <div>
+        <section id="prev">
+            &nbsp;
+        </section><section id="next">
+            &nbsp;<a class="next" href="http://danglingpointers.com/post/copy-queues/">Copy Queue woes. <i class="icon-arrow-right"></i></a>
+        </section>
+    </div>
+
+
+</aside>
+
+<meta itemprop="wordCount" content="532">
+<meta itemprop="datePublished" content="2024-07-22">
+<meta itemprop="url" content="http://danglingpointers.com/post/asset-cooker-1/">
+
+
+
+<footer>
+  <div>
+    <p>
+    <a href="http://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+	<a href="http://danglingpointers.com/about">About this blog</a>.
+
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+(function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
+fitText(document.getElementById('title'), 1)
+</script>
+</body>
+</html>
+

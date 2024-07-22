@@ -6,10 +6,31 @@
     <description>Recent content on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 01 Apr 2024 17:02:00 +0200</lastBuildDate>
+    <lastBuildDate>Mon, 22 Jul 2024 21:24:00 +0200</lastBuildDate>
     
 	<atom:link href="http://danglingpointers.com/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Asset Cooker - Part 1: Memory and Storage</title>
+      <link>http://danglingpointers.com/post/asset-cooker-1/</link>
+      <pubDate>Mon, 22 Jul 2024 21:24:00 +0200</pubDate>
+      
+      <guid>http://danglingpointers.com/post/asset-cooker-1/</guid>
+      <description>&lt;p&gt;A few weeks ago, I released my hobby projet: &lt;a href=&#34;https://github.com/jlaumon/AssetCooker&#34;&gt;Asset Cooker&lt;/a&gt;. I even made a &lt;a href=&#34;https://www.youtube.com/watch?v=hvbVC4m6BOo&#34;&gt;short release trailer&lt;/a&gt; for it.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;images/chef-hat-heart.png&#34; alt=&#34;Asset Cooker icon&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So, what is &lt;strong&gt;Asset Cooker&lt;/strong&gt;?&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s a &lt;strong&gt;build system&lt;/strong&gt;. Put very briefly, it has &lt;strong&gt;commands&lt;/strong&gt; that have &lt;strong&gt;inputs&lt;/strong&gt; and &lt;strong&gt;outputs&lt;/strong&gt; (which are files). If the outputs don&amp;rsquo;t exist, or if the inputs are modified, it execute the command to (re)generate the outputs.&lt;/p&gt;
+
+&lt;p&gt;I don&amp;rsquo;t plan on describing everything in articles, because that would be too much (and not all of it interesting), but I&amp;rsquo;ll try to do a few (short?) articles about single topics that I find interesting.&lt;/p&gt;
+
+&lt;p&gt;In this first article, I&amp;rsquo;m going to talk about &lt;strong&gt;memory and storage&lt;/strong&gt;. Asset Cooker has to deal with &lt;strong&gt;a lot of items&lt;/strong&gt;. Hundreds of thousands of files, of commands, and of strings. Managing that carefully is very important.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Copy Queue woes.</title>
