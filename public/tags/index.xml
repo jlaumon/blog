@@ -2,84 +2,84 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on Dangling Pointers</title>
-    <link>http://danglingpointers.com/tags/</link>
+    <link>https://danglingpointers.com/tags/</link>
     <description>Recent content in Tags on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 22 Jul 2024 21:24:00 +0200</lastBuildDate>
     
-	<atom:link href="http://danglingpointers.com/tags/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://danglingpointers.com/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Asset Cooker</title>
-      <link>http://danglingpointers.com/tags/asset-cooker/</link>
+      <link>https://danglingpointers.com/tags/asset-cooker/</link>
       <pubDate>Mon, 22 Jul 2024 21:24:00 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/tags/asset-cooker/</guid>
+      <guid>https://danglingpointers.com/tags/asset-cooker/</guid>
       <description></description>
     </item>
     
     <item>
       <title>C&#43;&#43;</title>
-      <link>http://danglingpointers.com/tags/c&#43;&#43;/</link>
+      <link>https://danglingpointers.com/tags/c&#43;&#43;/</link>
       <pubDate>Mon, 22 Jul 2024 21:24:00 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/tags/c&#43;&#43;/</guid>
+      <guid>https://danglingpointers.com/tags/c&#43;&#43;/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Concurrency</title>
-      <link>http://danglingpointers.com/tags/concurrency/</link>
+      <link>https://danglingpointers.com/tags/concurrency/</link>
       <pubDate>Sun, 31 Dec 2017 13:03:00 +0100</pubDate>
       
-      <guid>http://danglingpointers.com/tags/concurrency/</guid>
+      <guid>https://danglingpointers.com/tags/concurrency/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Data-Oriented Design</title>
-      <link>http://danglingpointers.com/tags/data-oriented-design/</link>
+      <link>https://danglingpointers.com/tags/data-oriented-design/</link>
       <pubDate>Sat, 19 Mar 2016 12:04:48 +0100</pubDate>
       
-      <guid>http://danglingpointers.com/tags/data-oriented-design/</guid>
+      <guid>https://danglingpointers.com/tags/data-oriented-design/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Engine</title>
-      <link>http://danglingpointers.com/tags/engine/</link>
+      <link>https://danglingpointers.com/tags/engine/</link>
       <pubDate>Sat, 20 Oct 2018 11:10:00 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/tags/engine/</guid>
+      <guid>https://danglingpointers.com/tags/engine/</guid>
       <description></description>
     </item>
     
     <item>
       <title>GPU</title>
-      <link>http://danglingpointers.com/tags/gpu/</link>
+      <link>https://danglingpointers.com/tags/gpu/</link>
       <pubDate>Mon, 01 Apr 2024 17:02:00 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/tags/gpu/</guid>
+      <guid>https://danglingpointers.com/tags/gpu/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Links</title>
-      <link>http://danglingpointers.com/tags/links/</link>
+      <link>https://danglingpointers.com/tags/links/</link>
       <pubDate>Thu, 24 Dec 2015 18:00:19 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/tags/links/</guid>
+      <guid>https://danglingpointers.com/tags/links/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Security</title>
-      <link>http://danglingpointers.com/tags/security/</link>
+      <link>https://danglingpointers.com/tags/security/</link>
       <pubDate>Sun, 25 Mar 2018 13:59:49 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/tags/security/</guid>
+      <guid>https://danglingpointers.com/tags/security/</guid>
       <description></description>
     </item>
     

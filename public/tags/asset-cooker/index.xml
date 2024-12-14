@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Asset Cooker on Dangling Pointers</title>
-    <link>http://danglingpointers.com/tags/asset-cooker/</link>
+    <link>https://danglingpointers.com/tags/asset-cooker/</link>
     <description>Recent content in Asset Cooker on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 22 Jul 2024 21:24:00 +0200</lastBuildDate>
     
-	<atom:link href="http://danglingpointers.com/tags/asset-cooker/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://danglingpointers.com/tags/asset-cooker/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Asset Cooker - Part 1: Memory and Storage</title>
-      <link>http://danglingpointers.com/post/asset-cooker-1/</link>
+      <link>https://danglingpointers.com/post/asset-cooker-1/</link>
       <pubDate>Mon, 22 Jul 2024 21:24:00 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/asset-cooker-1/</guid>
+      <guid>https://danglingpointers.com/post/asset-cooker-1/</guid>
       <description>&lt;p&gt;A few weeks ago, I released my hobby projet: &lt;a href=&#34;https://github.com/jlaumon/AssetCooker&#34;&gt;Asset Cooker&lt;/a&gt;. I even made a &lt;a href=&#34;https://www.youtube.com/watch?v=hvbVC4m6BOo&#34;&gt;short release trailer&lt;/a&gt; for it.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;images/chef-hat-heart.png&#34; alt=&#34;Asset Cooker icon&#34; /&gt;&lt;/p&gt;

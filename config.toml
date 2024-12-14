@@ -1,4 +1,4 @@
-baseurl = "http://danglingpointers.com/"
+baseurl = "https://danglingpointers.com/"
 languageCode = "en-us"
 title = "Dangling Pointers"
 disqusshortname = "danglingpointers"

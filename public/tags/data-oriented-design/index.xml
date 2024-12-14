@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Data-Oriented Design on Dangling Pointers</title>
-    <link>http://danglingpointers.com/tags/data-oriented-design/</link>
+    <link>https://danglingpointers.com/tags/data-oriented-design/</link>
     <description>Recent content in Data-Oriented Design on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 19 Mar 2016 12:04:48 +0100</lastBuildDate>
     
-	<atom:link href="http://danglingpointers.com/tags/data-oriented-design/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://danglingpointers.com/tags/data-oriented-design/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Mike Acton&#39;s Data-Oriented Design Workshop (2015)</title>
-      <link>http://danglingpointers.com/post/mike-actons-dod-workshop-2015/</link>
+      <link>https://danglingpointers.com/post/mike-actons-dod-workshop-2015/</link>
       <pubDate>Sat, 19 Mar 2016 12:04:48 +0100</pubDate>
       
-      <guid>http://danglingpointers.com/post/mike-actons-dod-workshop-2015/</guid>
+      <guid>https://danglingpointers.com/post/mike-actons-dod-workshop-2015/</guid>
       <description>&lt;p&gt;I attended Mike Acton&amp;rsquo;s master class during last year&amp;rsquo;s &lt;a href=&#34;http://www.game-connection.com/master-classes-0&#34;&gt;Game Connection&lt;/a&gt; in Paris.
 Unsurprisingly it was about data-oriented design, but it was a workshop, a practical exercise, and it showed us (or at least me)
 a new facet of the concept, as well as a few interesting techniques.&lt;/p&gt;

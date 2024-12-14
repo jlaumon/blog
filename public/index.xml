@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Dangling Pointers</title>
-    <link>http://danglingpointers.com/</link>
+    <link>https://danglingpointers.com/</link>
     <description>Recent content on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 22 Jul 2024 21:24:00 +0200</lastBuildDate>
     
-	<atom:link href="http://danglingpointers.com/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://danglingpointers.com/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Asset Cooker - Part 1: Memory and Storage</title>
-      <link>http://danglingpointers.com/post/asset-cooker-1/</link>
+      <link>https://danglingpointers.com/post/asset-cooker-1/</link>
       <pubDate>Mon, 22 Jul 2024 21:24:00 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/asset-cooker-1/</guid>
+      <guid>https://danglingpointers.com/post/asset-cooker-1/</guid>
       <description>&lt;p&gt;A few weeks ago, I released my hobby projet: &lt;a href=&#34;https://github.com/jlaumon/AssetCooker&#34;&gt;Asset Cooker&lt;/a&gt;. I even made a &lt;a href=&#34;https://www.youtube.com/watch?v=hvbVC4m6BOo&#34;&gt;short release trailer&lt;/a&gt; for it.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;images/chef-hat-heart.png&#34; alt=&#34;Asset Cooker icon&#34; /&gt;&lt;/p&gt;
@@ -34,10 +34,10 @@
     
     <item>
       <title>Copy Queue woes.</title>
-      <link>http://danglingpointers.com/post/copy-queues/</link>
+      <link>https://danglingpointers.com/post/copy-queues/</link>
       <pubDate>Mon, 01 Apr 2024 17:02:00 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/copy-queues/</guid>
+      <guid>https://danglingpointers.com/post/copy-queues/</guid>
       <description>&lt;p&gt;Consider this case: you&amp;rsquo;re launching several &lt;strong&gt;Async Compute&lt;/strong&gt; jobs. They need some input buffers to be uploaded, and some output buffers to be read back.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;images/CopyQueues_base.svg&#34; alt=&#34;Base scenario&#34; /&gt;&lt;/p&gt;
@@ -49,10 +49,10 @@
     
     <item>
       <title>Job System #2</title>
-      <link>http://danglingpointers.com/post/job-system-2/</link>
+      <link>https://danglingpointers.com/post/job-system-2/</link>
       <pubDate>Sat, 20 Oct 2018 11:10:00 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/job-system-2/</guid>
+      <guid>https://danglingpointers.com/post/job-system-2/</guid>
       <description>&lt;p&gt;Oops! I actually wrote this article one year ago but never finished it. Let&amp;rsquo;s say it&amp;rsquo;s finished, and boom! released.&lt;/p&gt;
 
 &lt;p&gt;This is a follow up on the previous article about &lt;a href=&#34;post/job-system/&#34;&gt;our fiber-based job system&lt;/a&gt;. It contains a few details about our implementation, what we found to be important or not.&lt;/p&gt;
@@ -62,10 +62,10 @@
     
     <item>
       <title>Meltdown and Spectre explained, again</title>
-      <link>http://danglingpointers.com/post/meltdown-spectre/</link>
+      <link>https://danglingpointers.com/post/meltdown-spectre/</link>
       <pubDate>Sun, 25 Mar 2018 13:59:49 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/meltdown-spectre/</guid>
+      <guid>https://danglingpointers.com/post/meltdown-spectre/</guid>
       <description>&lt;p&gt;You may have heard of &lt;strong&gt;Meltdown&lt;/strong&gt; and &lt;strong&gt;Spectre&lt;/strong&gt;. In January, these two new &lt;strong&gt;security vulnerabilities&lt;/strong&gt; were made public, and it was kind of a big deal: all modern processors were more or less vulnerable, all systems affected, they could steal your passwords and everything.&lt;/p&gt;
 
 &lt;p&gt;Things have settled down a little bit since then; security patches have been released and no actual attacks have been reported. But still, discoveries of that scale are not common, so I was curious: How do these vulnerabilities work?&lt;/p&gt;
@@ -82,10 +82,10 @@ the one for security experts (&lt;a href=&#34;https://googleprojectzero.blogspot
     
     <item>
       <title>Spin Lock Implementation</title>
-      <link>http://danglingpointers.com/post/spinlock-implementation/</link>
+      <link>https://danglingpointers.com/post/spinlock-implementation/</link>
       <pubDate>Sun, 31 Dec 2017 13:03:00 +0100</pubDate>
       
-      <guid>http://danglingpointers.com/post/spinlock-implementation/</guid>
+      <guid>https://danglingpointers.com/post/spinlock-implementation/</guid>
       <description>&lt;p&gt;I attended a &lt;a href=&#34;https://www.game-connection.com/masterclasses/&#34;&gt;Game Connection master class&lt;/a&gt; this year again. This time it was with &lt;a href=&#34;http://www.gameenginebook.com/bio.html&#34;&gt;Jason Gregory&lt;/a&gt; (Lead Programmer at &lt;a href=&#34;https://www.naughtydog.com/&#34;&gt;Naughty Dog&lt;/a&gt;) on concurrent programming, and it was very interesting.&lt;/p&gt;
 
 &lt;p&gt;I won&amp;rsquo;t give a full account because we saw &lt;em&gt;way&lt;/em&gt; too many things (500 slides!).&lt;/p&gt;
@@ -97,10 +97,10 @@ the one for security experts (&lt;a href=&#34;https://googleprojectzero.blogspot
     
     <item>
       <title>Job System</title>
-      <link>http://danglingpointers.com/post/job-system/</link>
+      <link>https://danglingpointers.com/post/job-system/</link>
       <pubDate>Sun, 27 Aug 2017 11:14:19 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/job-system/</guid>
+      <guid>https://danglingpointers.com/post/job-system/</guid>
       <description>&lt;p&gt;We have a fiber based job system at Pastagames. I started coding it just after seeing this &lt;a href=&#34;http://www.gdcvault.com/play/1022186/Parallelizing-the-Naughty-Dog-Engine&#34;&gt;Naughty Dog GDC Talk&lt;/a&gt; back in 2015. And so far, we&amp;rsquo;re really happy with it.&lt;/p&gt;
 
 &lt;p&gt;In this article, I&amp;rsquo;ll focus more on how we use it than on how we implemented it ‒ our implementation is very close to what Christian Gyrling presented in his talk.&lt;/p&gt;
@@ -112,10 +112,10 @@ the one for security experts (&lt;a href=&#34;https://googleprojectzero.blogspot
     
     <item>
       <title>String Hashes</title>
-      <link>http://danglingpointers.com/post/string-hashes/</link>
+      <link>https://danglingpointers.com/post/string-hashes/</link>
       <pubDate>Sat, 06 May 2017 12:03:27 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/string-hashes/</guid>
+      <guid>https://danglingpointers.com/post/string-hashes/</guid>
       <description>&lt;p&gt;Strings are often used as &lt;strong&gt;identifiers&lt;/strong&gt; in games: object names, sound effect names, particle type names, etc. They&amp;rsquo;re a bit like enums with the advantage of allowing your game to be data-driven: you don&amp;rsquo;t necessarily need to recompile your program to accept new values.&lt;/p&gt;
 
 &lt;p&gt;But strings are no fun: storing them efficiently is a headache, they&amp;rsquo;re bigger and they&amp;rsquo;re slower than enums.&lt;/p&gt;
@@ -127,10 +127,10 @@ the one for security experts (&lt;a href=&#34;https://googleprojectzero.blogspot
     
     <item>
       <title>Mike Acton&#39;s Data-Oriented Design Workshop (2015)</title>
-      <link>http://danglingpointers.com/post/mike-actons-dod-workshop-2015/</link>
+      <link>https://danglingpointers.com/post/mike-actons-dod-workshop-2015/</link>
       <pubDate>Sat, 19 Mar 2016 12:04:48 +0100</pubDate>
       
-      <guid>http://danglingpointers.com/post/mike-actons-dod-workshop-2015/</guid>
+      <guid>https://danglingpointers.com/post/mike-actons-dod-workshop-2015/</guid>
       <description>&lt;p&gt;I attended Mike Acton&amp;rsquo;s master class during last year&amp;rsquo;s &lt;a href=&#34;http://www.game-connection.com/master-classes-0&#34;&gt;Game Connection&lt;/a&gt; in Paris.
 Unsurprisingly it was about data-oriented design, but it was a workshop, a practical exercise, and it showed us (or at least me)
 a new facet of the concept, as well as a few interesting techniques.&lt;/p&gt;
@@ -140,10 +140,10 @@ a new facet of the concept, as well as a few interesting techniques.&lt;/p&gt;
     
     <item>
       <title>Other blogs and links</title>
-      <link>http://danglingpointers.com/post/links/</link>
+      <link>https://danglingpointers.com/post/links/</link>
       <pubDate>Thu, 24 Dec 2015 18:00:19 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/links/</guid>
+      <guid>https://danglingpointers.com/post/links/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;images/would-you-like-to-knwo-more.jpg&#34; alt=&#34;Would you like to know more?&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;</description>
@@ -151,10 +151,10 @@ a new facet of the concept, as well as a few interesting techniques.&lt;/p&gt;
     
     <item>
       <title>Don’t use std::list</title>
-      <link>http://danglingpointers.com/post/dont-use-std-list/</link>
+      <link>https://danglingpointers.com/post/dont-use-std-list/</link>
       <pubDate>Thu, 24 Dec 2015 17:00:19 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/dont-use-std-list/</guid>
+      <guid>https://danglingpointers.com/post/dont-use-std-list/</guid>
       <description>&lt;p&gt;I feel like I’ve been saying this a lot lately ‒ at least once per intern we take at Pastagames ‒ so I guess it&amp;rsquo;s time I write it down.
 There&amp;rsquo;s nothing new here, this has been said a hundred times over on the Internet,
 but since a lot of people are still not aware of it, here is my contribution.&lt;/p&gt;
@@ -164,10 +164,10 @@ but since a lot of people are still not aware of it, here is my contribution.&lt
     
     <item>
       <title>About</title>
-      <link>http://danglingpointers.com/about/</link>
+      <link>https://danglingpointers.com/about/</link>
       <pubDate>Thu, 24 Dec 2015 15:18:05 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/about/</guid>
+      <guid>https://danglingpointers.com/about/</guid>
       <description>&lt;p&gt;Hello and welcome!&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;</description>

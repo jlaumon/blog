@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Engine on Dangling Pointers</title>
-    <link>http://danglingpointers.com/tags/engine/</link>
+    <link>https://danglingpointers.com/tags/engine/</link>
     <description>Recent content in Engine on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 20 Oct 2018 11:10:00 +0200</lastBuildDate>
     
-	<atom:link href="http://danglingpointers.com/tags/engine/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://danglingpointers.com/tags/engine/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Job System #2</title>
-      <link>http://danglingpointers.com/post/job-system-2/</link>
+      <link>https://danglingpointers.com/post/job-system-2/</link>
       <pubDate>Sat, 20 Oct 2018 11:10:00 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/job-system-2/</guid>
+      <guid>https://danglingpointers.com/post/job-system-2/</guid>
       <description>&lt;p&gt;Oops! I actually wrote this article one year ago but never finished it. Let&amp;rsquo;s say it&amp;rsquo;s finished, and boom! released.&lt;/p&gt;
 
 &lt;p&gt;This is a follow up on the previous article about &lt;a href=&#34;post/job-system/&#34;&gt;our fiber-based job system&lt;/a&gt;. It contains a few details about our implementation, what we found to be important or not.&lt;/p&gt;
@@ -26,10 +26,10 @@
     
     <item>
       <title>Spin Lock Implementation</title>
-      <link>http://danglingpointers.com/post/spinlock-implementation/</link>
+      <link>https://danglingpointers.com/post/spinlock-implementation/</link>
       <pubDate>Sun, 31 Dec 2017 13:03:00 +0100</pubDate>
       
-      <guid>http://danglingpointers.com/post/spinlock-implementation/</guid>
+      <guid>https://danglingpointers.com/post/spinlock-implementation/</guid>
       <description>&lt;p&gt;I attended a &lt;a href=&#34;https://www.game-connection.com/masterclasses/&#34;&gt;Game Connection master class&lt;/a&gt; this year again. This time it was with &lt;a href=&#34;http://www.gameenginebook.com/bio.html&#34;&gt;Jason Gregory&lt;/a&gt; (Lead Programmer at &lt;a href=&#34;https://www.naughtydog.com/&#34;&gt;Naughty Dog&lt;/a&gt;) on concurrent programming, and it was very interesting.&lt;/p&gt;
 
 &lt;p&gt;I won&amp;rsquo;t give a full account because we saw &lt;em&gt;way&lt;/em&gt; too many things (500 slides!).&lt;/p&gt;
@@ -41,10 +41,10 @@
     
     <item>
       <title>Job System</title>
-      <link>http://danglingpointers.com/post/job-system/</link>
+      <link>https://danglingpointers.com/post/job-system/</link>
       <pubDate>Sun, 27 Aug 2017 11:14:19 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/job-system/</guid>
+      <guid>https://danglingpointers.com/post/job-system/</guid>
       <description>&lt;p&gt;We have a fiber based job system at Pastagames. I started coding it just after seeing this &lt;a href=&#34;http://www.gdcvault.com/play/1022186/Parallelizing-the-Naughty-Dog-Engine&#34;&gt;Naughty Dog GDC Talk&lt;/a&gt; back in 2015. And so far, we&amp;rsquo;re really happy with it.&lt;/p&gt;
 
 &lt;p&gt;In this article, I&amp;rsquo;ll focus more on how we use it than on how we implemented it ‒ our implementation is very close to what Christian Gyrling presented in his talk.&lt;/p&gt;
@@ -56,10 +56,10 @@
     
     <item>
       <title>String Hashes</title>
-      <link>http://danglingpointers.com/post/string-hashes/</link>
+      <link>https://danglingpointers.com/post/string-hashes/</link>
       <pubDate>Sat, 06 May 2017 12:03:27 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/string-hashes/</guid>
+      <guid>https://danglingpointers.com/post/string-hashes/</guid>
       <description>&lt;p&gt;Strings are often used as &lt;strong&gt;identifiers&lt;/strong&gt; in games: object names, sound effect names, particle type names, etc. They&amp;rsquo;re a bit like enums with the advantage of allowing your game to be data-driven: you don&amp;rsquo;t necessarily need to recompile your program to accept new values.&lt;/p&gt;
 
 &lt;p&gt;But strings are no fun: storing them efficiently is a headache, they&amp;rsquo;re bigger and they&amp;rsquo;re slower than enums.&lt;/p&gt;
