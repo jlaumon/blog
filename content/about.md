@@ -20,6 +20,6 @@ Find me on twitter: [twitter.com/_plop_](https://twitter.com/_plop_)<br/>Or mast
 
 --
 
-This blog is powered by [Hugo](http://gohugo.io/), a really cool static site generator, 
+This blog is powered by [Hugo](https://gohugo.io/), a really cool static site generator, 
 and the template is largely adapted from [spf13.com](https://github.com/spf13/spf13.com).
 
