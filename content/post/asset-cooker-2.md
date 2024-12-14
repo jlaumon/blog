@@ -12,6 +12,8 @@ Truth is, I couldn’t find a nice way of structuring the article, so I procrast
 
 And now at least I can blog about something else next!
 
+![Asset Cooker icon](images/chef-hat-heart.png)
+
 <!--more-->
 
 ## What are USN journals? 
