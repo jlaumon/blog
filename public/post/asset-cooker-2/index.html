@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: https://ogp.me/ns# fb: https://ogp.me/ns/fb#">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="description" content="Asset Cooker, a build system for game assets with a UI. Part 2: USN Journals and Fast Startup.">
+<meta name="keywords" content="Asset Cooker, C&#43;&#43;, ">
+
+
+<meta property="article:tag" content="Asset Cooker">
+<meta property="article:tag" content="C&#43;&#43;">
+
+
+
+
+
+    <base href="https://danglingpointers.com/">
+    <title> Asset Cooker -  Part 2: USN Journals and Fast Startup - Dangling Pointers</title>
+    <link rel="canonical" href="https://danglingpointers.com/post/asset-cooker-2/">
+    
+
+    <link href='https://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="https://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="https://danglingpointers.com/css/pygments/vs.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+
+
+</head>
+
+<body lang="en" itemscope itemtype="https://schema.org/Article">
+<header id="header">
+	<h1 style="text-align:center"><a href="https://danglingpointers.com/">Dangling Pointers</a></h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
+    <nav id="nav">
+            <ul id="mainnav">
+			<li>
+                <a href="https://danglingpointers.com/tags/">
+                <i class="fa fa-tags"></i>
+				All tags
+				</a>
+				
+				<ul class="tags">
+					
+					
+					<li><a href="https://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (5)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/engine">Engine (4)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/asset-cooker">Asset Cooker (2)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/concurrency">Concurrency (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/gpu">GPU (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/links">Links (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/security">Security (1)</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+		
+		
+
+            <ul id="social">
+            
+        </ul>
+
+    </nav>
+</header>
+
+
+
+<section id="main">
+  <h1 itemprop="name" id="title">Asset Cooker -  Part 2: USN Journals and Fast Startup</h1>
+  <div>
+        <article itemprop="articleBody" id="content">
+           <p>I said I would write a second article about Asset Cooker, and here it is! Barely six months later!</p>
+
+<p>Truth is, I couldn’t find a nice way of structuring the article, so I procrastinated a lot. This article doesn&rsquo;t go too much into details because of that, but hopefully it still has the interesting bits.</p>
+
+<p>And now at least I can blog about something else next!</p>
+
+<p></p>
+
+<h2 id="what-are-usn-journals">What are USN journals?</h2>
+
+<p>A <strong>USN</strong> is just a number that gets incremented any time a file is modified. The journal stores <strong>entries</strong> saying &ldquo;at this USN value, this file was modified&rdquo;. The journal keeps 32MB worth of changes, the oldest entries get thrown away to make space for the new ones. It&rsquo;s a relatively simple idea.</p>
+
+<p>When you want to <strong>keep track of file changes</strong>, it&rsquo;s very convenient: you can essentially ask the journal &ldquo;give me all the changes that happened between this USN and the current USN”, and then you just have to remember the current USN to ask again later.</p>
+
+<p>There are two <strong>pitfalls</strong> though:</p>
+
+<ul>
+<li>The journal may not have all the info you want. 32MB gets filled fairly quickly, especially on the <code>C:\</code> drive where Windows and other programs create temporary files all the time.</li>
+<li>You&rsquo;re looking at a view of the past. The journal will contain many events for files that <strong>don&rsquo;t exist anymore</strong>, or <strong>got moved/renamed since</strong>. Interpretting that correctly can get tricky.</li>
+</ul>
+
+<p>OK there are three pitfalls actually. The third one is that it&rsquo;s a <strong>rather obscure API</strong>. It&rsquo;s sometimes a bit weird and often barely documented.</p>
+
+<p>Sometimes you don&rsquo;t know why a function would fail, so it&rsquo;s unclear what to do if that happens. Sometimes it&rsquo;s obvious a function can fail, but you don&rsquo;t know what the error code will be. It&rsquo;s the <strong>Dark Souls</strong> of programming, crash and retry.</p>
+
+<p>Lucky for you, I already went through most of it with <strong>Asset Cooker</strong>, so check out the code if you want the easy mode. I even wrote comments.</p>
+
+<ul>
+<li><code>FileDrive::FileDrive</code> shows <a href="https://github.com/jlaumon/AssetCooker/blob/1de12a4063008ef210574813b1ded5941ec054d9/src/FileSystem.cpp#L486-L496">how to open the USN journal</a> (without requiring admin rights).</li>
+<li><code>FileDrive::ReadUSNJournal</code> and <code>ProcessMonitorDirectory</code> show <a href="https://github.com/jlaumon/AssetCooker/blob/1de12a4063008ef210574813b1ded5941ec054d9/src/FileSystem.cpp#L702">how to read the journal</a> and an example of <a href="https://github.com/jlaumon/AssetCooker/blob/1de12a4063008ef210574813b1ded5941ec054d9/src/FileSystem.cpp#L772">how to deal with the events</a>.</li>
+</ul>
+
+<h2 id="how-does-asset-cooker-start-so-fast">How does Asset Cooker start so fast?</h2>
+
+<p>Even with <strong>hundreds of thousands of files</strong>, it usually starts in <strong>under a second</strong>. How is that possible?</p>
+
+<p><strong>Asset Cooker</strong> needs two things: <strong>the list of all the files</strong> in the directories it watches, and <strong>all their USNs</strong> (they&rsquo;re needed to know if commands need to cook).</p>
+
+<p>Listing the files <strong>efficiently</strong> is actually fairly simple, <strong>Windows has a function for that</strong> (in addition to many functions that also do that, but inefficiently). It&rsquo;s <code>GetFileInformationByHandleEx</code> with the <code>FileIdExtdDirectoryInfo</code> parameter. Take a look at <a href="https://github.com/jlaumon/AssetCooker/blob/1de12a4063008ef210574813b1ded5941ec054d9/src/FileSystem.cpp#L366">FileRepo::ScanDirectory</a> for an example.</p>
+
+<p>Listing the USNs is a <strong>problem</strong> however, the files need to be <strong>opened</strong> to get it. And with many files, this gets very <strong>slow</strong>.</p>
+
+<p>One trick is to <strong>read the entire USN journal instead</strong>. If the files were modified recently, their <strong>final USN</strong> will be in there. This helps <strong>reduce</strong> how many files need to be opened in the end. It can seem counterintuitive as it means doing a lot of extra work to process USN events we don&rsquo;t care about, but it&rsquo;s actually <strong>massively faster</strong> than <strong>opening many files</strong>.</p>
+
+<p>A second trick is to use <strong>multiple threads</strong>. Both listing and opening files goes <strong>faster</strong> with multiple threads, but it doesn&rsquo;t scale infinitely. Asset Cooker uses <strong>four threads</strong> for that, YMMV.</p>
+
+<p>Even with all of that, the startup time is still probably somewhere between a few seconds and a minute for 100K files (depending on how many files need to actually be opened). It&rsquo;s not great.</p>
+
+<p>The last trick is to <strong>not do any of that</strong>, except the first time. <strong>Asset Cooker</strong> writes a <strong>cache file</strong> with the list of all the files and all their USNs on exit. Reading that cached state back takes something like 50 milliseconds, and then <strong>Asset Cooker</strong> just <strong>checks the USN journal</strong> to see if anything changed since.</p>
+
+<p>Total time it takes <strong>from process start to cooking</strong>: about <strong>250 milliseconds</strong>.</p>
+
+<p>&ndash;</p>
+
+<p>If you have a question, these days I&rsquo;m on <a href="https://bsky.app/profile/jeremy.laumon.name">Bluesky</a>.</p>
+        </article>
+  </div>
+</section>
+
+
+
+<aside id="meta">
+
+    <div>
+        <section id="datecount">
+          <h4 id="date"> Sat Dec 14, 2024 </h4>
+          <h5 id="wc"> 700 Words </h5>
+          <h5 id="readtime"> Read in about 4 Min </h5>
+        </section>
+        <ul id="categories">
+          
+        </ul>
+        <ul id="tags">
+          
+            <li> <a href="https://danglingpointers.com/tags/asset-cooker">Asset Cooker</a> </li>
+          
+            <li> <a href="https://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43;</a> </li>
+          
+        </ul>
+    </div>
+
+    <div>
+        <section id="prev">
+            &nbsp;
+        </section><section id="next">
+            &nbsp;<a class="next" href="https://danglingpointers.com/post/asset-cooker-1/">Asset Cooker - Part 1: Memory and Storage <i class="icon-arrow-right"></i></a>
+        </section>
+    </div>
+
+
+</aside>
+
+<meta itemprop="wordCount" content="693">
+<meta itemprop="datePublished" content="2024-12-14">
+<meta itemprop="url" content="https://danglingpointers.com/post/asset-cooker-2/">
+
+
+
+<footer>
+  <div>
+    <p>
+    <a href="https://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+	<a href="https://danglingpointers.com/about">About this blog</a>.
+
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+(function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
+fitText(document.getElementById('title'), 1)
+</script>
+</body>
+</html>
+

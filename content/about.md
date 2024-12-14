@@ -16,7 +16,9 @@ I'm a video game programmer—and more specifically an engine programmer—worki
 
 Here I'll try to talk about C++, low level engine stuff, and probably some real time graphics too.
 
-Find me on twitter: [twitter.com/_plop_](https://twitter.com/_plop_)<br/>Or mastodon: [mastodon.gamedev.place/@jerem](https://mastodon.gamedev.place/@jerem)
+Find me on Bluesky: [bsky.app/profile/jeremy.laumon.name](https://bsky.app/profile/jeremy.laumon.name)<br/>
+Or Twitter: [twitter.com/\_plop\_](https://twitter.com/_plop_)<br/>
+Or Mastodon: [mastodon.gamedev.place/@jerem](https://mastodon.gamedev.place/@jerem)
 
 --
 

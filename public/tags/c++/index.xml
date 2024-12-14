@@ -6,10 +6,25 @@
     <description>Recent content in C&#43;&#43; on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 22 Jul 2024 21:24:00 +0200</lastBuildDate>
+    <lastBuildDate>Sat, 14 Dec 2024 18:03:00 +0200</lastBuildDate>
     
 	<atom:link href="https://danglingpointers.com/tags/c++/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Asset Cooker -  Part 2: USN Journals and Fast Startup</title>
+      <link>https://danglingpointers.com/post/asset-cooker-2/</link>
+      <pubDate>Sat, 14 Dec 2024 18:03:00 +0200</pubDate>
+      
+      <guid>https://danglingpointers.com/post/asset-cooker-2/</guid>
+      <description>&lt;p&gt;I said I would write a second article about Asset Cooker, and here it is! Barely six months later!&lt;/p&gt;
+
+&lt;p&gt;Truth is, I couldn’t find a nice way of structuring the article, so I procrastinated a lot. This article doesn&amp;rsquo;t go too much into details because of that, but hopefully it still has the interesting bits.&lt;/p&gt;
+
+&lt;p&gt;And now at least I can blog about something else next!&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Asset Cooker - Part 1: Memory and Storage</title>
