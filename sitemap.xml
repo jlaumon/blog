@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://danglingpointers.com/post/asset-cooker-2/</loc>
+    <lastmod>2024-12-14T18:03:00+02:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://danglingpointers.com/post/asset-cooker-1/</loc>
     <lastmod>2024-07-22T21:24:00+02:00</lastmod>
   </url>
@@ -58,13 +63,13 @@
   
   <url>
     <loc>https://danglingpointers.com/tags/asset-cooker/</loc>
-    <lastmod>2024-07-22T21:24:00+02:00</lastmod>
+    <lastmod>2024-12-14T18:03:00+02:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://danglingpointers.com/tags/c&#43;&#43;/</loc>
-    <lastmod>2024-07-22T21:24:00+02:00</lastmod>
+    <lastmod>2024-12-14T18:03:00+02:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -81,7 +86,7 @@
   
   <url>
     <loc>https://danglingpointers.com/</loc>
-    <lastmod>2024-07-22T21:24:00+02:00</lastmod>
+    <lastmod>2024-12-14T18:03:00+02:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -111,7 +116,7 @@
   
   <url>
     <loc>https://danglingpointers.com/post/</loc>
-    <lastmod>2024-07-22T21:24:00+02:00</lastmod>
+    <lastmod>2024-12-14T18:03:00+02:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -123,7 +128,7 @@
   
   <url>
     <loc>https://danglingpointers.com/tags/</loc>
-    <lastmod>2024-07-22T21:24:00+02:00</lastmod>
+    <lastmod>2024-12-14T18:03:00+02:00</lastmod>
     <priority>0</priority>
   </url>
   
