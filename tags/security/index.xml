@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Security on Dangling Pointers</title>
-    <link>http://danglingpointers.com/tags/security/</link>
+    <link>https://danglingpointers.com/tags/security/</link>
     <description>Recent content in Security on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 25 Mar 2018 13:59:49 +0200</lastBuildDate>
     
-	<atom:link href="http://danglingpointers.com/tags/security/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://danglingpointers.com/tags/security/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Meltdown and Spectre explained, again</title>
-      <link>http://danglingpointers.com/post/meltdown-spectre/</link>
+      <link>https://danglingpointers.com/post/meltdown-spectre/</link>
       <pubDate>Sun, 25 Mar 2018 13:59:49 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/meltdown-spectre/</guid>
+      <guid>https://danglingpointers.com/post/meltdown-spectre/</guid>
       <description>&lt;p&gt;You may have heard of &lt;strong&gt;Meltdown&lt;/strong&gt; and &lt;strong&gt;Spectre&lt;/strong&gt;. In January, these two new &lt;strong&gt;security vulnerabilities&lt;/strong&gt; were made public, and it was kind of a big deal: all modern processors were more or less vulnerable, all systems affected, they could steal your passwords and everything.&lt;/p&gt;
 
 &lt;p&gt;Things have settled down a little bit since then; security patches have been released and no actual attacks have been reported. But still, discoveries of that scale are not common, so I was curious: How do these vulnerabilities work?&lt;/p&gt;

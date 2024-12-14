@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>C&#43;&#43; on Dangling Pointers</title>
-    <link>http://danglingpointers.com/tags/c&#43;&#43;/</link>
+    <link>https://danglingpointers.com/tags/c&#43;&#43;/</link>
     <description>Recent content in C&#43;&#43; on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 22 Jul 2024 21:24:00 +0200</lastBuildDate>
     
-	<atom:link href="http://danglingpointers.com/tags/c++/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://danglingpointers.com/tags/c++/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Asset Cooker - Part 1: Memory and Storage</title>
-      <link>http://danglingpointers.com/post/asset-cooker-1/</link>
+      <link>https://danglingpointers.com/post/asset-cooker-1/</link>
       <pubDate>Mon, 22 Jul 2024 21:24:00 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/asset-cooker-1/</guid>
+      <guid>https://danglingpointers.com/post/asset-cooker-1/</guid>
       <description>&lt;p&gt;A few weeks ago, I released my hobby projet: &lt;a href=&#34;https://github.com/jlaumon/AssetCooker&#34;&gt;Asset Cooker&lt;/a&gt;. I even made a &lt;a href=&#34;https://www.youtube.com/watch?v=hvbVC4m6BOo&#34;&gt;short release trailer&lt;/a&gt; for it.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;images/chef-hat-heart.png&#34; alt=&#34;Asset Cooker icon&#34; /&gt;&lt;/p&gt;
@@ -34,10 +34,10 @@
     
     <item>
       <title>Spin Lock Implementation</title>
-      <link>http://danglingpointers.com/post/spinlock-implementation/</link>
+      <link>https://danglingpointers.com/post/spinlock-implementation/</link>
       <pubDate>Sun, 31 Dec 2017 13:03:00 +0100</pubDate>
       
-      <guid>http://danglingpointers.com/post/spinlock-implementation/</guid>
+      <guid>https://danglingpointers.com/post/spinlock-implementation/</guid>
       <description>&lt;p&gt;I attended a &lt;a href=&#34;https://www.game-connection.com/masterclasses/&#34;&gt;Game Connection master class&lt;/a&gt; this year again. This time it was with &lt;a href=&#34;http://www.gameenginebook.com/bio.html&#34;&gt;Jason Gregory&lt;/a&gt; (Lead Programmer at &lt;a href=&#34;https://www.naughtydog.com/&#34;&gt;Naughty Dog&lt;/a&gt;) on concurrent programming, and it was very interesting.&lt;/p&gt;
 
 &lt;p&gt;I won&amp;rsquo;t give a full account because we saw &lt;em&gt;way&lt;/em&gt; too many things (500 slides!).&lt;/p&gt;
@@ -49,10 +49,10 @@
     
     <item>
       <title>String Hashes</title>
-      <link>http://danglingpointers.com/post/string-hashes/</link>
+      <link>https://danglingpointers.com/post/string-hashes/</link>
       <pubDate>Sat, 06 May 2017 12:03:27 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/string-hashes/</guid>
+      <guid>https://danglingpointers.com/post/string-hashes/</guid>
       <description>&lt;p&gt;Strings are often used as &lt;strong&gt;identifiers&lt;/strong&gt; in games: object names, sound effect names, particle type names, etc. They&amp;rsquo;re a bit like enums with the advantage of allowing your game to be data-driven: you don&amp;rsquo;t necessarily need to recompile your program to accept new values.&lt;/p&gt;
 
 &lt;p&gt;But strings are no fun: storing them efficiently is a headache, they&amp;rsquo;re bigger and they&amp;rsquo;re slower than enums.&lt;/p&gt;
@@ -64,10 +64,10 @@
     
     <item>
       <title>Don’t use std::list</title>
-      <link>http://danglingpointers.com/post/dont-use-std-list/</link>
+      <link>https://danglingpointers.com/post/dont-use-std-list/</link>
       <pubDate>Thu, 24 Dec 2015 17:00:19 +0200</pubDate>
       
-      <guid>http://danglingpointers.com/post/dont-use-std-list/</guid>
+      <guid>https://danglingpointers.com/post/dont-use-std-list/</guid>
       <description>&lt;p&gt;I feel like I’ve been saying this a lot lately ‒ at least once per intern we take at Pastagames ‒ so I guess it&amp;rsquo;s time I write it down.
 There&amp;rsquo;s nothing new here, this has been said a hundred times over on the Internet,
 but since a lot of people are still not aware of it, here is my contribution.&lt;/p&gt;
