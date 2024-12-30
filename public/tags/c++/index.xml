@@ -6,10 +6,27 @@
     <description>Recent content in C&#43;&#43; on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 14 Dec 2024 18:03:00 +0200</lastBuildDate>
+    <lastBuildDate>Mon, 30 Dec 2024 10:03:00 +0200</lastBuildDate>
     
 	<atom:link href="https://danglingpointers.com/tags/c++/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>The allocators of Bedrock, my own C&#43;&#43; STL alternative</title>
+      <link>https://danglingpointers.com/post/bedrock-allocators/</link>
+      <pubDate>Mon, 30 Dec 2024 10:03:00 +0200</pubDate>
+      
+      <guid>https://danglingpointers.com/post/bedrock-allocators/</guid>
+      <description>&lt;p&gt;For some reason, I started making my own &lt;strong&gt;STL replacement library&lt;/strong&gt; about 2 months ago. It&amp;rsquo;s called &lt;strong&gt;Bedrock&lt;/strong&gt;. It&amp;rsquo;s &lt;a href=&#34;https://github.com/jlaumon/Bedrock&#34;&gt;available on github&lt;/a&gt; under a copyleft license.&lt;/p&gt;
+
+&lt;p&gt;I don&amp;rsquo;t expect it to become very useful to anyone, but making it has been a lot of fun, so I thought I&amp;rsquo;d share some of the experience.&lt;/p&gt;
+
+&lt;p&gt;Today we&amp;rsquo;re talking &lt;strong&gt;allocators&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;images/Microsoft-Fluentui-Emoji-Flat-Rock-Flat.256.png&#34; alt=&#34;Bedrock&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Asset Cooker -  Part 2: USN Journals and Fast Startup</title>

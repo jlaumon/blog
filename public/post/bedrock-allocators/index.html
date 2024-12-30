@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: https://ogp.me/ns# fb: https://ogp.me/ns/fb#">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="description" content="Bedrock is a C&#43;&#43; STL replacement library. It comes with several specialized allocators that are faster than using the heap, while still being convenient to use.">
+<meta name="keywords" content="Bedrock, C&#43;&#43;, ">
+
+
+<meta property="article:tag" content="Bedrock">
+<meta property="article:tag" content="C&#43;&#43;">
+
+
+
+
+
+    <base href="https://danglingpointers.com/">
+    <title> The allocators of Bedrock, my own C&#43;&#43; STL alternative - Dangling Pointers</title>
+    <link rel="canonical" href="https://danglingpointers.com/post/bedrock-allocators/">
+    
+
+    <link href='https://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="https://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="https://danglingpointers.com/css/pygments/vs.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+
+
+</head>
+
+<body lang="en" itemscope itemtype="https://schema.org/Article">
+<header id="header">
+	<h1 style="text-align:center"><a href="https://danglingpointers.com/">Dangling Pointers</a></h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
+    <nav id="nav">
+            <ul id="mainnav">
+			<li>
+                <a href="https://danglingpointers.com/tags/">
+                <i class="fa fa-tags"></i>
+				All tags
+				</a>
+				
+				<ul class="tags">
+					
+					
+					<li><a href="https://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (6)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/engine">Engine (4)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/asset-cooker">Asset Cooker (2)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/bedrock">Bedrock (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/concurrency">Concurrency (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/gpu">GPU (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/links">Links (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/security">Security (1)</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+		
+		
+
+            <ul id="social">
+            
+        </ul>
+
+    </nav>
+</header>
+
+
+
+<section id="main">
+  <h1 itemprop="name" id="title">The allocators of Bedrock, my own C&#43;&#43; STL alternative</h1>
+  <div>
+        <article itemprop="articleBody" id="content">
+           <p>For some reason, I started making my own <strong>STL replacement library</strong> about 2 months ago. It&rsquo;s called <strong>Bedrock</strong>. It&rsquo;s <a href="https://github.com/jlaumon/Bedrock">available on github</a> under a copyleft license.</p>
+
+<p>I don&rsquo;t expect it to become very useful to anyone, but making it has been a lot of fun, so I thought I&rsquo;d share some of the experience.</p>
+
+<p>Today we&rsquo;re talking <strong>allocators</strong>.</p>
+
+<p><img src="images/Microsoft-Fluentui-Emoji-Flat-Rock-Flat.256.png" alt="Bedrock" /></p>
+
+<p></p>
+
+<h2 id="tempstring">TempString</h2>
+
+<p><a href="post/asset-cooker-1/">Asset Cooker</a> (my previous pet project) needs a lot of <strong>temporary strings</strong>, so at the time I made a <code>TempString</code> class that contained a <strong>fixed size buffer</strong>, with a size configurable via a template parameter. I was not very happy with that solution though, because it meant I had to think about how large each string could be and often reserve much larger buffers than necessary.</p>
+
+<p>So when I started <strong>Bedrock</strong>, I went in a different direction. I wrote a regular <code>String</code> class and a <code>TempAllocator</code>. That allocator gets memory from a <strong>thread local scratch buffer</strong>, and falls back to allocating from the heap if it runs out. Allocating is normally very <strong>fast</strong>, it&rsquo;s just incrementing an integer. And the last allocation can be resized freely, that&rsquo;s a great advantage: no need to re-allocate and copy the data of a <code>Vector</code> or <code>String</code> when growing it! That&rsquo;s perfect for <strong>temporary/stack variables</strong> since it&rsquo;s usually the last one that gets resized.</p>
+
+<p>In terms of allocator interface, it means that instead of just the usual <code>Allocate</code> and <code>Free</code>, there&rsquo;s also <code>TryRealloc</code>. That function tries to <strong>resize an existing memory block</strong>, but unlike <code>realloc</code>, it returns false instead of allocating a new block when it can&rsquo;t.</p>
+
+<h2 id="out-of-order-frees">Out of order frees</h2>
+
+<p>It&rsquo;s all well and good, but there is one annoying limitation with this <code>TempAllocator</code>: de-allocations have to happen in the <strong>reverse order</strong> of the allocations. Again that’s fine most of the time for temporaries, but it becomes a problem when returning Temp containers or otherwise moving them.</p>
+
+<p>So, for that case, I added a <strong>small array</strong> for storing blocks that were freed out of order. Whenever another block is freed, the allocator checks whether these pending blocks can be freed as well. The blocks are <strong>stored sorted</strong>, and <strong>contiguous blocks are merged</strong>, so only the first one in the array actually needs to be checked. Out of order frees are a rare case, so the performance of that code doesn&rsquo;t matter too much, but I tried to make sure that it <strong>stays out of the hot path</strong> with <code>[[unlikely]]</code> and <code>no_inline</code>.</p>
+
+<p>Since contiguous pending blocks are merged, even just 16 slots is plenty. But it&rsquo;s a fixed-size array, if it gets full, it <strong>crashes</strong>.</p>
+
+<h2 id="memarena">MemArena</h2>
+
+<p>At this point, <code>TempAllocator</code> was already <strong>extremely convenient</strong>, so I added handy <strong>typedefs</strong> for <code>TempString</code>, <code>TempVector</code> and <code>TempHashMap</code>.</p>
+
+<p>But I also wanted another allocator that could use <strong>virtual memory</strong> to grow its buffer instead (like AssetCooker’s <a href="post/asset-cooker-1/">VMemArray</a>). That&rsquo;s a bit different from <code>TempAllocator</code> since instead of allocating from a <strong>thread local buffer</strong>, it would be allocating from a buffer <strong>embedded inside the allocator</strong>.</p>
+
+<p>Most of the allocation logic is identical however, so I moved it to a <a href="https://github.com/jlaumon/Bedrock/blob/db1402b4bdbaa68e9f1f6959c4469e665f0dc943/Bedrock/MemoryArena.h#L44"><code>MemArena</code></a> struct. <code>TempAllocator</code> uses a global thread local <code>MemArena</code>, <a href="https://github.com/jlaumon/Bedrock/blob/db1402b4bdbaa68e9f1f6959c4469e665f0dc943/Bedrock/MemoryArena.h#L207"><code>VMemAllocator</code></a> contains a <code>VMemArena</code>, derived from MemArena, which grows when it runs out. And… it just worked?</p>
+
+<p>The only complication was that the array of pending frees was bloating the <code>VMemAllocator</code> (128 extra bytes) while being completely <strong>unnecessary</strong>: a <code>Vector</code> or <code>String</code> uses a single allocation so it&rsquo;s <strong>always the last one</strong>. Fortunately it was relatively easy to get rid of it with <a href="https://github.com/jlaumon/Bedrock/blob/db1402b4bdbaa68e9f1f6959c4469e665f0dc943/Bedrock/MemoryArena.h#L28">template shenanigans</a>.</p>
+
+<h2 id="fixedmemarena">FixedMemArena</h2>
+
+<p>Drunk with meta programming power I thought: how much would it take to get my initial fixed-size String back? Turns out very little! <a href="https://github.com/jlaumon/Bedrock/blob/db1402b4bdbaa68e9f1f6959c4469e665f0dc943/Bedrock/Allocator.h#L91"><code>FixedAllocator</code></a> has a <strong>fixed-size buffer</strong> and a <code>MemArena</code> that is initialized with it, and that works. <code>FixedVector</code> and <code>FixedString</code> use this allocator.</p>
+
+<p>Note, though, that it&rsquo;s <strong>not the most optimal</strong> fixed-size container implementation: there&rsquo;s still a <strong>pointer to the data array</strong>, instead of the <strong>array being used directly</strong>. This <strong>extra indirection</strong> has an impact on the resulting machine code.</p>
+
+<p>It is however extremely easy to make a slightly different allocator that <strong>falls back to using the heap</strong> when the fixed buffer runs out (like <code>TempAllocator</code> does).</p>
+
+<h2 id="last-one">Last one</h2>
+
+<p>Last variant I added just for the hell of it, is an <a href="https://github.com/jlaumon/Bedrock/blob/db1402b4bdbaa68e9f1f6959c4469e665f0dc943/Bedrock/Allocator.h#L38"><code>ArenaAllocator</code></a> that only <strong>keeps a pointer to a MemArena</strong>. That allows <strong>allocating multiple containers</strong> from the <strong>same arena</strong>, and I guess is what is most commonly called an <strong>arena allocator</strong>. The same can be done with a <code>VMemArena</code>, and that&rsquo;s what <a href="https://github.com/jlaumon/Bedrock/blob/db1402b4bdbaa68e9f1f6959c4469e665f0dc943/Bedrock/HashMap.h#L617C63-L617C88"><code>VMemHashMap</code></a> to allocate its two <code>Vectors</code> from the same memory block.</p>
+
+<p>To be honest, I find it a bit <strong>cumbersome</strong> to set the arena on every container before using them, and it&rsquo;s opening doors to <strong>ownership issues</strong> (eg. what if the arena is destroyed before the vector), so I&rsquo;m not sure I&rsquo;m going to use a lot. Maybe, it&rsquo;d be more convenient to set a &ldquo;current arena&rdquo; in a thread local pointer to make every <code>ArenaVector</code> automatically use it? But I guess I need a use case to try it first. This could be the base for a future <code>FrameAllocator</code> as well.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>Let&rsquo;s recap! What I have so far in Bedrock:</p>
+
+<ul>
+<li><code>Vector</code>: uses the heap like std::vector would.</li>
+<li><code>TempVector</code>: uses a thread local arena, and can fall back to using the heap.</li>
+<li><code>VMemVector</code>: uses an internal arena that can grow by committing more virtual memory.</li>
+<li><code>FixedVector</code>: uses an internal arena that points to an internal fixed-size buffer.</li>
+<li><code>ArenaVector</code>: uses an external arena.</li>
+</ul>
+
+<p>That&rsquo;s all for now! I will try to write at least another article about the <a href="https://github.com/jlaumon/Bedrock/blob/db1402b4bdbaa68e9f1f6959c4469e665f0dc943/Bedrock/HashMap.h#L80"><code>HashMap</code></a>, because I find the details interesting.</p>
+
+<p>&ndash;</p>
+
+<p>If you have questions, these days I’m on <a href="https://bsky.app/profile/jeremy.laumon.name">Bluesky</a>.</p>
+        </article>
+  </div>
+</section>
+
+
+
+<aside id="meta">
+
+    <div>
+        <section id="datecount">
+          <h4 id="date"> Mon Dec 30, 2024 </h4>
+          <h5 id="wc"> 1000 Words </h5>
+          <h5 id="readtime"> Read in about 5 Min </h5>
+        </section>
+        <ul id="categories">
+          
+        </ul>
+        <ul id="tags">
+          
+            <li> <a href="https://danglingpointers.com/tags/bedrock">Bedrock</a> </li>
+          
+            <li> <a href="https://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43;</a> </li>
+          
+        </ul>
+    </div>
+
+    <div>
+        <section id="prev">
+            &nbsp;
+        </section><section id="next">
+            &nbsp;<a class="next" href="https://danglingpointers.com/post/asset-cooker-2/">Asset Cooker -  Part 2: USN Journals and Fast Startup <i class="icon-arrow-right"></i></a>
+        </section>
+    </div>
+
+
+</aside>
+
+<meta itemprop="wordCount" content="942">
+<meta itemprop="datePublished" content="2024-12-30">
+<meta itemprop="url" content="https://danglingpointers.com/post/bedrock-allocators/">
+
+
+
+<footer>
+  <div>
+    <p>
+    <a href="https://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+	<a href="https://danglingpointers.com/about">About this blog</a>.
+
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+(function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
+fitText(document.getElementById('title'), 1)
+</script>
+</body>
+</html>
+
