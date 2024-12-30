@@ -1,7 +1,7 @@
 +++
 date = "2024-12-30T10:03:00+02:00"
 description = "Bedrock is a C++ STL replacement library. It comes with several specialized allocators that are faster than using the heap, while still being convenient to use."
-tags = ["Bedrock", "C++"]
+tags = ["Bedrock", "C++", "Engine"]
 title = "The allocators of Bedrock, my own C++ STL alternative"
 draft = false
 
