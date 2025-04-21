@@ -83,4 +83,8 @@ Sadly there are still drivers out there that do not support them, drivers that a
 - [Resource State Promotion and Decay](https://microsoft.github.io/DirectX-Specs/d3d/D3D12EnhancedBarriers.html#resource-state-promotion-and-decay)
 
 
+--
+
+If you have questions, these days I’m on [Bluesky](https://bsky.app/profile/jeremy.laumon.name).
+
 
