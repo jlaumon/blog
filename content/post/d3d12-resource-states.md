@@ -13,6 +13,8 @@ The documentation is pretty complete, but also a bit scattered and confusing.
 
 I wished several times I had a **cheat sheet**, and had instead to rely on my **old comments** and testing things with the **debug layer** enabled. This article is an attempt at helping future me :) 
 
+![DirectX 12 logo](images/DirectX_12_Ultimate.png)
+
 <!--more-->
 
 ## The Basics 
