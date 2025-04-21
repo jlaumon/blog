@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://danglingpointers.com/post/d3d12-resource-states/</loc>
+    <lastmod>2025-04-21T17:14:00+02:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://danglingpointers.com/post/bedrock-allocators/</loc>
     <lastmod>2024-12-30T10:03:00+02:00</lastmod>
   </url>
@@ -96,8 +101,14 @@
   </url>
   
   <url>
+    <loc>https://danglingpointers.com/tags/d3d12/</loc>
+    <lastmod>2025-04-21T17:14:00+02:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>https://danglingpointers.com/</loc>
-    <lastmod>2024-12-30T10:03:00+02:00</lastmod>
+    <lastmod>2025-04-21T17:14:00+02:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -115,7 +126,7 @@
   
   <url>
     <loc>https://danglingpointers.com/tags/gpu/</loc>
-    <lastmod>2024-04-01T17:02:00+02:00</lastmod>
+    <lastmod>2025-04-21T17:14:00+02:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -127,7 +138,7 @@
   
   <url>
     <loc>https://danglingpointers.com/post/</loc>
-    <lastmod>2024-12-30T10:03:00+02:00</lastmod>
+    <lastmod>2025-04-21T17:14:00+02:00</lastmod>
     <priority>0</priority>
   </url>
   

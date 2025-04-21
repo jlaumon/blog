@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: https://ogp.me/ns# fb: https://ogp.me/ns/fb#">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="description" content="D3D12 Resource States rules are complicated, especially around state promotion and decay, but this article is helpful summary.">
+<meta name="keywords" content="GPU, D3D12, ">
+
+
+<meta property="article:tag" content="GPU">
+<meta property="article:tag" content="D3D12">
+
+
+
+
+
+    <base href="https://danglingpointers.com/">
+    <title> D3D12 Resource States Cheat Sheet - Dangling Pointers</title>
+    <link rel="canonical" href="https://danglingpointers.com/post/d3d12-resource-states/">
+    
+
+    <link href='https://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans:300' rel='stylesheet' type='text/css' />
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Open+Sans:700,400|Inconsolata" rel='stylesheet' type='text/css' />
+<link rel="stylesheet" href="https://danglingpointers.com/css/style.css">
+<link rel="stylesheet" href="https://danglingpointers.com/css/pygments/vs.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+
+
+</head>
+
+<body lang="en" itemscope itemtype="https://schema.org/Article">
+<header id="header">
+	<h1 style="text-align:center"><a href="https://danglingpointers.com/">Dangling Pointers</a></h1>
+	
+    <img style="display:block;margin-left:auto;margin-right:auto" src="images/dangling-pointers.png"/>
+
+    <nav id="nav">
+            <ul id="mainnav">
+			<li>
+                <a href="https://danglingpointers.com/tags/">
+                <i class="fa fa-tags"></i>
+				All tags
+				</a>
+				
+				<ul class="tags">
+					
+					
+					<li><a href="https://danglingpointers.com/tags/c&#43;&#43;">C&#43;&#43; (6)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/engine">Engine (5)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/asset-cooker">Asset Cooker (2)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/gpu">GPU (2)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/bedrock">Bedrock (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/concurrency">Concurrency (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/d3d12">D3D12 (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/data-oriented-design">Data-Oriented Design (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/links">Links (1)</a></li>
+					
+					<li><a href="https://danglingpointers.com/tags/security">Security (1)</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+		
+		
+
+            <ul id="social">
+            
+        </ul>
+
+    </nav>
+</header>
+
+
+
+<section id="main">
+  <h1 itemprop="name" id="title">D3D12 Resource States Cheat Sheet</h1>
+  <div>
+        <article itemprop="articleBody" id="content">
+           <p>The D3D12 Transition barriers may look simple at first glance, but once you consider <strong>state promotion</strong> and interactions with <strong>copy queues</strong>, there are quite a lot of subtle rules.</p>
+
+<p>The documentation is pretty complete, but also a bit scattered and confusing.</p>
+
+<p>I wished several times I had a <strong>cheat sheet</strong>, and had instead to rely on my <strong>old comments</strong> and testing things with the <strong>debug layer</strong> enabled. This article is an attempt at helping future me :)</p>
+
+<p></p>
+
+<h2 id="the-basics">The Basics</h2>
+
+<p>Each subresource has a state. <strong>Buffer</strong> resources always have a single subresource, but <strong>Textures</strong> can have multiple ones (one per mip per array slice, etc.).</p>
+
+<p>Some states are <strong>read-only</strong>, some are <strong>writable</strong>. Subresources can either be in a combination of read-only states, or in one writable state.</p>
+
+<p>To change a subresource state, a Transition barrier is generally used. But as we&rsquo;ll see, they can sometimes be omitted, and that can make a big difference in <strong>performance</strong>.</p>
+
+<p>Last important point: <strong>Copy queues are special</strong>. Subresources actually have a separate state on Copy queues. And before being used on a Copy queue, a subresource must be transitioned to <code>COMMON</code> on a Direct/Compute queue. More on that later.</p>
+
+<h2 id="promotion-and-decay">Promotion and Decay</h2>
+
+<p>Under some conditions, subresources in the <code>COMMON</code> state can <strong>implicitly transition</strong> (ie. be <strong>promoted</strong>) to a different state, based on how they&rsquo;re used. The inverse can also happen, where subresources in a different state than <code>COMMON</code> can <strong>decay</strong> back to <code>COMMON</code> automatically.</p>
+
+<p>Buffers and Textures work in pretty different ways in that regard, so I&rsquo;m going to treat them separately for clarity. I&rsquo;m also going to ignore “simultaneous-access textures”, because why would you use them.</p>
+
+<h3 id="buffers">Buffers</h3>
+
+<p>Buffers in the <code>COMMON</code> state can be <strong>promoted to any state</strong>, always.</p>
+
+<p>If they get promoted to a read-only state, they can then be used in other read-only states without a barrier; the read-only states accumulate. Using them in a writable state after that requires a Transition barrier, but the <code>BeforeState</code> of the barrier can be left to <code>COMMON</code>.</p>
+
+<p>If they get promoted to a writable state, any further state change requires a barrier. The <code>BeforeState</code> of the barrier can also be left to <code>COMMON</code> in that case.</p>
+
+<p>Buffers decay back to <code>COMMON</code> at the end of an ExecuteCommandLists, always.</p>
+
+<h3 id="textures">Textures</h3>
+
+<p>Promotions for Textures are more <strong>limited</strong> and more <strong>complicated</strong>.</p>
+
+<p>Texture subresources in the <code>COMMON</code> state can <strong>only</strong> be promoted to read-only states or <code>COPY_DEST</code>.</p>
+
+<p>Like for Buffers, if they get promoted to a read-only state, they can then be used in other read-only states without a barrier. Using them in a writable state after that requires a Transition barrier and the <code>BeforeState</code> of the barrier can be left to <code>COMMON</code>.</p>
+
+<p>If they get promoted to <code>COPY_DEST</code>, any further state change requires a barrier. The <code>BeforeState</code> of the barrier can also be left to <code>COMMON</code> in that case.</p>
+
+<p>Texture subresources can also decay back to <code>COMMON</code> at the end of an ExecuteCommandLists, but the rules are different depending on the queue type:</p>
+
+<ul>
+<li>On a <strong>Copy queue</strong>, they always decay back to <code>COMMON</code></li>
+<li>On a <strong>Direct/Compute queue</strong>, they only decay if they are in a promoted read-only state. So if you used a barrier, there&rsquo;s no decay</li>
+</ul>
+
+<h2 id="interactions-with-copy-queues">Interactions with Copy Queues</h2>
+
+<p>Subresources have to be in <code>COMMON</code> state (on Direct/Compute queues) before they can be used on Copy queues, but promoted states still count as <code>COMMON</code>!</p>
+
+<p>This means that as long as a subresource is in a promoted state, it&rsquo;s possible to use it on a Copy queue and on a Direct/Compute queue <strong>at the same time</strong>. One of the queues can even be <strong>writing</strong> to it!</p>
+
+<p>There are some <strong>restrictions</strong>: only one queue can write at a time, and the bytes written should not be read by the other queues (synchronization with fences is still required to make sure the writes become visible to the other queues).</p>
+
+<p>In practice, that means you can, for example:
+ - sub-allocate your meshes in a large Buffer, and use a Copy queue to upload new meshes while the Direct queue is rendering the pre-existing meshes
+ - defragment heaps by copying Textures from one heap to another on a Copy queue while the Direct queue reads the (source) Textures</p>
+
+<p>And I haven&rsquo;t tried it (yet), but it should even be possible to asynchronously upload parts of a Texture atlas on a Copy queue while the Direct queue reads from different parts of the atlas.</p>
+
+<h2 id="enhanced-barriers">Enhanced barriers?</h2>
+
+<p>Enhanced barriers should help make this less confusing (if not less complicated) since many of the strange rules of resource states are about emulating layout transitions, and they become explicit instead. I haven&rsquo;t had time to really dig into them yet, so I can&rsquo;t say for sure.</p>
+
+<p>Sadly there are still drivers out there that do not support them, drivers that are out of support and will only go away when their user replaces the hardware. But we&rsquo;re getting there.</p>
+
+<h2 id="sources">Sources</h2>
+
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/windows/win32/direct3d12/using-resource-barriers-to-synchronize-resource-states-in-direct3d-12#implicit-state-transitions">Implicit State Transitions</a></li>
+<li><a href="https://learn.microsoft.com/en-us/windows/win32/direct3d12/user-mode-heap-synchronization#multi-queue-resource-access">Multi-queue Resource Access</a></li>
+<li><a href="https://microsoft.github.io/DirectX-Specs/d3d/D3D12EnhancedBarriers.html#resource-state-promotion-and-decay">Resource State Promotion and Decay</a></li>
+</ul>
+        </article>
+  </div>
+</section>
+
+
+
+<aside id="meta">
+
+    <div>
+        <section id="datecount">
+          <h4 id="date"> Mon Apr 21, 2025 </h4>
+          <h5 id="wc"> 900 Words </h5>
+          <h5 id="readtime"> Read in about 4 Min </h5>
+        </section>
+        <ul id="categories">
+          
+        </ul>
+        <ul id="tags">
+          
+            <li> <a href="https://danglingpointers.com/tags/gpu">GPU</a> </li>
+          
+            <li> <a href="https://danglingpointers.com/tags/d3d12">D3D12</a> </li>
+          
+        </ul>
+    </div>
+
+    <div>
+        <section id="prev">
+            &nbsp;
+        </section><section id="next">
+            &nbsp;<a class="next" href="https://danglingpointers.com/post/bedrock-allocators/">The allocators of Bedrock, my own C&#43;&#43; STL alternative <i class="icon-arrow-right"></i></a>
+        </section>
+    </div>
+
+
+</aside>
+
+<meta itemprop="wordCount" content="826">
+<meta itemprop="datePublished" content="2025-04-21">
+<meta itemprop="url" content="https://danglingpointers.com/post/d3d12-resource-states/">
+
+
+
+<footer>
+  <div>
+    <p>
+    <a href="https://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution">Some rights reserved</a>. 
+	<a href="https://danglingpointers.com/about">About this blog</a>.
+
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+(function(){var j=function(a,b){return window.getComputedStyle?getComputedStyle(a).getPropertyValue(b):a.currentStyle[b]};var k=function(a,b,c){if(a.addEventListener)a.addEventListener(b,c,false);else a.attachEvent('on'+b,c)};var l=function(a,b){for(key in b)if(b.hasOwnProperty(key))a[key]=b[key];return a};window.fitText=function(d,e,f){var g=l({'minFontSize':-1/0,'maxFontSize':1/0},f);var h=function(a){var b=e||1;var c=function(){a.style.fontSize=Math.max(Math.min(a.clientWidth/(b*10),parseFloat(g.maxFontSize)),parseFloat(g.minFontSize))+'px'};c();k(window,'resize',c)};if(d.length)for(var i=0;i<d.length;i++)h(d[i]);else h(d);return d}})();
+fitText(document.getElementById('title'), 1)
+</script>
+</body>
+</html>
+
