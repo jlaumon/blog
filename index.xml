@@ -6,10 +6,25 @@
     <description>Recent content on Dangling Pointers</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 30 Dec 2024 10:03:00 +0200</lastBuildDate>
+    <lastBuildDate>Mon, 21 Apr 2025 17:14:00 +0200</lastBuildDate>
     
 	<atom:link href="https://danglingpointers.com/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>D3D12 Resource States Cheat Sheet</title>
+      <link>https://danglingpointers.com/post/d3d12-resource-states/</link>
+      <pubDate>Mon, 21 Apr 2025 17:14:00 +0200</pubDate>
+      
+      <guid>https://danglingpointers.com/post/d3d12-resource-states/</guid>
+      <description>&lt;p&gt;The D3D12 Transition barriers may look simple at first glance, but once you consider &lt;strong&gt;state promotion&lt;/strong&gt; and interactions with &lt;strong&gt;copy queues&lt;/strong&gt;, there are quite a lot of subtle rules.&lt;/p&gt;
+
+&lt;p&gt;The documentation is pretty complete, but also a bit scattered and confusing.&lt;/p&gt;
+
+&lt;p&gt;I wished several times I had a &lt;strong&gt;cheat sheet&lt;/strong&gt;, and had instead to rely on my &lt;strong&gt;old comments&lt;/strong&gt; and testing things with the &lt;strong&gt;debug layer&lt;/strong&gt; enabled. This article is an attempt at helping future me :)&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>The allocators of Bedrock, my own C&#43;&#43; STL alternative</title>
