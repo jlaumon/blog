@@ -1,6 +1,6 @@
 +++
 date = "2025-04-21T17:14:00+02:00"
-description = "D3D12 Resource States rules are complicated, especially around state promotion and decay, but this article is helpful summary."
+description = "D3D12 Resource States rules are complicated, especially around state promotion and decay, but this article is a hopefully helpful summary."
 tags = ["GPU", "D3D12"]
 title = "D3D12 Resource States Cheat Sheet"
 draft = false
