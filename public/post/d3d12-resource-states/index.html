@@ -114,7 +114,7 @@
 
 <p>Under some conditions, subresources in the <code>COMMON</code> state can <strong>implicitly transition</strong> (ie. be <strong>promoted</strong>) to a different state, based on how they&rsquo;re used. The inverse can also happen, where subresources in a different state than <code>COMMON</code> can <strong>decay</strong> back to <code>COMMON</code> automatically.</p>
 
-<p>Buffers and Textures work in pretty different ways in that regard, so I&rsquo;m going to treat them separately for clarity. I&rsquo;m also going to ignore “simultaneous-access textures”, because why would you use them.</p>
+<p>Buffers and Textures work in pretty different ways in that regard, so I&rsquo;m going to treat them separately for clarity. I&rsquo;m also going to ignore “Simultaneous-Access Textures”, because why would you use them.</p>
 
 <h3 id="buffers">Buffers</h3>
 
@@ -147,7 +147,7 @@
 
 <p>Subresources have to be in <code>COMMON</code> state (on Direct/Compute queues) before they can be used on Copy queues, but promoted states still count as <code>COMMON</code>!</p>
 
-<p>This means that as long as a subresource is in a promoted state, it&rsquo;s possible to use it on a Copy queue and on a Direct/Compute queue <strong>at the same time</strong>. One of the queues can even be <strong>writing</strong> to it!</p>
+<p>This means that as long as a subresource is in a promoted state, it&rsquo;s possible to use it on a Copy queue and on a Direct/Compute queue <strong>at the same time</strong>. For Buffers, one of the queues can even be <strong>writing</strong> to it!</p>
 
 <p>There are some <strong>restrictions</strong>: only one queue can write at a time, and the bytes written should not be read by the other queues (synchronization with fences is still required to make sure the writes become visible to the other queues).</p>
 
@@ -155,7 +155,7 @@
  - sub-allocate your meshes in a large Buffer, and use a Copy queue to upload new meshes while the Direct queue is rendering the pre-existing meshes
  - defragment heaps by copying Textures from one heap to another on a Copy queue while the Direct queue reads the (source) Textures</p>
 
-<p>And I haven&rsquo;t tried it (yet), but it should even be possible to asynchronously upload parts of a Texture atlas on a Copy queue while the Direct queue reads from different parts of the atlas.</p>
+<p><del>And I haven&rsquo;t tried it (yet), but it should even be possible to asynchronously upload parts of a Texture atlas on a Copy queue while the Direct queue reads from different parts of the atlas.</del> Edit: that&rsquo;s not possible, the resource has to be a Buffer (or a &ldquo;Simultaneous-Access Texture&rdquo;, but I&rsquo;m ignoring those here because that has other performance implications).</p>
 
 <h2 id="enhanced-barriers">Enhanced barriers?</h2>
 
@@ -186,7 +186,7 @@
         <section id="datecount">
           <h4 id="date"> Mon Apr 21, 2025 </h4>
           <h5 id="wc"> 900 Words </h5>
-          <h5 id="readtime"> Read in about 4 Min </h5>
+          <h5 id="readtime"> Read in about 5 Min </h5>
         </section>
         <ul id="categories">
           
@@ -211,7 +211,7 @@
 
 </aside>
 
-<meta itemprop="wordCount" content="836">
+<meta itemprop="wordCount" content="864">
 <meta itemprop="datePublished" content="2025-04-21">
 <meta itemprop="url" content="https://danglingpointers.com/post/d3d12-resource-states/">
 

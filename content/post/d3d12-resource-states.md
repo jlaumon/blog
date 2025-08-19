@@ -31,7 +31,7 @@ Last important point: **Copy queues are special**. Subresources actually have a 
 
 Under some conditions, subresources in the `COMMON` state can **implicitly transition** (ie. be **promoted**) to a different state, based on how they're used. The inverse can also happen, where subresources in a different state than `COMMON` can **decay** back to `COMMON` automatically. 
 
-Buffers and Textures work in pretty different ways in that regard, so I'm going to treat them separately for clarity. I'm also going to ignore “simultaneous-access textures”, because why would you use them.
+Buffers and Textures work in pretty different ways in that regard, so I'm going to treat them separately for clarity. I'm also going to ignore “Simultaneous-Access Textures”, because why would you use them.
 
 ### Buffers
 
@@ -62,7 +62,7 @@ Texture subresources can also decay back to `COMMON` at the end of an ExecuteCom
 
 Subresources have to be in `COMMON` state (on Direct/Compute queues) before they can be used on Copy queues, but promoted states still count as `COMMON`! 
 
-This means that as long as a subresource is in a promoted state, it's possible to use it on a Copy queue and on a Direct/Compute queue **at the same time**. One of the queues can even be **writing** to it! 
+This means that as long as a subresource is in a promoted state, it's possible to use it on a Copy queue and on a Direct/Compute queue **at the same time**. For Buffers, one of the queues can even be **writing** to it! 
 
 There are some **restrictions**: only one queue can write at a time, and the bytes written should not be read by the other queues (synchronization with fences is still required to make sure the writes become visible to the other queues). 
 
@@ -70,7 +70,7 @@ In practice, that means you can, for example:
  - sub-allocate your meshes in a large Buffer, and use a Copy queue to upload new meshes while the Direct queue is rendering the pre-existing meshes
  - defragment heaps by copying Textures from one heap to another on a Copy queue while the Direct queue reads the (source) Textures
 
-And I haven't tried it (yet), but it should even be possible to asynchronously upload parts of a Texture atlas on a Copy queue while the Direct queue reads from different parts of the atlas. 
+~~And I haven't tried it (yet), but it should even be possible to asynchronously upload parts of a Texture atlas on a Copy queue while the Direct queue reads from different parts of the atlas.~~ Edit: that's not possible, the resource has to be a Buffer (or a "Simultaneous-Access Texture", but I'm ignoring those here because that has other performance implications).
 
 ## Enhanced barriers? 
 
