@@ -120,7 +120,7 @@
 
 <p>Buffers in the <code>COMMON</code> state can be <strong>promoted to any state</strong>, always.</p>
 
-<p>If they get promoted to a read-only state, they can then be used in other read-only states without a barrier; the read-only states accumulate. Using them in a writable state after that requires a Transition barrier, but the <code>BeforeState</code> of the barrier can be left to <code>COMMON</code>.</p>
+<p>If they get promoted to a read-only state, they can then be used in other read-only states without a barrier; the read-only states accumulate. Using them in a writable state after that requires a Transition barrier however, and the <code>BeforeState</code> has to match the promoted state.</p>
 
 <p>If they get promoted to a writable state, any further state change requires a barrier. The <code>BeforeState</code> of the barrier can also be left to <code>COMMON</code> in that case.</p>
 
@@ -132,7 +132,7 @@
 
 <p>Texture subresources in the <code>COMMON</code> state can <strong>only</strong> be promoted to read-only states or <code>COPY_DEST</code>.</p>
 
-<p>Like for Buffers, if they get promoted to a read-only state, they can then be used in other read-only states without a barrier. Using them in a writable state after that requires a Transition barrier and the <code>BeforeState</code> of the barrier can be left to <code>COMMON</code>.</p>
+<p>Like for Buffers, if they get promoted to a read-only state, they can then be used in other read-only states without a barrier. Using them in a writable state after that requires a Transition barrier and the <code>BeforeState</code> of the barrier has to match the promoted state.</p>
 
 <p>If they get promoted to <code>COPY_DEST</code>, any further state change requires a barrier. The <code>BeforeState</code> of the barrier can also be left to <code>COMMON</code> in that case.</p>
 
@@ -174,6 +174,12 @@
 <p>&ndash;</p>
 
 <p>If you have questions, these days I’m on <a href="https://bsky.app/profile/jeremy.laumon.name">Bluesky</a>.</p>
+
+<hr />
+
+<h3 id="erratum">Erratum</h3>
+
+<p>This article previously mentioned that the <code>BeforeState</code> could be <code>COMMON</code> instead of the promoted state. This is incorrect, it <em>must</em> be the promoted state, and the debug device will complain if you try to use <code>COMMON</code>.</p>
         </article>
   </div>
 </section>
@@ -185,7 +191,7 @@
     <div>
         <section id="datecount">
           <h4 id="date"> Mon Apr 21, 2025 </h4>
-          <h5 id="wc"> 900 Words </h5>
+          <h5 id="wc"> 1000 Words </h5>
           <h5 id="readtime"> Read in about 5 Min </h5>
         </section>
         <ul id="categories">
@@ -211,7 +217,7 @@
 
 </aside>
 
-<meta itemprop="wordCount" content="864">
+<meta itemprop="wordCount" content="901">
 <meta itemprop="datePublished" content="2025-04-21">
 <meta itemprop="url" content="https://danglingpointers.com/post/d3d12-resource-states/">
 
