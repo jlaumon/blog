@@ -92,6 +92,6 @@ If you have questions, these days I’m on [Bluesky](https://bsky.app/profile/je
 
 ### Erratum
 
-This article previously mentioned that the `BeforeState` could be `COMMON` instead of the promoted state. This is incorrect, it *must* be the promoted state, and the debug device will complain if you try to use `COMMON`.
+This article previously mentioned that, when doing a transition barrier after a promotion, the `BeforeState` could be `COMMON` instead of the promoted state. This is incorrect, it *must* be the promoted state, and the debug device will complain if you try to use `COMMON`.
 
 
