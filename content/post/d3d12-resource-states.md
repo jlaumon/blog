@@ -37,7 +37,7 @@ Buffers and Textures work in pretty different ways in that regard, so I'm going 
 
 Buffers in the `COMMON` state can be **promoted to any state**, always. 
 
-If they get promoted to a read-only state, they can then be used in other read-only states without a barrier; the read-only states accumulate. Using them in a writable state after that requires a Transition barrier, but the `BeforeState` of the barrier can be left to `COMMON`. 
+If they get promoted to a read-only state, they can then be used in other read-only states without a barrier; the read-only states accumulate. Using them in a writable state after that requires a Transition barrier however, and the `BeforeState` has to match the promoted state.
 
 If they get promoted to a writable state, any further state change requires a barrier. The `BeforeState` of the barrier can also be left to `COMMON` in that case.
 
@@ -49,7 +49,7 @@ Promotions for Textures are more **limited** and more **complicated**.
 
 Texture subresources in the `COMMON` state can **only** be promoted to read-only states or `COPY_DEST`. 
 
-Like for Buffers, if they get promoted to a read-only state, they can then be used in other read-only states without a barrier. Using them in a writable state after that requires a Transition barrier and the `BeforeState` of the barrier can be left to `COMMON`. 
+Like for Buffers, if they get promoted to a read-only state, they can then be used in other read-only states without a barrier. Using them in a writable state after that requires a Transition barrier and the `BeforeState` of the barrier has to match the promoted state.
 
 If they get promoted to `COPY_DEST`, any further state change requires a barrier. The `BeforeState` of the barrier can also be left to `COMMON` in that case.
 
@@ -84,9 +84,14 @@ Sadly there are still drivers out there that do not support them, drivers that a
 - [Multi-queue Resource Access](https://learn.microsoft.com/en-us/windows/win32/direct3d12/user-mode-heap-synchronization#multi-queue-resource-access)
 - [Resource State Promotion and Decay](https://microsoft.github.io/DirectX-Specs/d3d/D3D12EnhancedBarriers.html#resource-state-promotion-and-decay)
 
-
 --
 
 If you have questions, these days I’m on [Bluesky](https://bsky.app/profile/jeremy.laumon.name).
+
+---
+
+### Erratum
+
+This article previously mentioned that the `BeforeState` could be `COMMON` instead of the promoted state. This is incorrect, it *must* be the promoted state, and the debug device will complain if you try to use `COMMON`.
 
 
